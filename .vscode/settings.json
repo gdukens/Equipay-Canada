@@ -1,0 +1,28 @@
+{
+    "python.analysis.typeCheckingMode": "off",
+    "python.analysis.diagnosticMode": "openFilesOnly",
+    "notebook.cellToolbarLocation": {
+        "default": "right"
+    },
+    "python.analysis.ignore": [
+        "notebooks/**"
+    ],
+    "python.analysis.diagnosticSeverityOverrides": {
+        "reportOptionalMemberAccess": "none",
+        "reportOptionalSubscript": "none",
+        "reportOptionalCall": "none",
+        "reportOptionalIterable": "none",
+        "reportOptionalContextManager": "none",
+        "reportOptionalOperand": "none",
+        "reportGeneralTypeIssues": "none",
+        "reportUnknownMemberType": "none",
+        "reportUnknownArgumentType": "none",
+        "reportUnknownVariableType": "none",
+        "reportUnknownParameterType": "none",
+        "reportMissingImports": "warning",
+        "reportUnusedImport": "information",
+        "reportUnusedVariable": "information",
+        "reportOperatorIssue": "none"
+    },
+    "python.pythonPath": ".venv\\Scripts\\python.exe"
+}

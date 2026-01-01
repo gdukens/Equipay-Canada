@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  # FastAPI Backend
+  api:
+    build:
+      context: .
+      target: production
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data:ro
+      - ./models:/app/models:ro
+      - ./logs:/app/logs
+    environment:
+      - LOG_LEVEL=INFO
+      - PYTHONPATH=/app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  # Streamlit Dashboard
+  dashboard:
+    build:
+      context: .
+      target: production
+    command: streamlit run app/dashboard.py --server.port=8501 --server.address=0.0.0.0
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./data:/app/data:ro
+      - ./models:/app/models:ro
+      - ./logs:/app/logs
+    environment:
+      - LOG_LEVEL=INFO
+      - PYTHONPATH=/app
+    depends_on:
+      - api
+    restart: unless-stopped
+
+  # Development container
+  dev:
+    build:
+      context: .
+      target: development
+    volumes:
+      - .:/app
+      - /app/__pycache__
+    ports:
+      - "8888:8888"  # Jupyter
+      - "8000:8000"  # API
+      - "8501:8501"  # Dashboard
+    environment:
+      - LOG_LEVEL=DEBUG
+      - PYTHONPATH=/app
+    stdin_open: true
+    tty: true
+    profiles:
+      - dev
+
+networks:
+  default:
+    name: equipay-network

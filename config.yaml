@@ -1,0 +1,133 @@
+# EquiPay Canada Configuration
+# =============================
+# This project uses ONLY:
+#   1. LFS PUMF data (2010-2025) - Statistics Canada catalogue 71M0001X
+#   2. Macroeconomic data (CPI, GDP, unemployment, interest rates)
+# No other external data sources are required.
+
+project:
+  name: "EquiPay Canada"
+  version: "1.0.0"
+  description: "ML-Powered Compensation Analysis & Pay Equity System"
+
+data:
+  # Primary data source: LFS PUMF microdata
+  source: "LFS PUMF"
+  source_url: "https://www150.statcan.gc.ca/n1/en/catalogue/71M0001X"
+  catalogue: "71M0001X"
+  
+  # Data paths
+  raw_path: "data/raw"
+  processed_path: "data/processed"
+  lfs_path: "data/raw/lfs"
+  
+  # Strict data scope: 2010-2025 (16 years)
+  start_year: 2010
+  end_year: 2025
+  years: [2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+  
+  # Macroeconomic data (built-in, see src/macro_data.py)
+  macro_variables:
+    - "cpi"           # Consumer Price Index
+    - "gdp_growth"    # Annual GDP growth rate
+    - "unemployment"  # Unemployment rate
+    - "interest_rate" # Bank of Canada policy rate
+  
+  # LFS Variable mappings
+  columns:
+    target: "HRLYEARN"  # Hourly earnings
+    features:
+      demographics:
+        - "AGE_12"      # Age group
+        - "GENDER"      # Gender (was SEX in older LFS data)
+        - "MARSTAT"     # Marital status
+      education:
+        - "EDUC"        # Highest education level
+      employment:
+        - "FTPTMAIN"    # Full-time/Part-time
+        - "PERMTEMP"    # Permanent/Temporary
+        - "COWMAIN"     # Class of worker
+        - "UNION"       # Union status
+        - "ESTSIZE"     # Establishment size
+      occupation:
+        - "NOC_10"      # Occupation (10 categories)
+        - "NOC_40"      # Occupation (40 categories)
+      industry:
+        - "NAICS_21"    # Industry (21 categories)
+      geography:
+        - "PROV"        # Province
+        - "CMA"         # Census Metropolitan Area
+
+model:
+  # Model parameters
+  test_size: 0.2
+  random_state: 42
+  cv_folds: 5
+  
+  # XGBoost parameters
+  xgboost:
+    n_estimators: 500
+    max_depth: 8
+    learning_rate: 0.05
+    subsample: 0.8
+    colsample_bytree: 0.8
+    min_child_weight: 3
+    reg_alpha: 0.1
+    reg_lambda: 1.0
+    
+  # LightGBM parameters
+  lightgbm:
+    n_estimators: 500
+    max_depth: 8
+    learning_rate: 0.05
+    num_leaves: 31
+    subsample: 0.8
+    colsample_bytree: 0.8
+    
+  # CatBoost parameters
+  catboost:
+    iterations: 500
+    depth: 8
+    learning_rate: 0.05
+    l2_leaf_reg: 3
+
+fairness:
+  # Protected attributes aligned with src/constants.py PROTECTED_ATTRIBUTES
+  # Use dynamic column names that work with both old (SEX) and new (GENDER) schemas
+  protected_attributes: ["GENDER", "AGE_6", "PROV", "IMMIG"]
+  fairness_metrics:
+    - "demographic_parity_difference"
+    - "equalized_odds_difference"
+    - "disparate_impact_ratio"
+  threshold: 0.8  # For disparate impact
+
+analysis:
+  # Pay equity analysis settings
+  wage_gap_controls:
+    - "EDUC"
+    - "NOC_10"
+    - "NAICS_21"
+    - "PROV"
+    - "FTPTMAIN"
+    - "ESTSIZE"
+    - "UNION"
+  
+  significance_level: 0.05
+  bootstrap_samples: 1000
+
+api:
+  host: "0.0.0.0"
+  port: 8000
+  debug: false
+
+dashboard:
+  title: "EquiPay Canada Dashboard"
+  theme: "light"
+  port: 8501
+
+pipeline:
+  schedule: "monthly"
+  run_day: 10  # Day of month to run
+  notifications:
+    enabled: true
+    email: "admin@example.com"

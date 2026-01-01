@@ -1,0 +1,387 @@
+/mnt/c/Users/Administrator/equipay-canada/src/models.py:42: UserWarning: CatBoost not installed. Using sklearn alternatives.
+  warnings.warn("CatBoost not installed. Using sklearn alternatives.")
+/mnt/c/Users/Administrator/equipay-canada/src/fairness.py:39: UserWarning: Fairlearn not installed. Some fairness features unavailable.
+  warnings.warn("Fairlearn not installed. Some fairness features unavailable.")
+INFO:__main__:======================================================================
+INFO:__main__:EQUIPAY CANADA - PAY EQUITY ANALYSIS PIPELINE
+INFO:__main__:Data Scope: 2010-2025
+INFO:__main__:======================================================================
+INFO:__main__:
+[1/5] Running Data Pipeline...
+INFO:src.data_pipeline:============================================================
+INFO:src.data_pipeline:EQUIPAY CANADA DATA PIPELINE
+INFO:src.data_pipeline:============================================================
+INFO:src.data_pipeline:LFS Data Coverage in data/raw/lfs:
+==================================================
+  2025: 10 months (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+==================================================
+Total: 1 years, 10 monthly files
+
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2010_pub0110.csv
+INFO:src.lfs_loader:Renamed SEX to GENDER for data/raw/lfs/lfs_2010_pub0110.csv
+INFO:src.lfs_loader:Loaded 105,360 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2010_pub0210.csv
+INFO:src.lfs_loader:Renamed SEX to GENDER for data/raw/lfs/lfs_2010_pub0210.csv
+INFO:src.lfs_loader:Loaded 104,582 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2010_pub0310.csv
+INFO:src.lfs_loader:Renamed SEX to GENDER for data/raw/lfs/lfs_2010_pub0310.csv
+INFO:src.lfs_loader:Loaded 104,345 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2010_pub0410.csv
+INFO:src.lfs_loader:Renamed SEX to GENDER for data/raw/lfs/lfs_2010_pub0410.csv
+INFO:src.lfs_loader:Loaded 105,047 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2010_pub0510.csv
+INFO:src.lfs_loader:Renamed SEX to GENDER for data/raw/lfs/lfs_2010_pub0510.csv
+INFO:src.lfs_loader:Loaded 105,393 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2010_pub0610.csv
+INFO:src.lfs_loader:Renamed SEX to GENDER for data/raw/lfs/lfs_2010_pub0610.csv
+INFO:src.lfs_loader:Loaded 105,789 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2010_pub0710.csv
+INFO:src.lfs_loader:Renamed SEX to GENDER for data/raw/lfs/lfs_2010_pub0710.csv
+INFO:src.lfs_loader:Loaded 105,731 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2010_pub0810.csv
+INFO:src.lfs_loader:Renamed SEX to GENDER for data/raw/lfs/lfs_2010_pub0810.csv
+INFO:src.lfs_loader:Loaded 105,296 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2010_pub0910.csv
+INFO:src.lfs_loader:Renamed SEX to GENDER for data/raw/lfs/lfs_2010_pub0910.csv
+INFO:src.lfs_loader:Loaded 105,513 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2010_pub1010.csv
+INFO:src.lfs_loader:Renamed SEX to GENDER for data/raw/lfs/lfs_2010_pub1010.csv
+INFO:src.lfs_loader:Loaded 105,139 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2010_pub1110.csv
+INFO:src.lfs_loader:Renamed SEX to GENDER for data/raw/lfs/lfs_2010_pub1110.csv
+INFO:src.lfs_loader:Loaded 104,798 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2010_pub1210.csv
+INFO:src.lfs_loader:Renamed SEX to GENDER for data/raw/lfs/lfs_2010_pub1210.csv
+INFO:src.lfs_loader:Loaded 104,180 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2011_pub0111.csv
+INFO:src.lfs_loader:Loaded 104,131 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2011_pub0211.csv
+INFO:src.lfs_loader:Loaded 104,159 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2011_pub0311.csv
+INFO:src.lfs_loader:Loaded 104,374 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2011_pub0411.csv
+INFO:src.lfs_loader:Loaded 105,252 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2011_pub0511.csv
+INFO:src.lfs_loader:Loaded 106,040 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2011_pub0611.csv
+INFO:src.lfs_loader:Loaded 106,352 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2011_pub0711.csv
+INFO:src.lfs_loader:Loaded 105,688 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2011_pub0811.csv
+INFO:src.lfs_loader:Loaded 105,217 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2011_pub0911.csv
+INFO:src.lfs_loader:Loaded 105,473 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2011_pub1011.csv
+INFO:src.lfs_loader:Loaded 105,477 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2011_pub1111.csv
+INFO:src.lfs_loader:Loaded 104,992 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2011_pub1211.csv
+INFO:src.lfs_loader:Loaded 104,922 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2012_pub0112.csv
+INFO:src.lfs_loader:Loaded 105,050 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2012_pub0212.csv
+INFO:src.lfs_loader:Loaded 105,065 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2012_pub0312.csv
+INFO:src.lfs_loader:Loaded 104,595 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2012_pub0412.csv
+INFO:src.lfs_loader:Loaded 105,268 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2012_pub0512.csv
+INFO:src.lfs_loader:Loaded 105,608 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2012_pub0612.csv
+INFO:src.lfs_loader:Loaded 105,404 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2012_pub0712.csv
+INFO:src.lfs_loader:Loaded 104,240 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2012_pub0812.csv
+INFO:src.lfs_loader:Loaded 104,893 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2012_pub0912.csv
+INFO:src.lfs_loader:Loaded 105,683 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2012_pub1012.csv
+INFO:src.lfs_loader:Loaded 105,439 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2012_pub1112.csv
+INFO:src.lfs_loader:Loaded 105,210 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2012_pub1212.csv
+INFO:src.lfs_loader:Loaded 105,073 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2013_pub0113.csv
+INFO:src.lfs_loader:Loaded 104,983 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2013_pub0213.csv
+INFO:src.lfs_loader:Loaded 104,298 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2013_pub0313.csv
+INFO:src.lfs_loader:Loaded 103,706 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2013_pub0413.csv
+INFO:src.lfs_loader:Loaded 104,337 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2013_pub0513.csv
+INFO:src.lfs_loader:Loaded 104,423 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2013_pub0613.csv
+INFO:src.lfs_loader:Loaded 103,957 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2013_pub0713.csv
+INFO:src.lfs_loader:Loaded 103,819 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2013_pub0813.csv
+INFO:src.lfs_loader:Loaded 104,220 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2013_pub0913.csv
+INFO:src.lfs_loader:Loaded 104,559 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2013_pub1013.csv
+INFO:src.lfs_loader:Loaded 104,843 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2013_pub1113.csv
+INFO:src.lfs_loader:Loaded 104,990 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2013_pub1213.csv
+INFO:src.lfs_loader:Loaded 104,370 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2014_pub0114.csv
+INFO:src.lfs_loader:Loaded 104,776 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2014_pub0214.csv
+INFO:src.lfs_loader:Loaded 104,248 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2014_pub0314.csv
+INFO:src.lfs_loader:Loaded 104,137 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2014_pub0414.csv
+INFO:src.lfs_loader:Loaded 104,065 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2014_pub0514.csv
+INFO:src.lfs_loader:Loaded 104,186 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2014_pub0614.csv
+INFO:src.lfs_loader:Loaded 104,153 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2014_pub0714.csv
+INFO:src.lfs_loader:Loaded 104,466 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2014_pub0814.csv
+INFO:src.lfs_loader:Loaded 104,602 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2014_pub0914.csv
+INFO:src.lfs_loader:Loaded 104,873 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2014_pub1014.csv
+INFO:src.lfs_loader:Loaded 105,635 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2014_pub1114.csv
+INFO:src.lfs_loader:Loaded 104,943 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2014_pub1214.csv
+INFO:src.lfs_loader:Loaded 104,097 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2015_pub0115.csv
+INFO:src.lfs_loader:Loaded 102,614 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2015_pub0215.csv
+INFO:src.lfs_loader:Loaded 100,523 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2015_pub0315.csv
+INFO:src.lfs_loader:Loaded 100,587 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2015_pub0415.csv
+INFO:src.lfs_loader:Loaded 100,639 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2015_pub0515.csv
+INFO:src.lfs_loader:Loaded 100,650 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2015_pub0615.csv
+INFO:src.lfs_loader:Loaded 100,105 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2015_pub0715.csv
+INFO:src.lfs_loader:Loaded 101,108 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2015_pub0815.csv
+INFO:src.lfs_loader:Loaded 102,331 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2015_pub0915.csv
+INFO:src.lfs_loader:Loaded 101,936 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2015_pub1015.csv
+INFO:src.lfs_loader:Loaded 101,983 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2015_pub1115.csv
+INFO:src.lfs_loader:Loaded 101,844 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2015_pub1215.csv
+INFO:src.lfs_loader:Loaded 101,307 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2016_pub0116.csv
+INFO:src.lfs_loader:Loaded 101,657 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2016_pub0216.csv
+INFO:src.lfs_loader:Loaded 102,039 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2016_pub0316.csv
+INFO:src.lfs_loader:Loaded 102,354 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2016_pub0416.csv
+INFO:src.lfs_loader:Loaded 102,675 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2016_pub0516.csv
+INFO:src.lfs_loader:Loaded 103,317 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2016_pub0616.csv
+INFO:src.lfs_loader:Loaded 102,918 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2016_pub0716.csv
+INFO:src.lfs_loader:Loaded 102,040 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2016_pub0816.csv
+INFO:src.lfs_loader:Loaded 102,460 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2016_pub0916.csv
+INFO:src.lfs_loader:Loaded 102,362 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2016_pub1016.csv
+INFO:src.lfs_loader:Loaded 102,360 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2016_pub1116.csv
+INFO:src.lfs_loader:Loaded 102,442 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2016_pub1216.csv
+INFO:src.lfs_loader:Loaded 102,504 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2017_pub0117.csv
+INFO:src.lfs_loader:Loaded 102,746 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2017_pub0217.csv
+INFO:src.lfs_loader:Loaded 102,984 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2017_pub0317.csv
+INFO:src.lfs_loader:Loaded 102,802 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2017_pub0417.csv
+INFO:src.lfs_loader:Loaded 103,183 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2017_pub0517.csv
+INFO:src.lfs_loader:Loaded 103,192 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2017_pub0617.csv
+INFO:src.lfs_loader:Loaded 103,541 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2017_pub0717.csv
+INFO:src.lfs_loader:Loaded 102,734 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2017_pub0817.csv
+INFO:src.lfs_loader:Loaded 103,133 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2017_pub0917.csv
+INFO:src.lfs_loader:Loaded 103,273 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2017_pub1017.csv
+INFO:src.lfs_loader:Loaded 103,190 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2017_pub1117.csv
+INFO:src.lfs_loader:Loaded 102,980 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2017_pub1217.csv
+INFO:src.lfs_loader:Loaded 102,800 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2018_pub0118.csv
+INFO:src.lfs_loader:Loaded 102,509 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2018_pub0218.csv
+INFO:src.lfs_loader:Loaded 102,568 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2018_pub0318.csv
+INFO:src.lfs_loader:Loaded 102,644 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2018_pub0418.csv
+INFO:src.lfs_loader:Loaded 103,041 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2018_pub0518.csv
+INFO:src.lfs_loader:Loaded 103,128 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2018_pub0618.csv
+INFO:src.lfs_loader:Loaded 102,557 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2018_pub0718.csv
+INFO:src.lfs_loader:Loaded 101,590 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2018_pub0818.csv
+INFO:src.lfs_loader:Loaded 101,099 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2018_pub0918.csv
+INFO:src.lfs_loader:Loaded 101,079 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2018_pub1018.csv
+INFO:src.lfs_loader:Loaded 100,896 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2018_pub1118.csv
+INFO:src.lfs_loader:Loaded 100,740 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2018_pub1218.csv
+INFO:src.lfs_loader:Loaded 100,639 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2019_pub0119.csv
+INFO:src.lfs_loader:Loaded 100,599 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2019_pub0219.csv
+INFO:src.lfs_loader:Loaded 100,003 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2019_pub0319.csv
+INFO:src.lfs_loader:Loaded 100,364 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2019_pub0419.csv
+INFO:src.lfs_loader:Loaded 100,885 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2019_pub0519.csv
+INFO:src.lfs_loader:Loaded 100,916 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2019_pub0619.csv
+INFO:src.lfs_loader:Loaded 101,343 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2019_pub0719.csv
+INFO:src.lfs_loader:Loaded 100,617 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2019_pub0819.csv
+INFO:src.lfs_loader:Loaded 100,891 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2019_pub0919.csv
+INFO:src.lfs_loader:Loaded 100,011 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2019_pub1019.csv
+INFO:src.lfs_loader:Loaded 99,699 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2019_pub1119.csv
+INFO:src.lfs_loader:Loaded 99,297 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2019_pub1219.csv
+INFO:src.lfs_loader:Loaded 98,574 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2020_pub0120.csv
+INFO:src.lfs_loader:Loaded 99,175 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2020_pub0220.csv
+INFO:src.lfs_loader:Loaded 99,174 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2020_pub0320.csv
+INFO:src.lfs_loader:Loaded 93,698 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2020_pub0420.csv
+INFO:src.lfs_loader:Loaded 90,353 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2020_pub0520.csv
+INFO:src.lfs_loader:Loaded 89,102 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2020_pub0620.csv
+INFO:src.lfs_loader:Loaded 87,779 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2020_pub0720.csv
+INFO:src.lfs_loader:Loaded 85,929 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2020_pub0820.csv
+INFO:src.lfs_loader:Loaded 85,453 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2020_pub0920.csv
+INFO:src.lfs_loader:Loaded 85,682 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2020_pub1020.csv
+INFO:src.lfs_loader:Loaded 85,097 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2020_pub1120.csv
+INFO:src.lfs_loader:Loaded 84,337 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2020_pub1220.csv
+INFO:src.lfs_loader:Loaded 83,232 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2021_pub0121.csv
+INFO:src.lfs_loader:Loaded 83,787 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2021_pub0221.csv
+INFO:src.lfs_loader:Loaded 85,326 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2021_pub0321.csv
+INFO:src.lfs_loader:Loaded 86,552 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2021_pub0421.csv
+INFO:src.lfs_loader:Loaded 87,597 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2021_pub0521.csv
+INFO:src.lfs_loader:Loaded 88,057 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2021_pub0621.csv
+INFO:src.lfs_loader:Loaded 87,573 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2021_pub0721.csv
+INFO:src.lfs_loader:Loaded 86,405 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2021_pub0821.csv
+INFO:src.lfs_loader:Loaded 86,862 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2021_pub0921.csv
+INFO:src.lfs_loader:Loaded 86,049 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2021_pub1021.csv
+INFO:src.lfs_loader:Loaded 86,555 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2021_pub1121.csv
+INFO:src.lfs_loader:Loaded 89,546 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2021_pub1221.csv
+INFO:src.lfs_loader:Loaded 92,685 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2022_pub0122.csv
+INFO:src.lfs_loader:Loaded 97,899 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2022_pub0222.csv
+INFO:src.lfs_loader:Loaded 103,658 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2022_pub0322.csv
+INFO:src.lfs_loader:Loaded 107,967 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2022_pub0422.csv
+INFO:src.lfs_loader:Loaded 111,708 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2022_pub0522.csv
+INFO:src.lfs_loader:Loaded 111,139 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2022_pub0622.csv
+INFO:src.lfs_loader:Loaded 111,740 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2022_pub0722.csv
+INFO:src.lfs_loader:Loaded 111,294 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2022_pub0822.csv
+INFO:src.lfs_loader:Loaded 111,173 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2022_pub0922.csv
+INFO:src.lfs_loader:Loaded 110,439 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2022_pub1022.csv
+INFO:src.lfs_loader:Loaded 110,059 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2022_pub1122.csv
+INFO:src.lfs_loader:Loaded 109,348 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2022_pub1222.csv
+INFO:src.lfs_loader:Loaded 110,147 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2023_pub0123.csv
+INFO:src.lfs_loader:Loaded 108,064 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2023_pub0223.csv
+INFO:src.lfs_loader:Loaded 104,851 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2023_pub0323.csv
+INFO:src.lfs_loader:Loaded 101,043 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2023_pub0423.csv
+INFO:src.lfs_loader:Loaded 100,024 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2023_pub0523.csv
+INFO:src.lfs_loader:Loaded 98,785 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2023_pub0623.csv
+INFO:src.lfs_loader:Loaded 97,522 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2023_pub0723.csv
+INFO:src.lfs_loader:Loaded 99,953 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2023_pub0823.csv
+INFO:src.lfs_loader:Loaded 103,403 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2023_pub0923.csv
+INFO:src.lfs_loader:Loaded 108,982 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2023_pub1023.csv
+INFO:src.lfs_loader:Loaded 108,602 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2023_pub1123.csv
+INFO:src.lfs_loader:Loaded 108,149 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2023_pub1223.csv
+INFO:src.lfs_loader:Loaded 108,024 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2025_01.csv
+INFO:src.lfs_loader:Loaded 111,856 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2025_02.csv
+INFO:src.lfs_loader:Loaded 113,780 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2025_03.csv
+INFO:src.lfs_loader:Loaded 115,590 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2025_04.csv
+INFO:src.lfs_loader:Loaded 116,287 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2025_05.csv
+INFO:src.lfs_loader:Loaded 116,042 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2025_06.csv
+INFO:src.lfs_loader:Loaded 114,376 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2025_07.csv
+INFO:src.lfs_loader:Loaded 114,155 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2025_08.csv
+INFO:src.lfs_loader:Loaded 113,549 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2025_09.csv
+INFO:src.lfs_loader:Loaded 112,927 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
+INFO:src.lfs_loader:Loading LFS file: data/raw/lfs/lfs_2025_10.csv
+INFO:src.lfs_loader:Loaded 112,776 records with columns: ['REC_NUM', 'SURVYEAR', 'SURVMNTH', 'FINALWT', 'GENDER', 'HRLYEARN', 'PROV', 'EDUC', 'AGE_6', 'NOC_10', 'NAICS_21', 'TENURE', 'FTPTMAIN', 'UNION', 'PERMTEMP', 'UHRSMAIN', 'NOC_43', 'AGE_12', 'ESTSIZE', 'FIRMSIZE', 'IMMIG', 'CMA', 'MARSTAT']
