@@ -1,6 +1,6 @@
 {
   "include": ["src", "app", "api", "scripts", "tests"],
-  "exclude": ["notebooks", "**/__pycache__", "data", "models", "reports"],
+  "exclude": ["notebooks", "**/__pycache__", "data", "models", "reports", ".venv"],
   "typeCheckingMode": "basic",
   "reportMissingImports": "warning",
   "reportMissingTypeStubs": "none",
@@ -20,5 +20,5 @@
   "reportUnusedVariable": "warning",
   "pythonVersion": "3.10",
   "venvPath": ".",
-  "venv": "venv"
+  "venv": ".venv"
 }

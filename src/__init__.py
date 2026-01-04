@@ -7,15 +7,22 @@ This project uses ONLY two data sources:
 1. LFS PUMF microdata (2010-2025) - Statistics Canada catalogue 71M0001X
 2. Macroeconomic data (CPI, GDP, unemployment, interest rates)
 
+SURVEY WEIGHTS:
+All analyses use FINALWT for population-level inference. This is MANDATORY.
+- Descriptive stats: weighted means, medians, quantiles
+- ML training: sample_weight parameter
+- ML evaluation: WeightedMetrics class
+
 Key Modules:
 - constants: Centralized column names and LFS code mappings
 - macro_data: Macroeconomic data (CPI, GDP, unemployment) 2010-2025
 - data_pipeline: Data loading, cleaning, and feature creation
 - lfs_loader: LFS PUMF microdata loader with weighted statistics
+- ml_utils: Weighted train/test splits and evaluation metrics
 - feature_engineering: ML feature preparation
-- models: Salary prediction ensemble models
+- models: Salary prediction ensemble models (with sample weights)
 - analysis: Pay equity statistical analysis
-- fairness: Algorithmic fairness evaluation
+- fairness: Algorithmic fairness evaluation (with survey weights)
 - statistical_tests: Advanced econometric tests
 - time_series: Time series analysis for wage trends
 - utils: Utility functions
@@ -28,7 +35,10 @@ __author__ = "EquiPay Canada Team"
 from .constants import (
     COLS, DATA_SCOPE_START, DATA_SCOPE_END, DATA_YEARS, DATA_SOURCES,
     GENDER_CODES, PROVINCE_CODES, EDUCATION_CODES, NOC_10_CODES,
-    normalize_column_names, get_wage_column
+    IMMIG_CODES, MARSTAT_CODES, COWMAIN_CODES, FIRMSIZE_CODES,
+    LFSSTAT_CODES, WHYPT_CODES, EFAMTYPE_CODES, AGYOWNK_CODES, SCHOOLN_CODES,
+    EXTENDED_BINARY_FEATURES, EXTENDED_CATEGORICAL_FEATURES, INTERSECTIONAL_ATTRIBUTES,
+    normalize_column_names, get_wage_column, get_all_mappings
 )
 
 # Data loading
@@ -41,9 +51,19 @@ from .macro_data import (
     get_deflator, adjust_for_inflation, BASE_YEAR
 )
 
+# ML utilities - weighted train/test splits and evaluation
+from .ml_utils import (
+    WeightedMLSplitter, WeightedMetrics, WeightedGapAnalysis,
+    prepare_weighted_training_data
+)
+
 # Analysis modules
 from .feature_engineering import FeatureEngineer
-from .models import SalaryPredictor
+from .econometric_features import (
+    EconometricFeatureEngineer, FeatureConfig, FeatureComplexity,
+    create_econometric_features, get_feature_groups
+)
+from .models import SalaryPredictor, WageGapModel
 from .analysis import PayEquityAnalyzer
 from .fairness import FairnessAnalyzer
 

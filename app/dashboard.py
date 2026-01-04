@@ -26,6 +26,7 @@ import json
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
+from src.data_store import EquiPayDataStore
 from src.data_pipeline import LFSDataPipeline
 from src.feature_engineering import FeatureEngineer
 from src.analysis import PayEquityAnalyzer
@@ -82,26 +83,28 @@ st.markdown("""
 
 @st.cache_data
 def load_data():
-    """Load and cache data - uses real Statistics Canada data"""
-    data_path = Path("data/processed/lfs_processed.csv")
-    
-    if data_path.exists():
-        df = pd.read_csv(data_path)
-        # Verify it's real data
-        if 'source' in df.columns and 'StatCan_API_Real' in df['source'].values:
-            return df
-    
-    # Fetch real data from Statistics Canada API
-    pipeline = LFSDataPipeline()
-    df = pipeline.generate_synthetic_data(n_samples=50000)
-    df = pipeline.clean_data(df)
-    df = pipeline.create_derived_features(df)
-    
-    # Save for future use
-    data_path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(data_path, index=False)
-    
-    return df
+    """Load and cache data using DuckDB data store (memory-efficient)"""
+    try:
+        # Use DuckDB data store for memory-efficient data access
+        store = EquiPayDataStore(memory_limit='3GB')
+        
+        # Load a sample for dashboard (full data is 19M+ rows)
+        # For interactive dashboards, we use a representative sample
+        df = store.query("""
+            SELECT * FROM lfs 
+            WHERE HRLYEARN IS NOT NULL
+            USING SAMPLE 500000 ROWS
+        """)
+        
+        # Ensure consistent column names (GENDER instead of SEX)
+        if 'GENDER' in df.columns and 'SEX' not in df.columns:
+            df['SEX'] = df['GENDER']
+        
+        return df
+        
+    except Exception as e:
+        st.error(f"Error loading data: {e}")
+        return pd.DataFrame()
 
 
 @st.cache_resource
@@ -789,11 +792,29 @@ def display_recommendations(df: pd.DataFrame, labels: dict):
 
 @st.cache_data
 def load_time_series_data():
-    """Load time series wage data"""
-    ts_path = Path("data/processed/yearly_wages_by_gender.csv")
-    if ts_path.exists():
-        return pd.read_csv(ts_path)
-    return None
+    """Load time series wage data using DuckDB (memory-efficient)"""
+    try:
+        store = EquiPayDataStore(memory_limit='3GB')
+        # Aggregate yearly wage data by gender directly in DuckDB
+        df = store.query("""
+            SELECT 
+                year,
+                GENDER as SEX,
+                AVG(HRLYEARN) as avg_wage,
+                MEDIAN(HRLYEARN) as median_wage,
+                COUNT(*) as n
+            FROM lfs
+            WHERE HRLYEARN IS NOT NULL
+            GROUP BY year, GENDER
+            ORDER BY year, GENDER
+        """)
+        return df
+    except Exception as e:
+        # Fallback to CSV if available
+        ts_path = Path("data/processed/yearly_wages_by_gender.csv")
+        if ts_path.exists():
+            return pd.read_csv(ts_path)
+        return None
 
 
 def display_decomposition(df: pd.DataFrame, labels: dict):

@@ -12,6 +12,9 @@ Key Features:
 - Forecasting with confidence intervals
 - Seasonal decomposition
 - Dynamic Time Warping for pattern matching
+
+For advanced methods (Markov-switching, TVP, convergence analysis),
+see: src/advanced_time_series.py
 """
 
 import pandas as pd
@@ -36,6 +39,26 @@ from statsmodels.stats.stattools import durbin_watson
 
 import logging
 logger = logging.getLogger(__name__)
+
+# Import advanced methods
+try:
+    from .advanced_time_series import (
+        BaiPerronBreaks,
+        ZivotAndrewsBreak,
+        CUSUMTest,
+        MarkovSwitchingWageGap,
+        WageGapConvergence,
+        TimeVaryingDiscrimination,
+        WageGapSpectral,
+        WageGapDynamicFactors,
+        EventStudyDiD,
+        run_comprehensive_time_series_analysis,
+        analyze_provincial_convergence
+    )
+    ADVANCED_TS_AVAILABLE = True
+except ImportError:
+    ADVANCED_TS_AVAILABLE = False
+    logger.info("Advanced time series module not available - using basic methods only")
 
 
 @dataclass

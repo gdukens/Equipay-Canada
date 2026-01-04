@@ -546,13 +546,19 @@ class LFSDataPipeline:
         gender_col = COLS.GENDER
         wage_col = COLS.HOURLY_EARNINGS
         
-        if gender_col in df.columns and wage_col in df.columns:
-            male_avg = df[df[gender_col] == 1][wage_col].mean()
-            female_avg = df[df[gender_col] == 2][wage_col].mean()
-            gap = (male_avg - female_avg) / male_avg * 100
-            
-            logger.info(f"  Male avg: ${male_avg:.2f}/hr, Female avg: ${female_avg:.2f}/hr")
-            logger.info(f"  Raw gender wage gap: {gap:.1f}%")
+        # Use only records with valid wages for wage statistics
+        if 'HAS_VALID_WAGE' in df.columns:
+            wage_df = df[df['HAS_VALID_WAGE']]
+        else:
+            wage_df = df[df[wage_col] > 0] if wage_col in df.columns else df
+        
+        if gender_col in wage_df.columns and wage_col in wage_df.columns:
+            male_avg = wage_df[wage_df[gender_col] == 1][wage_col].mean()
+            female_avg = wage_df[wage_df[gender_col] == 2][wage_col].mean()
+            if pd.notna(male_avg) and pd.notna(female_avg) and male_avg > 0:
+                gap = (male_avg - female_avg) / male_avg * 100
+                logger.info(f"  Male avg: ${male_avg:.2f}/hr, Female avg: ${female_avg:.2f}/hr")
+                logger.info(f"  Raw gender wage gap: {gap:.1f}%")
         
         if COLS.YEAR in df.columns:
             year_range = f"{df[COLS.YEAR].min()}-{df[COLS.YEAR].max()}"
@@ -564,38 +570,44 @@ class LFSDataPipeline:
     
     def clean_data(self, df: pd.DataFrame) -> pd.DataFrame:
         """
-        Clean and validate the data.
+        Clean and validate the data while PRESERVING ALL RECORDS.
         
-        - Removes invalid wages
-        - Handles missing values
+        - Does NOT filter out records with missing wages
         - Normalizes column names
+        - Flags records with valid wages via HAS_VALID_WAGE column
         
         Args:
             df: Raw DataFrame
             
         Returns:
-            Cleaned DataFrame
+            Cleaned DataFrame with all original records
         """
         logger.info("Cleaning data...")
         df = df.copy()
+        initial_count = len(df)
         
         # Normalize legacy column names (SEX -> GENDER, etc.)
         df = normalize_column_names(df)
         
-        # Filter valid wage earners
+        # Convert wage column to numeric (coerce errors to NaN)
         wage_col = COLS.HOURLY_EARNINGS
         if wage_col in df.columns:
-            initial_count = len(df)
-            df = df[df[wage_col] > 0]
-            df = df[df[wage_col] >= MIN_HOURLY_WAGE]
-            df = df[df[wage_col] <= MAX_HOURLY_WAGE]
-            logger.info(f"  Wage filtering: {initial_count:,} → {len(df):,} records")
+            df[wage_col] = pd.to_numeric(df[wage_col], errors='coerce')
+            
+            # Flag valid wages instead of filtering them out
+            # This preserves ALL records for demographic analysis
+            df['HAS_VALID_WAGE'] = (
+                df[wage_col].notna() & 
+                (df[wage_col] > 0) & 
+                (df[wage_col] >= MIN_HOURLY_WAGE) & 
+                (df[wage_col] <= MAX_HOURLY_WAGE)
+            )
+            
+            valid_count = df['HAS_VALID_WAGE'].sum()
+            logger.info(f"  Valid wages: {valid_count:,} / {initial_count:,} records "
+                       f"({100*valid_count/initial_count:.1f}%)")
         
-        # Remove rows with too many missing values
-        threshold = len(df.columns) * 0.5
-        df = df.dropna(thresh=int(threshold))
-        
-        logger.info(f"Cleaned data: {len(df):,} records")
+        logger.info(f"Cleaned data: {len(df):,} records (all preserved)")
         return df
     
     def create_derived_features(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -659,10 +671,15 @@ class LFSDataPipeline:
             df['EXPERIENCE_PROXY'] = (df['AGE_APPROX'] - df['EDUC_COMPLETE_AGE']).clip(lower=0)
             df['EXPERIENCE_SQ'] = df['EXPERIENCE_PROXY'] ** 2
         
-        # Log wages (nominal)
+        # Log wages (nominal) - only for valid wages
         wage_col = COLS.HOURLY_EARNINGS
         if wage_col in df.columns:
-            df[COLS.LOG_HOURLY_EARNINGS] = np.log(df[wage_col])
+            # Initialize with NaN
+            df[COLS.LOG_HOURLY_EARNINGS] = np.nan
+            # Only calculate log for valid positive wages
+            valid_mask = df.get('HAS_VALID_WAGE', df[wage_col] > 0)
+            if valid_mask.any():
+                df.loc[valid_mask, COLS.LOG_HOURLY_EARNINGS] = np.log(df.loc[valid_mask, wage_col])
         
         # Ensure YEAR column exists
         if COLS.YEAR not in df.columns:
@@ -679,9 +696,21 @@ class LFSDataPipeline:
         
         # Calculate REAL WAGES (inflation-adjusted to 2010 constant dollars)
         # For any analysis spanning multiple years, use REAL_HRLYEARN not HRLYEARN
+        # Only calculate for records with valid wages
         if wage_col in df.columns and 'deflator' in df.columns:
-            df[COLS.REAL_HOURLY_EARNINGS] = df[wage_col] * df['deflator']
-            df[COLS.LOG_REAL_HOURLY_EARNINGS] = np.log(df[COLS.REAL_HOURLY_EARNINGS])
+            # Initialize with NaN
+            df[COLS.REAL_HOURLY_EARNINGS] = np.nan
+            df[COLS.LOG_REAL_HOURLY_EARNINGS] = np.nan
+            
+            # Only calculate for valid wages
+            valid_mask = df.get('HAS_VALID_WAGE', df[wage_col] > 0)
+            if valid_mask.any():
+                df.loc[valid_mask, COLS.REAL_HOURLY_EARNINGS] = (
+                    df.loc[valid_mask, wage_col] * df.loc[valid_mask, 'deflator']
+                )
+                df.loc[valid_mask, COLS.LOG_REAL_HOURLY_EARNINGS] = np.log(
+                    df.loc[valid_mask, COLS.REAL_HOURLY_EARNINGS]
+                )
             
             # Log summary of deflation
             base_year_cpi = df[df[COLS.YEAR] == BASE_YEAR]['cpi'].iloc[0] if len(df[df[COLS.YEAR] == BASE_YEAR]) > 0 else None

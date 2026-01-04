@@ -114,6 +114,18 @@ class LFSDataLoader:
             'IMMIG',        # Immigration status
             'CMA',          # Census Metropolitan Area
             'MARSTAT',      # Marital status
+            # Extended columns for enhanced analysis (may not be in all years)
+            'COWMAIN',      # Class of worker
+            'MJH',          # Multiple job holder
+            'WHYPT',        # Reason for part-time
+            'PAIDOT',       # Paid overtime hours
+            'UNPAIDOT',     # Unpaid overtime hours
+            'EFAMTYPE',     # Economic family type
+            'AGYOWNK',      # Age of youngest child
+            'SCHOOLN',      # School attendance
+            'LFSSTAT',      # Labour force status
+            'AHRSMAIN',     # Actual hours worked
+            'PREVTEN',      # Previous job tenure
         ]
     
     def load_pumf_file(self, filepath: Union[str, Path]) -> pd.DataFrame:
@@ -279,13 +291,14 @@ class LFSDataLoader:
         # Convert HRLYEARN to numeric, coercing errors to NaN
         df['HRLYEARN'] = pd.to_numeric(df['HRLYEARN'], errors='coerce')
         
+        # LFS PUMF HRLYEARN is in CENTS (e.g., 2500 = $25.00)
+        # Convert to dollars for analysis
+        df['HRLYEARN'] = df['HRLYEARN'] / 100.0
+        
         # Flag records with valid hourly earnings (positive and within reasonable range)
-        # LFS PUMF uses various codes for missing/not applicable:
-        # - 0 or blank: Not applicable (e.g., self-employed, unpaid)
-        # - Very high values (>500): Likely top-coded or errors
+        # After conversion to dollars: $5 to $500/hour
         df['HAS_VALID_WAGE'] = (
             df['HRLYEARN'].notna() & 
-            (df['HRLYEARN'] > 0) & 
             (df['HRLYEARN'] >= 5) & 
             (df['HRLYEARN'] <= 500)
         )
@@ -351,17 +364,160 @@ class LFSDataLoader:
             df.loc[valid_mask, 'LOG_REAL_HRLYEARN'] = np.log(df.loc[valid_mask, 'REAL_HRLYEARN'])
         
         # =====================================================================
-        # ADD ANALYSIS FLAGS
+        # DERIVED FEATURES - EXPLOITING ALL AVAILABLE COLUMNS
         # =====================================================================
         
-        # Binary gender for regression (handle missing)
+        # --- Binary Flags (Core) ---
         df['IS_FEMALE'] = (df['GENDER'] == 2).astype(int)
+        df['IS_FULLTIME'] = (df['FTPTMAIN'] == 1).astype(int) if 'FTPTMAIN' in df.columns else 0
+        df['HAS_DEGREE'] = (df['EDUC'] >= 4).astype(int) if 'EDUC' in df.columns else 0
         
-        # Full-time flag (handle missing)
-        df['IS_FULLTIME'] = (df['FTPTMAIN'] == 1).astype(int)
+        # --- Immigration Status ---
+        if 'IMMIG' in df.columns:
+            df['IS_IMMIGRANT'] = (df['IMMIG'] == 1).astype(int)
+            df['IS_NON_PERMANENT'] = (df['IMMIG'] == 3).astype(int)
+            df['IMMIG_LABEL'] = df['IMMIG'].map({1: 'Immigrant', 2: 'Non-immigrant', 3: 'Non-permanent resident'})
         
-        # High education flag (handle missing)
-        df['HAS_DEGREE'] = (df['EDUC'] >= 4).astype(int)
+        # --- Urban/Rural Classification (from CMA) ---
+        if 'CMA' in df.columns:
+            # CMA = 0 means non-CMA/CA (rural area)
+            df['IS_URBAN'] = (df['CMA'] > 0).astype(int)
+            # Major cities (Toronto=15, Montreal=9, Vancouver=33, Calgary=29, Edmonton=30, Ottawa=11)
+            major_cma = [9, 11, 15, 29, 30, 33]
+            df['IS_MAJOR_CITY'] = df['CMA'].isin(major_cma).astype(int)
+            df['CMA_TYPE'] = df['CMA'].apply(lambda x: 'Rural' if x == 0 else ('Major City' if x in major_cma else 'Other Urban'))
+        
+        # --- Class of Worker ---
+        if 'COWMAIN' in df.columns:
+            df['IS_PUBLIC_SECTOR'] = (df['COWMAIN'] == 1).astype(int)
+            df['IS_PRIVATE_SECTOR'] = (df['COWMAIN'] == 2).astype(int)
+            df['IS_SELF_EMPLOYED'] = (df['COWMAIN'].isin([3, 4])).astype(int)
+            df['COWMAIN_LABEL'] = df['COWMAIN'].map({
+                1: 'Public sector', 2: 'Private sector', 
+                3: 'Self-employed (inc.)', 4: 'Self-employed (uninc.)',
+                5: 'Unpaid family', 6: 'Not applicable'
+            })
+        
+        # --- Multiple Job Holders ---
+        if 'MJH' in df.columns:
+            df['IS_MULTIPLE_JOBS'] = (df['MJH'] == 2).astype(int)
+        
+        # --- Marital Status ---
+        if 'MARSTAT' in df.columns:
+            df['IS_MARRIED'] = (df['MARSTAT'].isin([1, 2])).astype(int)  # Married or common-law
+            df['IS_SINGLE'] = (df['MARSTAT'] == 6).astype(int)
+            df['MARSTAT_LABEL'] = df['MARSTAT'].map({
+                1: 'Married', 2: 'Common-law', 3: 'Widowed',
+                4: 'Separated', 5: 'Divorced', 6: 'Single'
+            })
+        
+        # --- Parenthood / Children ---
+        if 'AGYOWNK' in df.columns:
+            df['HAS_CHILDREN'] = (df['AGYOWNK'].between(1, 7)).astype(int)
+            df['HAS_YOUNG_CHILDREN'] = (df['AGYOWNK'].isin([1, 2, 3])).astype(int)  # Under 6
+            df['HAS_SCHOOL_AGE_CHILDREN'] = (df['AGYOWNK'].isin([4, 5])).astype(int)  # 6-17
+            df['AGYOWNK_LABEL'] = df['AGYOWNK'].map({
+                0: 'No children', 1: '<1 year', 2: '1-2 years', 3: '3-5 years',
+                4: '6-12 years', 5: '13-17 years', 6: '18-24 years', 7: '25+ years', 8: 'N/A'
+            })
+        
+        # --- Student Status ---
+        # SCHOOLN: 1=Not attending, 2=Full-time student, 3=Part-time student (LFS PUMF coding)
+        if 'SCHOOLN' in df.columns:
+            df['IS_STUDENT'] = (df['SCHOOLN'].isin([2, 3])).astype(int)
+            df['IS_FULLTIME_STUDENT'] = (df['SCHOOLN'] == 2).astype(int)
+            df['SCHOOLN_LABEL'] = df['SCHOOLN'].map({1: 'Not attending', 2: 'Full-time student', 3: 'Part-time student', 6: 'N/A'})
+        
+        # --- Work Hours Analysis ---
+        if 'UHRSMAIN' in df.columns and 'AHRSMAIN' in df.columns:
+            df['UHRSMAIN'] = pd.to_numeric(df['UHRSMAIN'], errors='coerce')
+            df['AHRSMAIN'] = pd.to_numeric(df['AHRSMAIN'], errors='coerce')
+            # Hours gap: negative = underemployed, positive = overworked
+            df['HOURS_GAP'] = df['AHRSMAIN'] - df['UHRSMAIN']
+            df['IS_UNDEREMPLOYED'] = (df['HOURS_GAP'] < -5).astype(int)  # 5+ fewer hours than usual
+            df['IS_OVERWORKED'] = (df['HOURS_GAP'] > 5).astype(int)  # 5+ more hours than usual
+        
+        # --- Overtime Analysis ---
+        # PAIDOT/UNPAIDOT contain HOURS of overtime (0 = no overtime)
+        if 'PAIDOT' in df.columns:
+            df['PAIDOT'] = pd.to_numeric(df['PAIDOT'], errors='coerce').fillna(0)
+            df['HAS_PAID_OVERTIME'] = (df['PAIDOT'] > 0).astype(int)
+            df['PAID_OT_HOURS'] = df['PAIDOT']
+        if 'UNPAIDOT' in df.columns:
+            df['UNPAIDOT'] = pd.to_numeric(df['UNPAIDOT'], errors='coerce').fillna(0)
+            df['HAS_UNPAID_OVERTIME'] = (df['UNPAIDOT'] > 0).astype(int)
+            df['UNPAID_OT_HOURS'] = df['UNPAIDOT']
+        if 'PAIDOT' in df.columns and 'UNPAIDOT' in df.columns:
+            df['WORKS_OVERTIME'] = ((df['PAIDOT'] > 0) | (df['UNPAIDOT'] > 0)).astype(int)
+            df['UNPAID_OT_ONLY'] = ((df['PAIDOT'] == 0) & (df['UNPAIDOT'] > 0)).astype(int)
+            df['TOTAL_OT_HOURS'] = df['PAIDOT'] + df['UNPAIDOT']
+        
+        # --- Part-Time Analysis ---
+        if 'WHYPT' in df.columns:
+            df['IS_INVOLUNTARY_PT'] = (df['WHYPT'] == 7).astype(int)  # Could not find FT work
+            df['IS_CAREGIVING_PT'] = (df['WHYPT'] == 2).astype(int)   # Caring for children
+            df['WHYPT_LABEL'] = df['WHYPT'].map({
+                1: 'Illness/disability', 2: 'Caring for children', 3: 'Family reasons',
+                4: 'Going to school', 5: 'Personal preference', 6: 'Business conditions',
+                7: 'Could not find FT', 8: 'Other', 0: 'N/A'
+            })
+        
+        # --- Job Permanence ---
+        if 'PERMTEMP' in df.columns:
+            df['IS_PERMANENT'] = (df['PERMTEMP'] == 1).astype(int)
+            df['IS_TEMPORARY'] = (df['PERMTEMP'] == 2).astype(int)
+            df['IS_SEASONAL'] = (df['PERMTEMP'] == 3).astype(int)
+            df['IS_PRECARIOUS'] = (df['PERMTEMP'].isin([2, 3, 4])).astype(int)  # Temp, seasonal, or casual
+        
+        # --- Union Status ---
+        if 'UNION' in df.columns:
+            df['IS_UNION'] = (df['UNION'].isin([1, 2])).astype(int)  # Member or covered
+        
+        # --- Family Type ---
+        if 'EFAMTYPE' in df.columns:
+            df['IS_LONE_PARENT'] = (df['EFAMTYPE'] == 3).astype(int)
+            df['IS_UNATTACHED'] = (df['EFAMTYPE'] == 6).astype(int)
+            df['EFAMTYPE_LABEL'] = df['EFAMTYPE'].map({
+                1: 'Couple with children', 2: 'Couple without children',
+                3: 'Lone parent', 4: 'Child in family', 5: 'Other family',
+                6: 'Unattached', 7: 'N/A'
+            })
+        
+        # --- Previous Job Tenure ---
+        if 'PREVTEN' in df.columns:
+            df['PREVTEN'] = pd.to_numeric(df['PREVTEN'], errors='coerce')
+        
+        # --- Firm Size (distinct from establishment size) ---
+        if 'FIRMSIZE' in df.columns:
+            df['IS_LARGE_FIRM'] = (df['FIRMSIZE'] >= 4).astype(int)  # 500+ employees
+            df['FIRMSIZE_LABEL'] = df['FIRMSIZE'].map({
+                1: '<20 employees', 2: '20-99 employees',
+                3: '100-499 employees', 4: '500+ employees', 6: 'Unknown'
+            })
+        
+        # --- Labour Force Status ---
+        if 'LFSSTAT' in df.columns:
+            df['IS_EMPLOYED'] = (df['LFSSTAT'].isin([1, 2])).astype(int)
+            df['IS_UNEMPLOYED'] = (df['LFSSTAT'] == 3).astype(int)
+            df['IS_NOT_IN_LF'] = (df['LFSSTAT'] == 4).astype(int)
+            df['LFSSTAT_LABEL'] = df['LFSSTAT'].map({
+                1: 'Employed, at work', 2: 'Employed, absent',
+                3: 'Unemployed', 4: 'Not in labour force'
+            })
+        
+        # =====================================================================
+        # INTERSECTIONAL ANALYSIS FLAGS
+        # =====================================================================
+        
+        # Gender × Immigration intersection
+        if 'IS_IMMIGRANT' in df.columns:
+            df['IS_IMMIGRANT_FEMALE'] = (df['IS_FEMALE'] & df['IS_IMMIGRANT']).astype(int)
+            df['IS_IMMIGRANT_MALE'] = ((~df['IS_FEMALE'].astype(bool)) & df['IS_IMMIGRANT'].astype(bool)).astype(int)
+        
+        # Gender × Parenthood intersection (motherhood penalty analysis)
+        if 'HAS_YOUNG_CHILDREN' in df.columns:
+            df['IS_MOTHER_YOUNG_CHILD'] = (df['IS_FEMALE'] & df['HAS_YOUNG_CHILDREN']).astype(int)
+            df['IS_FATHER_YOUNG_CHILD'] = ((~df['IS_FEMALE'].astype(bool)) & df['HAS_YOUNG_CHILDREN'].astype(bool)).astype(int)
         
         # Summary stats
         valid_wage_pct = 100 * df['HAS_VALID_WAGE'].sum() / len(df)
@@ -405,19 +561,42 @@ class LFSDataLoader:
             filename = f.stem.lower()
             
             # Try to extract year and month from filename
-            # Pattern: lfs_2020_01, lfs202001, lfs-2020-01
+            # Pattern formats:
+            # - lfs_2024_pub0124 -> year=2024, month=01 (historical format)
+            # - lfs_2025_01 -> year=2025, month=01 (simplified format)
+            # - lfs_2024_01 or lfs202401 -> year=2024, month=01
+            # - pub202401 -> year=2024, month=01
+            # - lfs_2024 -> year=2024 (yearly)
             patterns = [
-                r'lfs[_-]?(\d{4})[_-]?(\d{2})',  # lfs_2020_01 or lfs202001
-                r'pub(\d{4})(\d{2})',             # pub202001
-                r'lfs[_-]?(\d{4})$',              # lfs_2020 (yearly)
+                # Statistics Canada historical: lfs_YYYY_pubMMYY
+                r'lfs[_-](\d{4})[_-]pub(\d{2})(\d{2})',  # lfs_2024_pub0124 -> groups: 2024, 01, 24
+                # Simplified monthly: lfs_YYYY_MM
+                r'lfs[_-](\d{4})[_-](\d{2})$',           # lfs_2024_01
+                # Compact: lfs202401
+                r'lfs(\d{4})(\d{2})$',                    # lfs202401
+                # pub format
+                r'pub(\d{2})(\d{2})$',                    # pub0124 -> month=01, year=24
+                # Yearly only
+                r'lfs[_-]?(\d{4})$',                      # lfs_2024 (yearly)
             ]
             
-            for pattern in patterns:
+            for i, pattern in enumerate(patterns):
                 match = re.search(pattern, filename)
                 if match:
                     groups = match.groups()
-                    year = int(groups[0])
-                    month = int(groups[1]) if len(groups) > 1 else 0  # 0 = yearly file
+                    if i == 0:  # lfs_YYYY_pubMMYY
+                        year = int(groups[0])
+                        month = int(groups[1])
+                    elif i == 3:  # pubMMYY format
+                        month = int(groups[0])
+                        year_short = int(groups[1])
+                        year = 2000 + year_short if year_short < 50 else 1900 + year_short
+                    elif len(groups) == 1:  # Yearly file
+                        year = int(groups[0])
+                        month = 0
+                    else:  # Other monthly patterns
+                        year = int(groups[0])
+                        month = int(groups[1])
                     
                     if year not in available:
                         available[year] = []

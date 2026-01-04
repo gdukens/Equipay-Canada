@@ -417,6 +417,193 @@ IMMIG_CODES = {
     3: 'Non-permanent resident'
 }
 
+# =============================================================================
+# ADDITIONAL LFS PUMF CODE MAPPINGS (Previously Untapped)
+# =============================================================================
+
+# Labour Force Status (LFSSTAT variable)
+LFSSTAT_CODES = {
+    1: 'Employed, at work',
+    2: 'Employed, absent',
+    3: 'Unemployed',
+    4: 'Not in labour force'
+}
+
+# Class of Worker - Main Job (COWMAIN variable)
+COWMAIN_CODES = {
+    1: 'Public sector employee',
+    2: 'Private sector employee',
+    3: 'Self-employed incorporated',
+    4: 'Self-employed unincorporated',
+    5: 'Unpaid family worker',
+    6: 'Not applicable'
+}
+
+# Multiple Job Holder (MJH variable)
+MJH_CODES = {
+    1: 'Single job holder',
+    2: 'Multiple job holder',
+    6: 'Not applicable'
+}
+
+# Ever Worked (EVERWORK variable)
+EVERWORK_CODES = {
+    1: 'Worked in past year',
+    2: 'Worked 1-5 years ago',
+    3: 'Worked 5+ years ago',
+    4: 'Never worked',
+    6: 'Not applicable'
+}
+
+# Reason for Part-Time Work (WHYPT variable)
+WHYPT_CODES = {
+    1: 'Own illness/disability',
+    2: 'Caring for children',
+    3: 'Other personal/family',
+    4: 'Going to school',
+    5: 'Personal preference',
+    6: 'Business conditions',
+    7: 'Could not find FT work',
+    8: 'Other',
+    0: 'Not applicable'
+}
+
+# Paid Overtime (PAIDOT variable)
+PAIDOT_CODES = {
+    1: 'Yes, paid overtime',
+    2: 'No paid overtime',
+    6: 'Not applicable'
+}
+
+# Unpaid Overtime (UNPAIDOT variable)
+UNPAIDOT_CODES = {
+    1: 'Yes, unpaid overtime',
+    2: 'No unpaid overtime',
+    6: 'Not applicable'
+}
+
+# Firm Size (FIRMSIZE variable) - different from establishment
+FIRMSIZE_CODES = {
+    1: '<20 employees',
+    2: '20-99 employees',
+    3: '100-499 employees',
+    4: '500+ employees',
+    6: 'Unknown'
+}
+
+# Reason for Absence (YABSENT variable)
+YABSENT_CODES = {
+    1: 'Own illness/disability',
+    2: 'Caring for children',
+    3: 'Maternity/parental leave',
+    4: 'Other personal/family',
+    5: 'Vacation',
+    6: 'Labour dispute',
+    7: 'Temporary layoff',
+    8: 'Seasonal business',
+    9: 'Casual job, no work',
+    10: 'Work schedule',
+    11: 'Self-employed, no work',
+    12: 'Other',
+    0: 'Not applicable'
+}
+
+# Economic Family Type (EFAMTYPE variable)
+EFAMTYPE_CODES = {
+    1: 'Married couple, children',
+    2: 'Married couple, no children',
+    3: 'Lone parent',
+    4: 'Child in family',
+    5: 'Other family member',
+    6: 'Unattached individual',
+    7: 'Not applicable'
+}
+
+# Age of Youngest Child (AGYOWNK variable)
+AGYOWNK_CODES = {
+    0: 'No children',
+    1: 'Under 1 year',
+    2: '1-2 years',
+    3: '3-5 years',
+    4: '6-12 years',
+    5: '13-17 years',
+    6: '18-24 years',
+    7: '25+ years',
+    8: 'Not applicable'
+}
+
+# School Attendance (SCHOOLN variable)
+SCHOOLN_CODES = {
+    1: 'Not attending school',
+    2: 'Full-time student',
+    3: 'Part-time student',
+    6: 'Not applicable'
+}
+
+# Duration of Unemployment (DURUNEMP variable) - weeks
+DURUNEMP_RANGES = {
+    0: 'Not unemployed',
+    1: '<5 weeks',
+    2: '5-13 weeks',
+    3: '14-26 weeks',
+    4: '27-52 weeks',
+    5: '52+ weeks'
+}
+
+# Why Left Last Job - New (WHYLEFTN variable)
+WHYLEFTN_CODES = {
+    1: 'Lost job/laid off',
+    2: 'End of seasonal/temp',
+    3: 'Illness/disability',
+    4: 'Personal/family',
+    5: 'Retired',
+    6: 'Dissatisfied',
+    7: 'Other',
+    0: 'Not applicable'
+}
+
+# Census Metropolitan Area / Census Agglomeration (CMA variable)
+# Note: CMA codes are complex; here are major ones
+CMA_MAJOR_CODES = {
+    0: 'Non-CMA/CA (Rural)',
+    1: 'St. John\'s',
+    2: 'Halifax',
+    3: 'Moncton',
+    4: 'Saint John',
+    5: 'Saguenay',
+    6: 'Québec',
+    7: 'Sherbrooke',
+    8: 'Trois-Rivières',
+    9: 'Montréal',
+    10: 'Ottawa-Gatineau (QC)',
+    11: 'Ottawa-Gatineau (ON)',
+    12: 'Kingston',
+    13: 'Peterborough',
+    14: 'Oshawa',
+    15: 'Toronto',
+    16: 'Hamilton',
+    17: 'St. Catharines-Niagara',
+    18: 'Kitchener-Cambridge-Waterloo',
+    19: 'Brantford',
+    20: 'Guelph',
+    21: 'London',
+    22: 'Windsor',
+    23: 'Barrie',
+    24: 'Greater Sudbury',
+    25: 'Thunder Bay',
+    26: 'Winnipeg',
+    27: 'Regina',
+    28: 'Saskatoon',
+    29: 'Calgary',
+    30: 'Edmonton',
+    31: 'Kelowna',
+    32: 'Abbotsford-Mission',
+    33: 'Vancouver',
+    34: 'Victoria',
+    997: 'Unidentified CMA/CA',
+    998: 'Unidentified non-CMA/CA',
+    999: 'Not stated'
+}
 
 # =============================================================================
 # FEATURE CONFIGURATION FOR ML MODELS
@@ -428,6 +615,20 @@ CORE_NUMERIC_FEATURES = [
     'EXPERIENCE_PROXY',
     'TENURE',
     'UHRSMAIN',
+]
+
+# Extended numeric features (exploit more columns)
+EXTENDED_NUMERIC_FEATURES = [
+    'AGE_APPROX',
+    'EXPERIENCE_PROXY',
+    'TENURE',
+    'PREVTEN',           # Previous job tenure - career stability
+    'UHRSMAIN',          # Usual hours main job
+    'AHRSMAIN',          # Actual hours main job
+    'UTOTHRS',           # Usual total hours all jobs
+    'ATOTHRS',           # Actual total hours all jobs
+    'HOURS_GAP',         # Derived: difference between usual and actual
+    'OVERTIME_HOURS',    # Derived: paid + unpaid overtime
 ]
 
 CORE_CATEGORICAL_FEATURES = [
@@ -442,12 +643,57 @@ CORE_CATEGORICAL_FEATURES = [
     'ESTSIZE',
 ]
 
+# Extended categorical features (exploit more columns)
+EXTENDED_CATEGORICAL_FEATURES = [
+    'GENDER',
+    'EDUC',
+    'NOC_10',
+    'NOC_43',            # More detailed occupation (43 categories)
+    'NAICS_21',
+    'PROV',
+    'CMA_TYPE',          # Derived: Urban/Suburban/Rural
+    'FTPTMAIN',
+    'PERMTEMP',
+    'UNION',
+    'ESTSIZE',
+    'FIRMSIZE',          # Firm size (different from establishment)
+    'MARSTAT',           # Marital status
+    'IMMIG',             # Immigration status
+    'COWMAIN',           # Class of worker (public/private/self-employed)
+    'MJH',               # Multiple job holder
+    'WHYPT',             # Reason for part-time
+    'EFAMTYPE',          # Family type
+    'AGYOWNK',           # Age of youngest child
+    'SCHOOLN',           # Student status
+]
+
 BINARY_FEATURES = [
     'IS_FEMALE',
     'IS_FULLTIME',
     'IS_PERMANENT',
     'IS_UNION',
     'HAS_DEGREE',
+]
+
+# Extended binary features (exploit more columns)
+EXTENDED_BINARY_FEATURES = [
+    'IS_FEMALE',
+    'IS_FULLTIME',
+    'IS_PERMANENT',
+    'IS_UNION',
+    'HAS_DEGREE',
+    'IS_IMMIGRANT',          # Immigrant status
+    'IS_URBAN',              # Lives in CMA (metropolitan area)
+    'IS_PUBLIC_SECTOR',      # Works in public sector
+    'IS_SELF_EMPLOYED',      # Self-employed (incorporated or not)
+    'IS_MULTIPLE_JOBS',      # Has multiple jobs
+    'IS_MARRIED',            # Married or common-law
+    'HAS_YOUNG_CHILDREN',    # Has children under 6
+    'HAS_CHILDREN',          # Has any children
+    'IS_STUDENT',            # Currently attending school
+    'WORKS_OVERTIME',        # Has paid or unpaid overtime
+    'IS_INVOLUNTARY_PT',     # Part-time but wants full-time
+    'IS_SEASONAL',           # Seasonal or temporary work
 ]
 
 # Control variables for regression analysis
@@ -460,8 +706,35 @@ REGRESSION_CONTROLS = [
     'UNION',
 ]
 
+# Extended regression controls
+EXTENDED_REGRESSION_CONTROLS = [
+    'EDUC',
+    'NOC_10',
+    'AGE_6',
+    'PROV',
+    'FTPTMAIN',
+    'UNION',
+    'MARSTAT',
+    'IMMIG',
+    'COWMAIN',
+    'ESTSIZE',
+    'AGYOWNK',
+    'CMA_TYPE',
+]
+
 # Protected attributes for fairness analysis
 PROTECTED_ATTRIBUTES = ['GENDER', 'AGE_6', 'PROV', 'IMMIG']
+
+# Additional intersectional analysis dimensions
+INTERSECTIONAL_ATTRIBUTES = [
+    ('GENDER', 'IMMIG'),       # Gender × Immigration
+    ('GENDER', 'EDUC'),        # Gender × Education
+    ('GENDER', 'AGYOWNK'),     # Gender × Parenthood (motherhood penalty)
+    ('GENDER', 'MARSTAT'),     # Gender × Marriage
+    ('GENDER', 'PROV'),        # Gender × Province
+    ('GENDER', 'NOC_10'),      # Gender × Occupation
+    ('IMMIG', 'EDUC'),         # Immigration × Education (credential recognition)
+]
 
 
 # =============================================================================
@@ -507,6 +780,21 @@ def get_all_mappings() -> Dict[str, Dict[int, str]]:
         'ESTSIZE': ESTSIZE_CODES,
         'MARSTAT': MARSTAT_CODES,
         'IMMIG': IMMIG_CODES,
+        # New extended mappings
+        'LFSSTAT': LFSSTAT_CODES,
+        'COWMAIN': COWMAIN_CODES,
+        'MJH': MJH_CODES,
+        'EVERWORK': EVERWORK_CODES,
+        'WHYPT': WHYPT_CODES,
+        'PAIDOT': PAIDOT_CODES,
+        'UNPAIDOT': UNPAIDOT_CODES,
+        'FIRMSIZE': FIRMSIZE_CODES,
+        'YABSENT': YABSENT_CODES,
+        'EFAMTYPE': EFAMTYPE_CODES,
+        'AGYOWNK': AGYOWNK_CODES,
+        'SCHOOLN': SCHOOLN_CODES,
+        'WHYLEFTN': WHYLEFTN_CODES,
+        'CMA': CMA_MAJOR_CODES,
     }
 
 

@@ -1,6 +1,14 @@
 """
 Machine Learning Models Module
 Salary prediction using ensemble methods
+
+IMPORTANT: This module uses survey weights (FINALWT) throughout training and evaluation.
+All metrics are population-level estimates using weighted calculations.
+
+See ml_utils.py for:
+- WeightedMLSplitter: Stratified train/val/test splitting with weights
+- WeightedMetrics: Population-level evaluation metrics
+- WeightedGapAnalysis: Bias detection in predictions
 """
 
 import logging
@@ -18,6 +26,7 @@ import joblib
 
 # Import column constants for consistent column naming
 from .constants import COLS
+from .ml_utils import WeightedMLSplitter, WeightedMetrics, WeightedGapAnalysis
 
 # Gradient boosting libraries
 try:
@@ -81,7 +90,9 @@ class CatBoostRegressorWrapper:
 
 class SalaryPredictor:
     """
-    Ensemble model for salary prediction
+    Ensemble model for salary prediction with survey weight support.
+    
+    All training and evaluation uses FINALWT for population-level inference.
     """
     
     def __init__(self, config: Optional[Dict] = None):
@@ -91,6 +102,7 @@ class SalaryPredictor:
         self.ensemble = None
         self.feature_names = None
         self.metrics = {}
+        self._sample_weights = None  # Store weights for evaluation
         
     def _default_config(self) -> Dict:
         """Default model configuration"""
@@ -178,20 +190,51 @@ class SalaryPredictor:
         return models
     
     def train(self, X: np.ndarray, y: np.ndarray, 
-              feature_names: Optional[List[str]] = None) -> Dict[str, float]:
+              feature_names: Optional[List[str]] = None,
+              sample_weight: Optional[np.ndarray] = None,
+              X_val: Optional[np.ndarray] = None,
+              y_val: Optional[np.ndarray] = None,
+              val_weight: Optional[np.ndarray] = None) -> Dict[str, float]:
         """
-        Train all models
+        Train all models with survey weights.
+        
+        Args:
+            X: Training features
+            y: Training target
+            feature_names: Names of feature columns
+            sample_weight: Survey weights (FINALWT) for training data - MANDATORY
+            X_val: Validation features (optional, will split from X if not provided)
+            y_val: Validation target
+            val_weight: Validation weights
+            
+        Returns:
+            Dictionary of model names to metrics
         """
+        if sample_weight is None:
+            warnings.warn(
+                "No sample_weight provided! For LFS data, survey weights (FINALWT) "
+                "should ALWAYS be used for population-level inference. "
+                "Proceeding with equal weights (sample-level estimates only)."
+            )
+            sample_weight = np.ones(len(y))
+        
         self.feature_names = feature_names
+        self._sample_weights = sample_weight
         
-        # Split data
-        X_train, X_test, y_train, y_test = train_test_split(
-            X, y,
-            test_size=self.config['test_size'],
-            random_state=self.config['random_state']
-        )
+        # Split data if validation set not provided
+        if X_val is None:
+            X_train, X_test, y_train, y_test, w_train, w_test = train_test_split(
+                X, y, sample_weight,
+                test_size=self.config['test_size'],
+                random_state=self.config['random_state']
+            )
+        else:
+            X_train, y_train, w_train = X, y, sample_weight
+            X_test, y_test = X_val, y_val
+            w_test = val_weight if val_weight is not None else np.ones(len(y_val))
         
-        logger.info(f"Training on {len(X_train)} samples, testing on {len(X_test)} samples")
+        logger.info(f"Training on {len(X_train)} samples (weighted pop: {w_train.sum():,.0f})")
+        logger.info(f"Testing on {len(X_test)} samples (weighted pop: {w_test.sum():,.0f})")
         
         # Build models
         self.build_models()
@@ -201,28 +244,39 @@ class SalaryPredictor:
         for name, model in self.models.items():
             logger.info(f"Training {name}...")
             try:
-                model.fit(X_train, y_train)
+                # Most sklearn models support sample_weight in fit()
+                if hasattr(model, 'fit'):
+                    try:
+                        model.fit(X_train, y_train, sample_weight=w_train)
+                    except TypeError:
+                        # Some models don't support sample_weight
+                        model.fit(X_train, y_train)
+                        logger.warning(f"{name} does not support sample weights")
                 
-                # Evaluate
+                # Evaluate with WEIGHTED metrics
                 y_pred = model.predict(X_test)
-                metrics = self._compute_metrics(y_test, y_pred)
+                metrics = self._compute_weighted_metrics(y_test, y_pred, w_test)
                 results[name] = metrics
                 
-                logger.info(f"  {name}: R² = {metrics['r2']:.4f}, "
-                           f"RMSE = {metrics['rmse']:.2f}, "
-                           f"MAE = {metrics['mae']:.2f}")
+                logger.info(f"  {name}: Weighted R² = {metrics['weighted_r2']:.4f}, "
+                           f"Weighted RMSE = {metrics['weighted_rmse']:.2f}")
             except Exception as e:
                 logger.error(f"Error training {name}: {e}")
                 continue
         
         # Build ensemble from best models
-        self._build_ensemble(X_train, y_train, X_test, y_test)
+        self._build_ensemble(X_train, y_train, w_train, X_test, y_test, w_test)
         
         self.metrics = results
         return results
     
+    def _compute_weighted_metrics(self, y_true: np.ndarray, y_pred: np.ndarray,
+                                   weights: np.ndarray) -> Dict[str, float]:
+        """Compute weighted regression metrics for population inference."""
+        return WeightedMetrics.evaluate(y_true, y_pred, weights, include_unweighted=True)
+    
     def _compute_metrics(self, y_true: np.ndarray, y_pred: np.ndarray) -> Dict[str, float]:
-        """Compute regression metrics"""
+        """Compute unweighted regression metrics (for backward compatibility)."""
         return {
             'r2': r2_score(y_true, y_pred),
             'rmse': np.sqrt(mean_squared_error(y_true, y_pred)),
@@ -231,18 +285,20 @@ class SalaryPredictor:
         }
     
     def _build_ensemble(self, X_train: np.ndarray, y_train: np.ndarray,
-                        X_test: np.ndarray, y_test: np.ndarray) -> None:
-        """Build ensemble from trained models"""
-        # Select top 3 models by R² score
+                        w_train: np.ndarray,
+                        X_test: np.ndarray, y_test: np.ndarray,
+                        w_test: np.ndarray) -> None:
+        """Build ensemble from trained models using weighted evaluation."""
+        # Select top 3 models by weighted R² score
         model_scores = {}
         for name, model in self.models.items():
             try:
                 y_pred = model.predict(X_test)
-                model_scores[name] = r2_score(y_test, y_pred)
+                model_scores[name] = WeightedMetrics.weighted_r2(y_test, y_pred, w_test)
             except:
                 continue
         
-        # Sort by score
+        # Sort by weighted score
         sorted_models = sorted(model_scores.items(), key=lambda x: x[1], reverse=True)
         top_models = sorted_models[:3]
         
@@ -259,16 +315,20 @@ class SalaryPredictor:
             n_jobs=-1,
         )
         
-        # Fit ensemble
-        self.ensemble.fit(X_train, y_train)
+        # Fit ensemble with sample weights
+        try:
+            self.ensemble.fit(X_train, y_train, sample_weight=w_train)
+        except TypeError:
+            self.ensemble.fit(X_train, y_train)
+            logger.warning("VotingRegressor fit without sample weights")
         
-        # Evaluate ensemble
+        # Evaluate ensemble with weighted metrics
         y_pred = self.ensemble.predict(X_test)
-        ensemble_metrics = self._compute_metrics(y_test, y_pred)
+        ensemble_metrics = self._compute_weighted_metrics(y_test, y_pred, w_test)
         self.metrics['ensemble'] = ensemble_metrics
         
-        logger.info(f"Ensemble: R² = {ensemble_metrics['r2']:.4f}, "
-                   f"RMSE = {ensemble_metrics['rmse']:.2f}")
+        logger.info(f"Ensemble: Weighted R² = {ensemble_metrics['weighted_r2']:.4f}, "
+                   f"Weighted RMSE = {ensemble_metrics['weighted_rmse']:.2f}")
     
     def predict(self, X: np.ndarray, return_std: bool = False) -> np.ndarray:
         """
@@ -314,9 +374,14 @@ class SalaryPredictor:
         return predictions, lower, upper
     
     def cross_validate(self, X: np.ndarray, y: np.ndarray, 
-                       model_name: str = 'xgboost') -> Dict[str, float]:
+                       model_name: str = 'xgboost',
+                       sample_weight: Optional[np.ndarray] = None,
+                       n_folds: int = None) -> Dict[str, float]:
         """
-        Perform cross-validation
+        Perform cross-validation with optional weighted scoring.
+        
+        Note: sklearn's cross_val_score doesn't natively support weighted scoring.
+        For proper weighted CV, use WeightedMLSplitter.create_cv_folds() instead.
         """
         if model_name not in self.models:
             self.build_models()
@@ -325,20 +390,51 @@ class SalaryPredictor:
         if model is None:
             raise ValueError(f"Model {model_name} not available")
         
-        cv_folds = self.config.get('cv_folds', 5)
+        cv_folds = n_folds or self.config.get('cv_folds', 5)
         
-        scores = cross_val_score(
-            model, X, y, 
-            cv=cv_folds, 
-            scoring='r2',
-            n_jobs=-1
-        )
-        
-        return {
-            'mean_r2': scores.mean(),
-            'std_r2': scores.std(),
-            'scores': scores.tolist(),
-        }
+        if sample_weight is not None:
+            # Manual weighted cross-validation
+            from sklearn.model_selection import KFold
+            kf = KFold(n_splits=cv_folds, shuffle=True, random_state=self.config['random_state'])
+            
+            scores = []
+            for train_idx, val_idx in kf.split(X):
+                X_tr, X_val = X[train_idx], X[val_idx]
+                y_tr, y_val = y[train_idx], y[val_idx]
+                w_tr, w_val = sample_weight[train_idx], sample_weight[val_idx]
+                
+                # Clone model for this fold
+                from sklearn.base import clone
+                fold_model = clone(model)
+                
+                try:
+                    fold_model.fit(X_tr, y_tr, sample_weight=w_tr)
+                except TypeError:
+                    fold_model.fit(X_tr, y_tr)
+                
+                y_pred = fold_model.predict(X_val)
+                score = WeightedMetrics.weighted_r2(y_val, y_pred, w_val)
+                scores.append(score)
+            
+            return {
+                'mean_weighted_r2': np.mean(scores),
+                'std_weighted_r2': np.std(scores),
+                'scores': scores,
+            }
+        else:
+            # Standard unweighted CV
+            scores = cross_val_score(
+                model, X, y, 
+                cv=cv_folds, 
+                scoring='r2',
+                n_jobs=-1
+            )
+            
+            return {
+                'mean_r2': scores.mean(),
+                'std_r2': scores.std(),
+                'scores': scores.tolist(),
+            }
     
     def get_feature_importance(self, model_name: str = 'xgboost') -> pd.DataFrame:
         """
@@ -397,8 +493,9 @@ class SalaryPredictor:
 
 class WageGapModel:
     """
-    Specialized model for analyzing wage gaps
-    Uses Oaxaca-Blinder decomposition approach
+    Specialized model for analyzing wage gaps using Oaxaca-Blinder decomposition.
+    
+    NOW WITH SURVEY WEIGHTS: All calculations use FINALWT for population inference.
     """
     
     def __init__(self):
@@ -409,48 +506,65 @@ class WageGapModel:
     def fit(self, df: pd.DataFrame, 
             features: List[str],
             target: str = None,
-            gender_col: str = None) -> Dict:
+            gender_col: str = None,
+            weight_col: str = 'FINALWT') -> Dict:
         """
-        Fit separate models for each gender group
+        Fit separate models for each gender group with survey weights.
         
         Args:
-            df: DataFrame with features and target
+            df: DataFrame with features, target, and weights
             features: List of feature column names
             target: Target column name (defaults to COLS.HOURLY_EARNINGS)
             gender_col: Gender column name (defaults to COLS.GENDER)
+            weight_col: Survey weight column (defaults to 'FINALWT')
+            
+        Returns:
+            Dictionary with decomposition results
         """
         # Use constants as defaults
         if target is None:
             target = COLS.HOURLY_EARNINGS
         if gender_col is None:
             gender_col = COLS.GENDER
+        
+        # Validate weight column
+        if weight_col not in df.columns:
+            warnings.warn(f"Weight column '{weight_col}' not found. Using equal weights.")
+            df = df.copy()
+            df[weight_col] = 1.0
             
         # Split by gender
         df_male = df[df[gender_col] == 1]
         df_female = df[df[gender_col] == 2]
         
-        # Prepare features
+        # Prepare features and weights
         X_male = df_male[features].values
         y_male = df_male[target].values
+        w_male = df_male[weight_col].values
         
         X_female = df_female[features].values
         y_female = df_female[target].values
+        w_female = df_female[weight_col].values
         
-        # Fit models
+        # Fit models WITH SAMPLE WEIGHTS
         self.model_male = Ridge(alpha=1.0)
         self.model_female = Ridge(alpha=1.0)
         
-        self.model_male.fit(X_male, y_male)
-        self.model_female.fit(X_female, y_female)
+        self.model_male.fit(X_male, y_male, sample_weight=w_male)
+        self.model_female.fit(X_female, y_female, sample_weight=w_female)
         
-        # Compute decomposition
-        mean_X_male = X_male.mean(axis=0)
-        mean_X_female = X_female.mean(axis=0)
+        # Compute WEIGHTED means for decomposition
+        mean_X_male = np.average(X_male, axis=0, weights=w_male)
+        mean_X_female = np.average(X_female, axis=0, weights=w_female)
         
-        mean_y_male = y_male.mean()
-        mean_y_female = y_female.mean()
+        mean_y_male = np.average(y_male, weights=w_male)
+        mean_y_female = np.average(y_female, weights=w_female)
         
-        # Raw gap
+        # Weighted sample sizes (population representation)
+        n_male_weighted = w_male.sum()
+        n_female_weighted = w_female.sum()
+        
+        # Raw gap (weighted)
         raw_gap = mean_y_male - mean_y_female
         raw_gap_pct = (raw_gap / mean_y_male) * 100
         
@@ -474,28 +588,57 @@ class WageGapModel:
             'mean_female_wage': mean_y_female,
             'n_male': len(df_male),
             'n_female': len(df_female),
+            'n_male_weighted': n_male_weighted,
+            'n_female_weighted': n_female_weighted,
+            'weighted': True,  # Flag that results use survey weights
         }
         
         return self.results
 
 
 def train_salary_model(df: pd.DataFrame, 
-                       feature_engineer=None) -> Tuple[SalaryPredictor, Dict]:
+                       feature_engineer=None,
+                       weight_col: str = 'FINALWT') -> Tuple[SalaryPredictor, Dict]:
     """
-    Convenience function to train salary prediction model
+    Convenience function to train salary prediction model WITH SURVEY WEIGHTS.
+    
+    Args:
+        df: DataFrame with LFS data (must include FINALWT)
+        feature_engineer: FeatureEngineer instance
+        weight_col: Column containing survey weights
+        
+    Returns:
+        Trained SalaryPredictor and metrics dictionary
     """
     from .feature_engineering import FeatureEngineer
     
     if feature_engineer is None:
         feature_engineer = FeatureEngineer()
     
-    # Prepare features
+    # Validate weight column exists
+    if weight_col not in df.columns:
+        raise ValueError(f"Weight column '{weight_col}' not found. "
+                        "Survey weights are MANDATORY for this project.")
+    
+    # Prepare features (preserves weights)
     X, y = feature_engineer.fit_transform(df)
     feature_names = feature_engineer.get_feature_names()
     
-    # Train model
+    # Get weights aligned with the transformed data
+    weights = df[weight_col].values[:len(y)]  # Align if any rows dropped
+    
+    # Create proper train/val/test splits with weights
+    from .ml_utils import WeightedMLSplitter
+    splitter = WeightedMLSplitter(
+        df=df.iloc[:len(y)],  # Match feature engineering output
+        target_col=None,  # We already have y
+        weight_col=weight_col,
+        feature_cols=None,  # We already have X
+    )
+    
+    # Train model with weights
     predictor = SalaryPredictor()
-    metrics = predictor.train(X, y, feature_names)
+    metrics = predictor.train(X, y, feature_names, sample_weight=weights)
     
     # Save artifacts
     predictor.save()

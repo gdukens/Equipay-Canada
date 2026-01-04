@@ -10,13 +10,14 @@ import uvicorn
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
 import numpy as np
-import pandas as pd
 from pathlib import Path
 import sys
 import logging
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from src.data_store import EquiPayDataStore
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -121,16 +122,16 @@ class BatchPredictionResponse(BaseModel):
 # ============================================================================
 
 class ModelService:
-    """Service for model predictions"""
+    """Service for model predictions using DuckDB data store"""
     
     def __init__(self):
         self.model = None
         self.feature_engineer = None
-        self.df_reference = None
+        self.data_store = None
         self._load_model()
     
     def _load_model(self):
-        """Load model and reference data"""
+        """Load model and initialize data store"""
         try:
             # Try to load trained model
             model_path = Path("models/salary_predictor.joblib")
@@ -142,85 +143,68 @@ class ModelService:
             else:
                 logger.warning("No trained model found. Using fallback prediction.")
             
-            # Load reference data for statistics (real Statistics Canada data)
-            data_path = Path("data/processed/lfs_processed.csv")
-            if data_path.exists():
-                self.df_reference = pd.read_csv(data_path)
-                # Verify it's real data
-                if 'source' in self.df_reference.columns:
-                    source = self.df_reference['source'].iloc[0] if len(self.df_reference) > 0 else 'Unknown'
-                    logger.info(f"Reference data loaded: {len(self.df_reference)} records (Source: {source})")
-                else:
-                    logger.info(f"Reference data loaded: {len(self.df_reference)} records")
-            else:
-                # Generate synthetic data as fallback (in production, use real data)
-                from src.data_pipeline import LFSDataPipeline
-                pipeline = LFSDataPipeline()
-                self.df_reference = pipeline.generate_synthetic_data(n_samples=10000)
-                self.df_reference = pipeline.clean_data(self.df_reference)
-                self.df_reference = pipeline.create_derived_features(self.df_reference)
-                logger.info(f"Loaded synthetic fallback data: {len(self.df_reference)} records")
+            # Initialize DuckDB data store (memory-efficient)
+            self.data_store = EquiPayDataStore(memory_limit='3GB')
+            stats = self.data_store.get_summary_stats()
+            logger.info(f"Data store initialized: {stats['total_records']:,} records")
                 
         except Exception as e:
             logger.error(f"Error loading model: {e}")
     
-    def _get_gender_col(self) -> str:
-        """Get the gender column name (GENDER or SEX)"""
-        if self.df_reference is None:
-            return 'GENDER'
-        return 'GENDER' if 'GENDER' in self.df_reference.columns else 'SEX'
-    
     def predict(self, profile: WorkerProfile) -> SalaryPrediction:
-        """Make salary prediction"""
-        if self.df_reference is None:
-            raise HTTPException(status_code=500, detail="Reference data not available")
+        """Make salary prediction using DuckDB queries"""
+        if self.data_store is None:
+            raise HTTPException(status_code=500, detail="Data store not available")
         
-        gender_col = self._get_gender_col()
-        
-        # Use reference data for prediction (fallback when model not trained)
-        filters = [
-            self.df_reference[gender_col] == profile.sex,
-            self.df_reference['FTPTMAIN'] == profile.full_time,
-        ]
-        
-        if 'EDUC' in self.df_reference.columns:
-            filters.append(self.df_reference['EDUC'] == profile.education)
-        
-        if 'NOC_10' in self.df_reference.columns:
-            filters.append(self.df_reference['NOC_10'] == profile.occupation)
-        
-        # Combine filters
-        mask = filters[0]
-        for f in filters[1:]:
-            mask = mask & f
-        
-        similar = self.df_reference[mask]
+        # Query similar workers using SQL (memory-efficient)
+        query = f"""
+            SELECT HRLYEARN / 100.0 as HRLYEARN
+            FROM lfs
+            WHERE GENDER = {profile.sex}
+              AND FTPTMAIN = {profile.full_time}
+              AND EDUC = {profile.education}
+              AND NOC_10 = {profile.occupation}
+              AND HRLYEARN IS NOT NULL AND HRLYEARN > 0
+        """
+        similar = self.data_store.query(query)
         
         # Fallback to broader filters if too few matches
         if len(similar) < 30:
-            mask = (self.df_reference[gender_col] == profile.sex) & \
-                   (self.df_reference['FTPTMAIN'] == profile.full_time)
-            similar = self.df_reference[mask]
+            query = f"""
+                SELECT HRLYEARN / 100.0 as HRLYEARN
+                FROM lfs
+                WHERE GENDER = {profile.sex}
+                  AND FTPTMAIN = {profile.full_time}
+                  AND HRLYEARN IS NOT NULL AND HRLYEARN > 0
+            """
+            similar = self.data_store.query(query)
         
         if len(similar) < 10:
-            similar = self.df_reference
+            # Get overall wages (converting from cents)
+            similar = self.data_store.query("SELECT HRLYEARN / 100.0 as HRLYEARN FROM lfs WHERE HRLYEARN > 0")
         
         # Calculate prediction statistics
-        predicted = similar['HRLYEARN'].mean()
-        std = similar['HRLYEARN'].std()
-        n = len(similar)
+        wages = similar['HRLYEARN']
+        predicted = wages.mean()
+        std = wages.std()
+        n = len(wages)
         
         # 95% confidence interval
-        se = std / np.sqrt(n)
-        ci_lower = max(predicted - 1.96 * se, similar['HRLYEARN'].quantile(0.1))
+        se = std / np.sqrt(n) if n > 0 else 0
+        ci_lower = max(predicted - 1.96 * se, wages.quantile(0.1))
         ci_upper = predicted + 1.96 * se
         
-        # Percentile in overall distribution
-        percentile = (self.df_reference['HRLYEARN'] < predicted).mean() * 100
+        # Percentile in overall distribution (converting from cents)
+        overall_wages = self.data_store.query("SELECT HRLYEARN / 100.0 as HRLYEARN FROM lfs WHERE HRLYEARN > 0")['HRLYEARN']
+        percentile = (overall_wages < predicted).mean() * 100
         
         # Comparison to averages
-        overall_avg = self.df_reference['HRLYEARN'].mean()
-        gender_avg = self.df_reference[self.df_reference[gender_col] == profile.sex]['HRLYEARN'].mean()
+        overall_avg = overall_wages.mean()
+        gender_wages = self.data_store.query(f"""
+            SELECT HRLYEARN / 100.0 as HRLYEARN FROM lfs 
+            WHERE GENDER = {profile.sex} AND HRLYEARN IS NOT NULL AND HRLYEARN > 0
+        """)
+        gender_avg = gender_wages['HRLYEARN'].mean()
         
         return SalaryPrediction(
             predicted_hourly_wage=round(predicted, 2),
@@ -235,23 +219,43 @@ class ModelService:
         )
     
     def get_wage_gap(self) -> WageGapResponse:
-        """Calculate wage gap statistics"""
-        if self.df_reference is None:
-            raise HTTPException(status_code=500, detail="Reference data not available")
+        """Calculate wage gap statistics using DuckDB"""
+        if self.data_store is None:
+            raise HTTPException(status_code=500, detail="Data store not available")
         
-        gender_col = self._get_gender_col()
+        # Get detailed stats for statistical test (convert cents to dollars)
+        stats = self.data_store.query("""
+            SELECT 
+                GENDER,
+                AVG(HRLYEARN) / 100.0 as avg_wage,
+                STDDEV(HRLYEARN) / 100.0 as std_wage,
+                COUNT(*) as n
+            FROM lfs
+            WHERE HRLYEARN IS NOT NULL AND HRLYEARN > 0
+            GROUP BY GENDER
+        """)
         
-        male = self.df_reference[self.df_reference[gender_col] == 1]['HRLYEARN']
-        female = self.df_reference[self.df_reference[gender_col] == 2]['HRLYEARN']
+        male_stats = stats[stats['GENDER'] == 1].iloc[0] if len(stats[stats['GENDER'] == 1]) > 0 else None
+        female_stats = stats[stats['GENDER'] == 2].iloc[0] if len(stats[stats['GENDER'] == 2]) > 0 else None
         
-        male_avg = male.mean()
-        female_avg = female.mean()
+        if male_stats is None or female_stats is None:
+            raise HTTPException(status_code=500, detail="Insufficient data for wage gap calculation")
+        
+        male_avg = male_stats['avg_wage']
+        female_avg = female_stats['avg_wage']
         gap_dollars = male_avg - female_avg
         gap_pct = (gap_dollars / male_avg) * 100
         
-        # Statistical test
-        from scipy import stats
-        t_stat, p_value = stats.ttest_ind(male.dropna(), female.dropna())
+        # Welch's t-test (approximate using summary stats)
+        n1, n2 = int(male_stats['n']), int(female_stats['n'])
+        s1, s2 = male_stats['std_wage'], female_stats['std_wage']
+        
+        se = np.sqrt((s1**2 / n1) + (s2**2 / n2))
+        t_stat = gap_dollars / se if se > 0 else 0
+        
+        # Approximate p-value using normal distribution for large samples
+        from scipy import stats as scipy_stats
+        p_value = 2 * (1 - scipy_stats.norm.cdf(abs(t_stat)))
         
         return WageGapResponse(
             raw_gap_percentage=round(gap_pct, 2),
@@ -260,8 +264,8 @@ class ModelService:
             female_average=round(female_avg, 2),
             female_to_male_ratio=round(female_avg / male_avg, 4),
             sample_size={
-                "male": len(male),
-                "female": len(female)
+                "male": n1,
+                "female": n2
             },
             statistical_significance={
                 "t_statistic": round(t_stat, 4),
@@ -371,9 +375,8 @@ async def get_wage_gap_by_dimension(
     """
     Get wage gap by a specific dimension
     """
-    df = model_service.df_reference
-    if df is None:
-        raise HTTPException(status_code=500, detail="Reference data not available")
+    if model_service.data_store is None:
+        raise HTTPException(status_code=500, detail="Data store not available")
     
     dimension_map = {
         "education": "EDUC",
@@ -388,27 +391,44 @@ async def get_wage_gap_by_dimension(
         )
     
     col = dimension_map[dimension]
-    if col not in df.columns:
-        raise HTTPException(status_code=400, detail=f"Column {col} not in data")
+    
+    # Use SQL aggregation (memory-efficient, convert cents to dollars)
+    query = f"""
+        SELECT 
+            {col} as group_val,
+            GENDER,
+            AVG(HRLYEARN) / 100.0 as avg_wage,
+            COUNT(*) as n
+        FROM lfs
+        WHERE HRLYEARN IS NOT NULL AND HRLYEARN > 0
+        GROUP BY {col}, GENDER
+    """
+    stats = model_service.data_store.query(query)
     
     results = []
-    for group in df[col].unique():
-        group_df = df[df[col] == group]
-        male = group_df[group_df['SEX'] == 1]['HRLYEARN']
-        female = group_df[group_df['SEX'] == 2]['HRLYEARN']
+    for group_val in stats['group_val'].unique():
+        group_data = stats[stats['group_val'] == group_val]
+        male_row = group_data[group_data['GENDER'] == 1]
+        female_row = group_data[group_data['GENDER'] == 2]
         
-        if len(male) < 10 or len(female) < 10:
+        if len(male_row) == 0 or len(female_row) == 0:
             continue
         
-        male_avg = male.mean()
-        female_avg = female.mean()
+        male_n = int(male_row['n'].iloc[0])
+        female_n = int(female_row['n'].iloc[0])
+        
+        if male_n < 10 or female_n < 10:
+            continue
+        
+        male_avg = float(male_row['avg_wage'].iloc[0])
+        female_avg = float(female_row['avg_wage'].iloc[0])
         
         results.append({
-            "group": int(group) if isinstance(group, (np.integer, float)) else group,
+            "group": int(group_val) if isinstance(group_val, (np.integer, float)) else group_val,
             "male_average": round(male_avg, 2),
             "female_average": round(female_avg, 2),
             "gap_percentage": round(((male_avg - female_avg) / male_avg) * 100, 2),
-            "sample_size": {"male": len(male), "female": len(female)}
+            "sample_size": {"male": male_n, "female": female_n}
         })
     
     return {
@@ -422,27 +442,54 @@ async def get_statistics():
     """
     Get overall wage statistics
     """
-    df = model_service.df_reference
-    if df is None:
-        raise HTTPException(status_code=500, detail="Reference data not available")
+    if model_service.data_store is None:
+        raise HTTPException(status_code=500, detail="Data store not available")
     
+    # Use SQL for all statistics (memory-efficient, convert cents to dollars)
+    stats = model_service.data_store.query("""
+        SELECT 
+            COUNT(*) as sample_size,
+            AVG(HRLYEARN) / 100.0 as mean_wage,
+            MEDIAN(HRLYEARN) / 100.0 as median_wage,
+            STDDEV(HRLYEARN) / 100.0 as std_wage,
+            MIN(HRLYEARN) / 100.0 as min_wage,
+            MAX(HRLYEARN) / 100.0 as max_wage,
+            QUANTILE_CONT(HRLYEARN, 0.10) / 100.0 as p10,
+            QUANTILE_CONT(HRLYEARN, 0.25) / 100.0 as p25,
+            QUANTILE_CONT(HRLYEARN, 0.50) / 100.0 as p50,
+            QUANTILE_CONT(HRLYEARN, 0.75) / 100.0 as p75,
+            QUANTILE_CONT(HRLYEARN, 0.90) / 100.0 as p90
+        FROM lfs
+        WHERE HRLYEARN IS NOT NULL AND HRLYEARN > 0
+    """)
+    
+    gender_stats = model_service.data_store.query("""
+        SELECT GENDER, COUNT(*) as n
+        FROM lfs
+        WHERE HRLYEARN IS NOT NULL
+        GROUP BY GENDER
+    """)
+    
+    gender_dist = {int(row['GENDER']): int(row['n']) for _, row in gender_stats.iterrows()}
+    
+    s = stats.iloc[0]
     return {
-        "sample_size": len(df),
+        "sample_size": int(s['sample_size']),
         "wage_statistics": {
-            "mean": round(df['HRLYEARN'].mean(), 2),
-            "median": round(df['HRLYEARN'].median(), 2),
-            "std": round(df['HRLYEARN'].std(), 2),
-            "min": round(df['HRLYEARN'].min(), 2),
-            "max": round(df['HRLYEARN'].max(), 2),
+            "mean": round(s['mean_wage'], 2),
+            "median": round(s['median_wage'], 2),
+            "std": round(s['std_wage'], 2),
+            "min": round(s['min_wage'], 2),
+            "max": round(s['max_wage'], 2),
             "percentiles": {
-                "10": round(df['HRLYEARN'].quantile(0.10), 2),
-                "25": round(df['HRLYEARN'].quantile(0.25), 2),
-                "50": round(df['HRLYEARN'].quantile(0.50), 2),
-                "75": round(df['HRLYEARN'].quantile(0.75), 2),
-                "90": round(df['HRLYEARN'].quantile(0.90), 2),
+                "10": round(s['p10'], 2),
+                "25": round(s['p25'], 2),
+                "50": round(s['p50'], 2),
+                "75": round(s['p75'], 2),
+                "90": round(s['p90'], 2),
             }
         },
-        "gender_distribution": df['SEX'].value_counts().to_dict() if 'SEX' in df.columns else {}
+        "gender_distribution": gender_dist
     }
 
 
