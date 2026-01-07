@@ -53,12 +53,9 @@ def process_chunk(df):
     if 'LFSSTAT' in df.columns:
         df = df[df['LFSSTAT'].isin([1, 2, 3])]
     
-    # HRLYEARN is in cents (e.g., 2500 = $25.00/hour)
-    # Valid wages: $1-$500/hour = 100-50000 cents
-    df = df[(df['HRLYEARN'] >= 100) & (df['HRLYEARN'] <= 50000)]
-    
-    # Convert cents to dollars
-    df['HRLYEARN'] = df['HRLYEARN'] / 100.0
+    # NOTE: HRLYEARN is now stored in DOLLARS in Parquet files (converted during ETL)
+    # Valid wages: $1-$500/hour
+    df = df[(df['HRLYEARN'] >= 1) & (df['HRLYEARN'] <= 500)]
     
     if len(df) == 0:
         return None

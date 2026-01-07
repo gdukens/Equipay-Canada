@@ -50,7 +50,8 @@ equipay-canada/
 │   ├── 04_fairness_evaluation.ipynb   # Algorithmic fairness
 │   ├── 05_econometric_analysis.ipynb  # Oaxaca-Blinder, quantile regression
 │   ├── 06_time_series_analysis.ipynb  # Temporal trends 2010-2025
-│   └── 07_advanced_statistics.ipynb   # Bootstrap, power analysis
+│   ├── 07_advanced_statistics.ipynb   # Bootstrap, power analysis
+│   └── 08_geographic_analysis.ipynb   # Provincial analysis
 ├── src/
 │   ├── __init__.py
 │   ├── constants.py          # Centralized LFS codes & mappings

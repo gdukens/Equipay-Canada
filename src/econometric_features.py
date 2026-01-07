@@ -48,7 +48,65 @@ import statsmodels.api as sm
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 import warnings
 
+# Import leakage prevention
+from src.leakage_prevention import (
+    LeakageGuard, 
+    TARGET_DERIVED_FEATURES, 
+    LEAKAGE_PATTERNS,
+    validate_features,
+    check_r2_sanity
+)
+
 logger = logging.getLogger(__name__)
+
+
+# =============================================================================
+# LEAKAGE PREVENTION - CRITICAL
+# =============================================================================
+
+# Features that MUST NEVER be used as predictors (they're derived from target)
+BLOCKED_WAGE_FEATURES = {
+    # Direct wage measures
+    'HRLYEARN', 'REAL_HRLYEARN', 'LOG_HRLYEARN', 'LOG_REAL_HRLYEARN',
+    'WAGE', 'LOG_WAGE', 'REAL_WAGE',
+    
+    # Wage zone indicators (computed from wage quantiles!)
+    'wage_zone_upper', 'wage_zone_middle', 'wage_zone_lower', 'wage_zone',
+    
+    # Wage position indicators (computed from wages!)
+    'above_median', 'below_median', 'above_mean',
+    'within_gender_percentile', 'within_group_percentile',
+    'wage_percentile', 'wage_decile', 'wage_quintile',
+    
+    # Distance from wage statistics
+    'distance_from_gender_median', 'distance_from_median', 
+    'distance_from_mean', 'gap_from_mean', 'gap_from_median',
+    
+    # Within-occupation wage features
+    'within_occ_wage_gap', 'occ_wage_residual', 'wage_residual',
+    
+    # Ceiling indicators based on wages
+    'ceiling_proximity', 'ceiling_proximity_scaled', 'floor_proximity',
+    
+    # RIF values (these ARE wage-based!)
+    'rif_tau_10', 'rif_tau_25', 'rif_tau_50', 'rif_tau_75', 'rif_tau_90',
+}
+
+def is_wage_derived(feature_name: str) -> bool:
+    """Check if a feature is derived from wages (potential leakage)."""
+    name_lower = feature_name.lower()
+    
+    # Check explicit blocklist
+    if feature_name in BLOCKED_WAGE_FEATURES:
+        return True
+    
+    # Check patterns
+    leakage_patterns = ['wage', 'earn', 'salary', 'income', 'rif_tau']
+    for pattern in leakage_patterns:
+        if pattern in name_lower:
+            return True
+    
+    return False
 
 
 # =============================================================================
@@ -239,7 +297,7 @@ class EconometricFeatureEngineer:
     def select_features(self, df: pd.DataFrame, y: pd.Series,
                         method: str = 'vif_and_correlation') -> List[str]:
         """
-        Select features using anti-overfitting criteria.
+        Select features using anti-overfitting criteria WITH LEAKAGE PREVENTION.
         
         Parameters
         ----------
@@ -253,10 +311,36 @@ class EconometricFeatureEngineer:
         Returns
         -------
         List of selected feature names
+        
+        CRITICAL: This method now blocks ALL wage-derived features to prevent
+        data leakage. Features derived from the target (wages) would cause
+        perfect prediction but meaningless results.
         """
-        new_features = [c for c in df.columns if c not in 
-                       ['SURVYEAR', 'year', self.gender_col, self.wage_col, 
-                        'HRLYEARN', 'FINALWT', 'WAGE']]
+        # CRITICAL: Define all columns to exclude (target + related + leaky)
+        always_exclude = {
+            # Time/ID columns
+            'SURVYEAR', 'year', 'SURVMNTH', 'REC_NUM',
+            # Gender (the treatment variable)
+            self.gender_col, 'IS_FEMALE',
+            # Wage columns (TARGET!)
+            self.wage_col, 'HRLYEARN', 'REAL_HRLYEARN', 'LOG_HRLYEARN', 
+            'LOG_REAL_HRLYEARN', 'WAGE', 'LOG_WAGE', 'REAL_WAGE',
+            # Weights
+            'FINALWT',
+        }
+        
+        # Add all known leaky features
+        always_exclude.update(BLOCKED_WAGE_FEATURES)
+        
+        # Filter out excluded columns
+        new_features = [c for c in df.columns if c not in always_exclude]
+        
+        # CRITICAL: Filter out any remaining wage-derived features by pattern
+        new_features = [c for c in new_features if not is_wage_derived(c)]
+        
+        if len(new_features) == 0:
+            logger.warning("No features remaining after leakage prevention!")
+            return []
         
         # Get numeric features only
         numeric_features = [c for c in new_features 
@@ -281,6 +365,14 @@ class EconometricFeatureEngineer:
         if y is not None:
             y_clean = y.loc[X.index].fillna(y.median())
             correlations = X[list(selected)].corrwith(y_clean).abs()
+            
+            # CRITICAL: Also check for suspiciously HIGH correlation (leakage!)
+            high_corr = correlations[correlations > 0.90].index.tolist()
+            for f in high_corr:
+                selected.discard(f)
+                self.removed_features_[f] = 'LEAKAGE_SUSPECTED_high_target_correlation'
+                logger.warning(f"🔴 BLOCKED '{f}' - correlation with target = {correlations[f]:.3f}")
+            
             low_corr = correlations[correlations < self.config.min_correlation_with_target].index.tolist()
             for f in low_corr:
                 selected.discard(f)
@@ -313,8 +405,13 @@ class EconometricFeatureEngineer:
             selected = self._vif_selection(X[list(selected)])
         
         self.selected_features_ = list(selected)
+        
+        # Log summary with leakage info
+        leakage_blocked = [k for k, v in self.removed_features_.items() 
+                          if 'LEAKAGE' in v]
         logger.info(f"Selected {len(self.selected_features_)} features, "
-                   f"removed {len(self.removed_features_)}")
+                   f"removed {len(self.removed_features_)} "
+                   f"(including {len(leakage_blocked)} blocked for leakage)")
         
         return self.selected_features_
     

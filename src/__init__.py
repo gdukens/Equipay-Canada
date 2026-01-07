@@ -71,6 +71,12 @@ from .fairness import FairnessAnalyzer
 from .statistical_tests import AdvancedStatisticalTests
 from .time_series import WageGapTimeSeriesAnalyzer
 
+# Variance estimation (per StatsCan PUMF methodology)
+from .bootstrap_variance import (
+    PoissonBootstrap, QualityIndicators, assess_quality,
+    analyze_wage_gap_with_variance, combine_monthly_weights
+)
+
 # Utilities
 from .utils import setup_logging, Timer, format_currency, format_percentage
 

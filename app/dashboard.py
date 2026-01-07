@@ -39,6 +39,33 @@ from src.constants import (
 )
 
 
+def weighted_mean(values: pd.Series, weights: pd.Series) -> float:
+    """Calculate population-weighted mean for survey data.
+    
+    LFS data requires FINALWT weights for population-level inference.
+    """
+    mask = values.notna() & weights.notna() & (weights > 0)
+    if not mask.any():
+        return np.nan
+    return np.average(values[mask], weights=weights[mask])
+
+
+def weighted_median(values: pd.Series, weights: pd.Series) -> float:
+    """Calculate weighted median (approximate via interpolation)."""
+    mask = values.notna() & weights.notna() & (weights > 0)
+    if not mask.any():
+        return np.nan
+    v = values[mask].values
+    w = weights[mask].values
+    sorted_idx = np.argsort(v)
+    v_sorted = v[sorted_idx]
+    w_sorted = w[sorted_idx]
+    cumsum = np.cumsum(w_sorted)
+    mid = cumsum[-1] / 2
+    idx = np.searchsorted(cumsum, mid)
+    return v_sorted[min(idx, len(v_sorted) - 1)]
+
+
 # Page configuration
 st.set_page_config(
     page_title="EquiPay Canada - Pay Equity Dashboard",
@@ -90,15 +117,15 @@ def load_data():
         
         # Load a sample for dashboard (full data is 19M+ rows)
         # For interactive dashboards, we use a representative sample
+        # Include FINALWT for proper population-weighted statistics
         df = store.query("""
             SELECT * FROM lfs 
-            WHERE HRLYEARN IS NOT NULL
+            WHERE HRLYEARN IS NOT NULL AND FINALWT > 0
             USING SAMPLE 500000 ROWS
         """)
         
-        # Ensure consistent column names (GENDER instead of SEX)
-        if 'GENDER' in df.columns and 'SEX' not in df.columns:
-            df['SEX'] = df['GENDER']
+        # Data already has GENDER column from the view
+        # No aliasing needed - use GENDER consistently
         
         return df
         
@@ -120,7 +147,8 @@ def load_config():
 def get_labels():
     """Get human-readable labels for coded values"""
     return {
-        'SEX': {1: 'Male', 2: 'Female'},
+        'GENDER': {1: 'Male', 2: 'Female'},
+        'SEX': {1: 'Male', 2: 'Female'},  # Legacy alias
         'EDUC': {
             0: 'Less than high school',
             1: 'High school graduate',
@@ -276,24 +304,37 @@ def main():
 
 
 def display_overview(df: pd.DataFrame, labels: dict):
-    """Display overview metrics"""
+    """Display overview metrics with proper survey weighting"""
     st.header("📈 Overview Dashboard")
+    
+    # Check for weights
+    has_weights = 'FINALWT' in df.columns and df['FINALWT'].notna().any()
     
     # Key metrics
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
-        avg_wage = df['HRLYEARN'].mean()
+        if has_weights:
+            avg_wage = weighted_mean(df['HRLYEARN'], df['FINALWT'])
+        else:
+            avg_wage = df['HRLYEARN'].mean()
         st.metric(
             label="Average Hourly Wage",
             value=f"${avg_wage:.2f}",
-            delta=None
+            delta=None,
+            help="Population-weighted mean" if has_weights else "Sample mean"
         )
     
     with col2:
-        if 'SEX' in df.columns:
-            male_wage = df[df['SEX'] == 1]['HRLYEARN'].mean()
-            female_wage = df[df['SEX'] == 2]['HRLYEARN'].mean()
+        if 'GENDER' in df.columns:
+            male_df = df[df['GENDER'] == 1]
+            female_df = df[df['GENDER'] == 2]
+            if has_weights:
+                male_wage = weighted_mean(male_df['HRLYEARN'], male_df['FINALWT'])
+                female_wage = weighted_mean(female_df['HRLYEARN'], female_df['FINALWT'])
+            else:
+                male_wage = male_df['HRLYEARN'].mean()
+                female_wage = female_df['HRLYEARN'].mean()
             gap_pct = ((male_wage - female_wage) / male_wage) * 100
             st.metric(
                 label="Gender Wage Gap",
@@ -303,18 +344,31 @@ def display_overview(df: pd.DataFrame, labels: dict):
             )
     
     with col3:
-        st.metric(
-            label="Sample Size",
-            value=f"{len(df):,}",
-            delta=None
-        )
+        if has_weights:
+            pop_estimate = df['FINALWT'].sum()
+            st.metric(
+                label="Population Estimate",
+                value=f"{pop_estimate:,.0f}",
+                delta=None,
+                help=f"Based on {len(df):,} sample observations"
+            )
+        else:
+            st.metric(
+                label="Sample Size",
+                value=f"{len(df):,}",
+                delta=None
+            )
     
     with col4:
-        median_wage = df['HRLYEARN'].median()
+        if has_weights:
+            median_wage = weighted_median(df['HRLYEARN'], df['FINALWT'])
+        else:
+            median_wage = df['HRLYEARN'].median()
         st.metric(
             label="Median Hourly Wage",
             value=f"${median_wage:.2f}",
-            delta=None
+            delta=None,
+            help="Population-weighted median" if has_weights else "Sample median"
         )
     
     # Wage distribution
@@ -334,9 +388,9 @@ def display_overview(df: pd.DataFrame, labels: dict):
         st.plotly_chart(fig, use_container_width=True)
     
     with col2:
-        if 'SEX' in df.columns:
+        if 'GENDER' in df.columns:
             df_plot = df.copy()
-            df_plot['Gender'] = df_plot['SEX'].map(labels['SEX'])
+            df_plot['Gender'] = df_plot['GENDER'].map(labels['GENDER'])
             
             fig = px.histogram(
                 df_plot, x='HRLYEARN',
@@ -373,31 +427,40 @@ def display_overview(df: pd.DataFrame, labels: dict):
 
 
 def display_gender_analysis(df: pd.DataFrame, labels: dict):
-    """Display gender wage gap analysis"""
+    """Display gender wage gap analysis with proper survey weighting"""
     st.header("⚖️ Gender Wage Gap Analysis")
     
-    if 'SEX' not in df.columns:
+    if 'GENDER' not in df.columns:
         st.warning("Gender data not available")
         return
     
-    # Calculate wage gap
-    male_df = df[df['SEX'] == 1]
-    female_df = df[df['SEX'] == 2]
+    # Check for weights
+    has_weights = 'FINALWT' in df.columns and df['FINALWT'].notna().any()
     
-    male_mean = male_df['HRLYEARN'].mean()
-    female_mean = female_df['HRLYEARN'].mean()
+    # Calculate wage gap using appropriate weighting
+    male_df = df[df['GENDER'] == 1]
+    female_df = df[df['GENDER'] == 2]
+    
+    if has_weights:
+        male_mean = weighted_mean(male_df['HRLYEARN'], male_df['FINALWT'])
+        female_mean = weighted_mean(female_df['HRLYEARN'], female_df['FINALWT'])
+    else:
+        male_mean = male_df['HRLYEARN'].mean()
+        female_mean = female_df['HRLYEARN'].mean()
+    
     gap = male_mean - female_mean
     gap_pct = (gap / male_mean) * 100
     ratio = female_mean / male_mean
     
     # Display key findings
+    weight_note = " (population-weighted)" if has_weights else ""
     col1, col2, col3 = st.columns(3)
     
     with col1:
         st.markdown(f"""
         <div class="metric-card">
             <h2 style="color: #1f77b4;">${female_mean:.2f}</h2>
-            <p>Women's Average Hourly Wage</p>
+            <p>Women's Average Hourly Wage{weight_note}</p>
         </div>
         """, unsafe_allow_html=True)
     
@@ -405,7 +468,7 @@ def display_gender_analysis(df: pd.DataFrame, labels: dict):
         st.markdown(f"""
         <div class="metric-card">
             <h2 style="color: #1f77b4;">${male_mean:.2f}</h2>
-            <p>Men's Average Hourly Wage</p>
+            <p>Men's Average Hourly Wage{weight_note}</p>
         </div>
         """, unsafe_allow_html=True)
     
@@ -432,7 +495,7 @@ def display_gender_analysis(df: pd.DataFrame, labels: dict):
     with col1:
         # Box plot comparison
         df_plot = df.copy()
-        df_plot['Gender'] = df_plot['SEX'].map(labels['SEX'])
+        df_plot['Gender'] = df_plot['GENDER'].map(labels['GENDER'])
         
         fig = px.box(
             df_plot,
@@ -482,8 +545,8 @@ def display_gender_analysis(df: pd.DataFrame, labels: dict):
         gap_by_occ = []
         for occ in df['NOC_10'].unique():
             occ_df = df[df['NOC_10'] == occ]
-            m = occ_df[occ_df['SEX'] == 1]['HRLYEARN'].mean()
-            f = occ_df[occ_df['SEX'] == 2]['HRLYEARN'].mean()
+            m = occ_df[occ_df['GENDER'] == 1]['HRLYEARN'].mean()
+            f = occ_df[occ_df['GENDER'] == 2]['HRLYEARN'].mean()
             if pd.notna(m) and pd.notna(f) and m > 0:
                 gap_by_occ.append({
                     'Occupation': labels['NOC_10'].get(occ, str(occ)),
@@ -534,9 +597,9 @@ def display_detailed_breakdowns(df: pd.DataFrame, labels: dict):
     # Intersectional analysis
     st.subheader("Intersectional Analysis")
     
-    if 'SEX' in df.columns and 'EDUC' in df.columns:
+    if 'GENDER' in df.columns and 'EDUC' in df.columns:
         df_plot = df.copy()
-        df_plot['Gender'] = df_plot['SEX'].map(labels['SEX'])
+        df_plot['Gender'] = df_plot['GENDER'].map(labels['GENDER'])
         df_plot['Education'] = df_plot['EDUC'].map(labels['EDUC'])
         
         pivot = df_plot.groupby(['Education', 'Gender'])['HRLYEARN'].mean().unstack()
@@ -568,8 +631,8 @@ def display_breakdown_chart(df: pd.DataFrame, column: str, labels: dict, title: 
     df_plot = df.copy()
     df_plot['Category'] = df_plot[column].map(labels.get(column, {}))
     
-    if 'SEX' in df.columns:
-        df_plot['Gender'] = df_plot['SEX'].map(labels['SEX'])
+    if 'GENDER' in df.columns:
+        df_plot['Gender'] = df_plot['GENDER'].map(labels['GENDER'])
         
         summary = df_plot.groupby(['Category', 'Gender']).agg({
             'HRLYEARN': ['mean', 'count']
@@ -657,9 +720,9 @@ def display_model_predictions(df: pd.DataFrame, labels: dict):
         # Filter data for similar profile
         filters = []
         
-        if 'SEX' in df.columns:
+        if 'GENDER' in df.columns:
             sex_code = 1 if gender == "Male" else 2
-            filters.append(df['SEX'] == sex_code)
+            filters.append(df['GENDER'] == sex_code)
         
         if 'FTPTMAIN' in df.columns:
             ft_code = 1 if employment_type == "Full-time" else 2
@@ -701,9 +764,9 @@ def display_recommendations(df: pd.DataFrame, labels: dict):
     st.header("📋 Recommendations")
     
     # Calculate key metrics for recommendations
-    if 'SEX' in df.columns:
-        male_wage = df[df['SEX'] == 1]['HRLYEARN'].mean()
-        female_wage = df[df['SEX'] == 2]['HRLYEARN'].mean()
+    if 'GENDER' in df.columns:
+        male_wage = df[df['GENDER'] == 1]['HRLYEARN'].mean()
+        female_wage = df[df['GENDER'] == 2]['HRLYEARN'].mean()
         gap_pct = ((male_wage - female_wage) / male_wage) * 100
     else:
         gap_pct = 0

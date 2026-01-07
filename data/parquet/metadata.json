@@ -1,5 +1,5 @@
 {
-  "started_at": "2026-01-03T15:06:38.671861",
+  "started_at": "2026-01-06T23:03:57.714325",
   "input_path": "data/raw/lfs",
   "output_path": "data/parquet",
   "compression": "zstd",
@@ -12,8 +12,8 @@
       "error": null,
       "rows": 105360,
       "input_size_mb": 11.120141983032227,
-      "output_size_mb": 1.313725471496582,
-      "compression_ratio": 8.46458580906122
+      "output_size_mb": 1.8077526092529297,
+      "compression_ratio": 6.151362706442297
     },
     {
       "input_file": "data/raw/lfs/lfs_2010_pub0210.csv",
@@ -23,8 +23,8 @@
       "error": null,
       "rows": 104582,
       "input_size_mb": 11.060653686523438,
-      "output_size_mb": 1.3167181015014648,
-      "compression_ratio": 8.400168322977319
+      "output_size_mb": 1.8199090957641602,
+      "compression_ratio": 6.077585804844383
     },
     {
       "input_file": "data/raw/lfs/lfs_2010_pub0310.csv",
@@ -34,8 +34,8 @@
       "error": null,
       "rows": 104345,
       "input_size_mb": 11.013152122497559,
-      "output_size_mb": 1.3351497650146484,
-      "compression_ratio": 8.248626791599465
+      "output_size_mb": 1.8235435485839844,
+      "compression_ratio": 6.039423698463071
     },
     {
       "input_file": "data/raw/lfs/lfs_2010_pub0410.csv",
@@ -45,8 +45,8 @@
       "error": null,
       "rows": 105047,
       "input_size_mb": 11.10651969909668,
-      "output_size_mb": 1.334885597229004,
-      "compression_ratio": 8.32020341080309
+      "output_size_mb": 1.8261966705322266,
+      "compression_ratio": 6.081776337846349
     },
     {
       "input_file": "data/raw/lfs/lfs_2010_pub0510.csv",
@@ -56,8 +56,8 @@
       "error": null,
       "rows": 105393,
       "input_size_mb": 11.17746353149414,
-      "output_size_mb": 1.3349952697753906,
-      "compression_ratio": 8.372661525141373
+      "output_size_mb": 1.8222150802612305,
+      "compression_ratio": 6.133997930634925
     },
     {
       "input_file": "data/raw/lfs/lfs_2010_pub0610.csv",
@@ -67,8 +67,8 @@
       "error": null,
       "rows": 105789,
       "input_size_mb": 11.238993644714355,
-      "output_size_mb": 1.3430166244506836,
-      "compression_ratio": 8.368469488835474
+      "output_size_mb": 1.8271961212158203,
+      "compression_ratio": 6.1509509100949185
     },
     {
       "input_file": "data/raw/lfs/lfs_2010_pub0710.csv",
@@ -78,8 +78,8 @@
       "error": null,
       "rows": 105731,
       "input_size_mb": 11.20618724822998,
-      "output_size_mb": 1.33673095703125,
-      "compression_ratio": 8.383278018127026
+      "output_size_mb": 1.822209358215332,
+      "compression_ratio": 6.149780318988865
     },
     {
       "input_file": "data/raw/lfs/lfs_2010_pub0810.csv",
@@ -89,8 +89,8 @@
       "error": null,
       "rows": 105296,
       "input_size_mb": 11.159323692321777,
-      "output_size_mb": 1.340372085571289,
-      "compression_ratio": 8.325541700285028
+      "output_size_mb": 1.8233680725097656,
+      "compression_ratio": 6.120170612048495
     },
     {
       "input_file": "data/raw/lfs/lfs_2010_pub0910.csv",
@@ -100,8 +100,8 @@
       "error": null,
       "rows": 105513,
       "input_size_mb": 11.188806533813477,
-      "output_size_mb": 1.3385076522827148,
-      "compression_ratio": 8.35916516034248
+      "output_size_mb": 1.8228073120117188,
+      "compression_ratio": 6.138227809424952
     },
     {
       "input_file": "data/raw/lfs/lfs_2010_pub1010.csv",
@@ -111,8 +111,8 @@
       "error": null,
       "rows": 105139,
       "input_size_mb": 11.184964179992676,
-      "output_size_mb": 1.3409299850463867,
-      "compression_ratio": 8.341199245839636
+      "output_size_mb": 1.843918800354004,
+      "compression_ratio": 6.0658659035556965
     },
     {
       "input_file": "data/raw/lfs/lfs_2010_pub1110.csv",
@@ -122,8 +122,8 @@
       "error": null,
       "rows": 104798,
       "input_size_mb": 11.12609577178955,
-      "output_size_mb": 1.345982551574707,
-      "compression_ratio": 8.266151562494464
+      "output_size_mb": 1.8446989059448242,
+      "compression_ratio": 6.031388502445579
     },
     {
       "input_file": "data/raw/lfs/lfs_2010_pub1210.csv",
@@ -133,8 +133,8 @@
       "error": null,
       "rows": 104180,
       "input_size_mb": 11.031240463256836,
-      "output_size_mb": 1.3253087997436523,
-      "compression_ratio": 8.323524649795242
+      "output_size_mb": 1.8057994842529297,
+      "compression_ratio": 6.108784812185572
     },
     {
       "input_file": "data/raw/lfs/lfs_2011_pub0111.csv",
@@ -144,8 +144,8 @@
       "error": null,
       "rows": 104131,
       "input_size_mb": 11.007400512695312,
-      "output_size_mb": 1.318140983581543,
-      "compression_ratio": 8.350700456021722
+      "output_size_mb": 1.8057308197021484,
+      "compression_ratio": 6.095814720884567
     },
     {
       "input_file": "data/raw/lfs/lfs_2011_pub0211.csv",
@@ -155,8 +155,8 @@
       "error": null,
       "rows": 104159,
       "input_size_mb": 11.014907836914062,
-      "output_size_mb": 1.3346996307373047,
-      "compression_ratio": 8.252724121028857
+      "output_size_mb": 1.8253746032714844,
+      "compression_ratio": 6.034327319539154
     },
     {
       "input_file": "data/raw/lfs/lfs_2011_pub0311.csv",
@@ -166,8 +166,8 @@
       "error": null,
       "rows": 104374,
       "input_size_mb": 11.032258987426758,
-      "output_size_mb": 1.3222293853759766,
-      "compression_ratio": 8.343680082627818
+      "output_size_mb": 1.8101587295532227,
+      "compression_ratio": 6.0946362367623435
     },
     {
       "input_file": "data/raw/lfs/lfs_2011_pub0411.csv",
@@ -177,8 +177,8 @@
       "error": null,
       "rows": 105252,
       "input_size_mb": 11.137730598449707,
-      "output_size_mb": 1.3435497283935547,
-      "compression_ratio": 8.28977920435203
+      "output_size_mb": 1.8316030502319336,
+      "compression_ratio": 6.080864845163558
     },
     {
       "input_file": "data/raw/lfs/lfs_2011_pub0511.csv",
@@ -188,8 +188,8 @@
       "error": null,
       "rows": 106040,
       "input_size_mb": 11.253791809082031,
-      "output_size_mb": 1.3452768325805664,
-      "compression_ratio": 8.365409658839168
+      "output_size_mb": 1.8317070007324219,
+      "compression_ratio": 6.143882075343992
     },
     {
       "input_file": "data/raw/lfs/lfs_2011_pub0611.csv",
@@ -199,8 +199,8 @@
       "error": null,
       "rows": 106352,
       "input_size_mb": 11.299729347229004,
-      "output_size_mb": 1.353470802307129,
-      "compression_ratio": 8.348705659529163
+      "output_size_mb": 1.835118293762207,
+      "compression_ratio": 6.157493707974126
     },
     {
       "input_file": "data/raw/lfs/lfs_2011_pub0711.csv",
@@ -210,8 +210,8 @@
       "error": null,
       "rows": 105688,
       "input_size_mb": 11.19805908203125,
-      "output_size_mb": 1.3464479446411133,
-      "compression_ratio": 8.316741190478046
+      "output_size_mb": 1.8250465393066406,
+      "compression_ratio": 6.135766316559544
     },
     {
       "input_file": "data/raw/lfs/lfs_2011_pub0811.csv",
@@ -221,8 +221,8 @@
       "error": null,
       "rows": 105217,
       "input_size_mb": 11.145400047302246,
-      "output_size_mb": 1.3236370086669922,
-      "compression_ratio": 8.420284393926512
+      "output_size_mb": 1.7995710372924805,
+      "compression_ratio": 6.193364872148033
     },
     {
       "input_file": "data/raw/lfs/lfs_2011_pub0911.csv",
@@ -232,8 +232,8 @@
       "error": null,
       "rows": 105473,
       "input_size_mb": 11.177473068237305,
-      "output_size_mb": 1.3483295440673828,
-      "compression_ratio": 8.28986735284257
+      "output_size_mb": 1.8300590515136719,
+      "compression_ratio": 6.107711693233195
     },
     {
       "input_file": "data/raw/lfs/lfs_2011_pub1011.csv",
@@ -243,8 +243,8 @@
       "error": null,
       "rows": 105477,
       "input_size_mb": 11.217061042785645,
-      "output_size_mb": 1.339071273803711,
-      "compression_ratio": 8.376746826121451
+      "output_size_mb": 1.8381223678588867,
+      "compression_ratio": 6.102456092654862
     },
     {
       "input_file": "data/raw/lfs/lfs_2011_pub1111.csv",
@@ -254,8 +254,8 @@
       "error": null,
       "rows": 104992,
       "input_size_mb": 11.140530586242676,
-      "output_size_mb": 1.3235282897949219,
-      "compression_ratio": 8.417296911703247
+      "output_size_mb": 1.8176698684692383,
+      "compression_ratio": 6.129017584268336
     },
     {
       "input_file": "data/raw/lfs/lfs_2011_pub1211.csv",
@@ -265,8 +265,8 @@
       "error": null,
       "rows": 104922,
       "input_size_mb": 11.10503101348877,
-      "output_size_mb": 1.309488296508789,
-      "compression_ratio": 8.480435482390915
+      "output_size_mb": 1.7929353713989258,
+      "compression_ratio": 6.193770947150283
     },
     {
       "input_file": "data/raw/lfs/lfs_2012_pub0112.csv",
@@ -276,8 +276,8 @@
       "error": null,
       "rows": 105050,
       "input_size_mb": 11.092514038085938,
-      "output_size_mb": 1.3213367462158203,
-      "compression_ratio": 8.394918305158633
+      "output_size_mb": 1.8083839416503906,
+      "compression_ratio": 6.133937480092056
     },
     {
       "input_file": "data/raw/lfs/lfs_2012_pub0212.csv",
@@ -287,8 +287,8 @@
       "error": null,
       "rows": 105065,
       "input_size_mb": 11.102789878845215,
-      "output_size_mb": 1.323638916015625,
-      "compression_ratio": 8.38808057432043
+      "output_size_mb": 1.8118715286254883,
+      "compression_ratio": 6.127801945907252
     },
     {
       "input_file": "data/raw/lfs/lfs_2012_pub0312.csv",
@@ -298,8 +298,8 @@
       "error": null,
       "rows": 104595,
       "input_size_mb": 11.048954963684082,
-      "output_size_mb": 1.3236303329467773,
-      "compression_ratio": 8.347462798835961
+      "output_size_mb": 1.808894157409668,
+      "compression_ratio": 6.108126845578494
     },
     {
       "input_file": "data/raw/lfs/lfs_2012_pub0412.csv",
@@ -309,8 +309,8 @@
       "error": null,
       "rows": 105268,
       "input_size_mb": 11.139168739318848,
-      "output_size_mb": 1.3317060470581055,
-      "compression_ratio": 8.364585235552978
+      "output_size_mb": 1.8139209747314453,
+      "compression_ratio": 6.140933863432515
     },
     {
       "input_file": "data/raw/lfs/lfs_2012_pub0512.csv",
@@ -320,8 +320,8 @@
       "error": null,
       "rows": 105608,
       "input_size_mb": 11.208927154541016,
-      "output_size_mb": 1.3594369888305664,
-      "compression_ratio": 8.245271569507103
+      "output_size_mb": 1.8396406173706055,
+      "compression_ratio": 6.092998300158165
     },
     {
       "input_file": "data/raw/lfs/lfs_2012_pub0612.csv",
@@ -331,8 +331,8 @@
       "error": null,
       "rows": 105404,
       "input_size_mb": 11.20015811920166,
-      "output_size_mb": 1.3614721298217773,
-      "compression_ratio": 8.22650561393997
+      "output_size_mb": 1.8349609375,
+      "compression_ratio": 6.103758336382384
     },
     {
       "input_file": "data/raw/lfs/lfs_2012_pub0712.csv",
@@ -342,8 +342,8 @@
       "error": null,
       "rows": 104240,
       "input_size_mb": 11.043949127197266,
-      "output_size_mb": 1.3205547332763672,
-      "compression_ratio": 8.363113507455033
+      "output_size_mb": 1.7872953414916992,
+      "compression_ratio": 6.179140554341649
     },
     {
       "input_file": "data/raw/lfs/lfs_2012_pub0812.csv",
@@ -353,8 +353,8 @@
       "error": null,
       "rows": 104893,
       "input_size_mb": 11.114811897277832,
-      "output_size_mb": 1.3380861282348633,
-      "compression_ratio": 8.306499606224854
+      "output_size_mb": 1.8131532669067383,
+      "compression_ratio": 6.130100582307549
     },
     {
       "input_file": "data/raw/lfs/lfs_2012_pub0912.csv",
@@ -364,8 +364,8 @@
       "error": null,
       "rows": 105683,
       "input_size_mb": 11.209030151367188,
-      "output_size_mb": 1.355386734008789,
-      "compression_ratio": 8.269986617188259
+      "output_size_mb": 1.8323974609375,
+      "compression_ratio": 6.117139097994804
     },
     {
       "input_file": "data/raw/lfs/lfs_2012_pub1012.csv",
@@ -375,8 +375,8 @@
       "error": null,
       "rows": 105439,
       "input_size_mb": 11.223642349243164,
-      "output_size_mb": 1.3395347595214844,
-      "compression_ratio": 8.378761558417889
+      "output_size_mb": 1.8364067077636719,
+      "compression_ratio": 6.111741098414426
     },
     {
       "input_file": "data/raw/lfs/lfs_2012_pub1112.csv",
@@ -386,8 +386,8 @@
       "error": null,
       "rows": 105210,
       "input_size_mb": 11.14775276184082,
-      "output_size_mb": 1.3199348449707031,
-      "compression_ratio": 8.44568412169485
+      "output_size_mb": 1.7979869842529297,
+      "compression_ratio": 6.2001298449180675
     },
     {
       "input_file": "data/raw/lfs/lfs_2012_pub1212.csv",
@@ -397,8 +397,8 @@
       "error": null,
       "rows": 105073,
       "input_size_mb": 11.123169898986816,
-      "output_size_mb": 1.335688591003418,
-      "compression_ratio": 8.327667072929541
+      "output_size_mb": 1.8200092315673828,
+      "compression_ratio": 6.111600812819833
     },
     {
       "input_file": "data/raw/lfs/lfs_2013_pub0113.csv",
@@ -408,8 +408,8 @@
       "error": null,
       "rows": 104983,
       "input_size_mb": 11.095765113830566,
-      "output_size_mb": 1.3335418701171875,
-      "compression_ratio": 8.320522484123806
+      "output_size_mb": 1.8165159225463867,
+      "compression_ratio": 6.108267467469569
     },
     {
       "input_file": "data/raw/lfs/lfs_2013_pub0213.csv",
@@ -419,8 +419,8 @@
       "error": null,
       "rows": 104298,
       "input_size_mb": 11.030485153198242,
-      "output_size_mb": 1.3239850997924805,
-      "compression_ratio": 8.331275899500035
+      "output_size_mb": 1.810744285583496,
+      "compression_ratio": 6.091685745479941
     },
     {
       "input_file": "data/raw/lfs/lfs_2013_pub0313.csv",
@@ -430,8 +430,8 @@
       "error": null,
       "rows": 103706,
       "input_size_mb": 10.958395957946777,
-      "output_size_mb": 1.3233757019042969,
-      "compression_ratio": 8.280638629058991
+      "output_size_mb": 1.8028640747070312,
+      "compression_ratio": 6.07832620977127
     },
     {
       "input_file": "data/raw/lfs/lfs_2013_pub0413.csv",
@@ -441,8 +441,8 @@
       "error": null,
       "rows": 104337,
       "input_size_mb": 11.030214309692383,
-      "output_size_mb": 1.3319759368896484,
-      "compression_ratio": 8.281091275154331
+      "output_size_mb": 1.8117055892944336,
+      "compression_ratio": 6.08830395781253
     },
     {
       "input_file": "data/raw/lfs/lfs_2013_pub0513.csv",
@@ -452,8 +452,8 @@
       "error": null,
       "rows": 104423,
       "input_size_mb": 11.070135116577148,
-      "output_size_mb": 1.3510808944702148,
-      "compression_ratio": 8.193539825694867
+      "output_size_mb": 1.8242454528808594,
+      "compression_ratio": 6.068336417720063
     },
     {
       "input_file": "data/raw/lfs/lfs_2013_pub0613.csv",
@@ -463,8 +463,8 @@
       "error": null,
       "rows": 103957,
       "input_size_mb": 11.032970428466797,
-      "output_size_mb": 1.3189029693603516,
-      "compression_ratio": 8.365263165506121
+      "output_size_mb": 1.7857475280761719,
+      "compression_ratio": 6.178348425520643
     },
     {
       "input_file": "data/raw/lfs/lfs_2013_pub0713.csv",
@@ -474,8 +474,8 @@
       "error": null,
       "rows": 103819,
       "input_size_mb": 10.99246597290039,
-      "output_size_mb": 1.3183860778808594,
-      "compression_ratio": 8.337820125171076
+      "output_size_mb": 1.7875795364379883,
+      "compression_ratio": 6.149357692248186
     },
     {
       "input_file": "data/raw/lfs/lfs_2013_pub0813.csv",
@@ -485,8 +485,8 @@
       "error": null,
       "rows": 104220,
       "input_size_mb": 11.032240867614746,
-      "output_size_mb": 1.325901985168457,
-      "compression_ratio": 8.320555358556982
+      "output_size_mb": 1.7950544357299805,
+      "compression_ratio": 6.14590880812389
     },
     {
       "input_file": "data/raw/lfs/lfs_2013_pub0913.csv",
@@ -496,8 +496,8 @@
       "error": null,
       "rows": 104559,
       "input_size_mb": 11.075570106506348,
-      "output_size_mb": 1.3298263549804688,
-      "compression_ratio": 8.328583701944316
+      "output_size_mb": 1.8018407821655273,
+      "compression_ratio": 6.146808428431322
     },
     {
       "input_file": "data/raw/lfs/lfs_2013_pub1013.csv",
@@ -507,8 +507,8 @@
       "error": null,
       "rows": 104843,
       "input_size_mb": 11.143773078918457,
-      "output_size_mb": 1.3214921951293945,
-      "compression_ratio": 8.432719557475183
+      "output_size_mb": 1.8143701553344727,
+      "compression_ratio": 6.141951269510461
     },
     {
       "input_file": "data/raw/lfs/lfs_2013_pub1113.csv",
@@ -518,8 +518,8 @@
       "error": null,
       "rows": 104990,
       "input_size_mb": 11.133013725280762,
-      "output_size_mb": 1.3436880111694336,
-      "compression_ratio": 8.285415686332959
+      "output_size_mb": 1.8361873626708984,
+      "compression_ratio": 6.063114228760838
     },
     {
       "input_file": "data/raw/lfs/lfs_2013_pub1213.csv",
@@ -529,8 +529,8 @@
       "error": null,
       "rows": 104370,
       "input_size_mb": 11.037111282348633,
-      "output_size_mb": 1.325510025024414,
-      "compression_ratio": 8.326690159997352
+      "output_size_mb": 1.8028898239135742,
+      "compression_ratio": 6.121900038456106
     },
     {
       "input_file": "data/raw/lfs/lfs_2014_pub0114.csv",
@@ -540,8 +540,8 @@
       "error": null,
       "rows": 104776,
       "input_size_mb": 11.063499450683594,
-      "output_size_mb": 1.3105926513671875,
-      "compression_ratio": 8.44160040050762
+      "output_size_mb": 1.7946929931640625,
+      "compression_ratio": 6.164563796049891
     },
     {
       "input_file": "data/raw/lfs/lfs_2014_pub0214.csv",
@@ -551,8 +551,8 @@
       "error": null,
       "rows": 104248,
       "input_size_mb": 11.007098197937012,
-      "output_size_mb": 1.3232622146606445,
-      "compression_ratio": 8.318153481590814
+      "output_size_mb": 1.8041343688964844,
+      "compression_ratio": 6.101041245985246
     },
     {
       "input_file": "data/raw/lfs/lfs_2014_pub0314.csv",
@@ -562,8 +562,8 @@
       "error": null,
       "rows": 104137,
       "input_size_mb": 10.995219230651855,
-      "output_size_mb": 1.3055171966552734,
-      "compression_ratio": 8.422117501647268
+      "output_size_mb": 1.7886695861816406,
+      "compression_ratio": 6.1471494319551105
     },
     {
       "input_file": "data/raw/lfs/lfs_2014_pub0414.csv",
@@ -573,8 +573,8 @@
       "error": null,
       "rows": 104065,
       "input_size_mb": 11.02682876586914,
-      "output_size_mb": 1.315877914428711,
-      "compression_ratio": 8.37982661230122
+      "output_size_mb": 1.8131399154663086,
+      "compression_ratio": 6.0816204374571
     },
     {
       "input_file": "data/raw/lfs/lfs_2014_pub0514.csv",
@@ -584,8 +584,8 @@
       "error": null,
       "rows": 104186,
       "input_size_mb": 11.028979301452637,
-      "output_size_mb": 1.3161563873291016,
-      "compression_ratio": 8.379687556608626
+      "output_size_mb": 1.7870368957519531,
+      "compression_ratio": 6.17165729911348
     },
     {
       "input_file": "data/raw/lfs/lfs_2014_pub0614.csv",
@@ -595,8 +595,8 @@
       "error": null,
       "rows": 104153,
       "input_size_mb": 11.040956497192383,
-      "output_size_mb": 1.3450288772583008,
-      "compression_ratio": 8.20871334725408
+      "output_size_mb": 1.8083209991455078,
+      "compression_ratio": 6.105639707999633
     },
     {
       "input_file": "data/raw/lfs/lfs_2014_pub0714.csv",
@@ -606,8 +606,8 @@
       "error": null,
       "rows": 104466,
       "input_size_mb": 11.04903507232666,
-      "output_size_mb": 1.3284101486206055,
-      "compression_ratio": 8.317487700466424
+      "output_size_mb": 1.7971973419189453,
+      "compression_ratio": 6.1479253360841986
     },
     {
       "input_file": "data/raw/lfs/lfs_2014_pub0814.csv",
@@ -617,8 +617,8 @@
       "error": null,
       "rows": 104602,
       "input_size_mb": 11.055558204650879,
-      "output_size_mb": 1.3200769424438477,
-      "compression_ratio": 8.374934709626709
+      "output_size_mb": 1.7904291152954102,
+      "compression_ratio": 6.1748092176365095
     },
     {
       "input_file": "data/raw/lfs/lfs_2014_pub0914.csv",
@@ -628,8 +628,8 @@
       "error": null,
       "rows": 104873,
       "input_size_mb": 11.094409942626953,
-      "output_size_mb": 1.3416194915771484,
-      "compression_ratio": 8.26941618862801
+      "output_size_mb": 1.8136796951293945,
+      "compression_ratio": 6.117072365324924
     },
     {
       "input_file": "data/raw/lfs/lfs_2014_pub1014.csv",
@@ -639,8 +639,8 @@
       "error": null,
       "rows": 105635,
       "input_size_mb": 11.219626426696777,
-      "output_size_mb": 1.357377052307129,
-      "compression_ratio": 8.265666792897978
+      "output_size_mb": 1.848276138305664,
+      "compression_ratio": 6.070319360927279
     },
     {
       "input_file": "data/raw/lfs/lfs_2014_pub1114.csv",
@@ -650,8 +650,8 @@
       "error": null,
       "rows": 104943,
       "input_size_mb": 11.1284761428833,
-      "output_size_mb": 1.327345848083496,
-      "compression_ratio": 8.38400644334804
+      "output_size_mb": 1.8139524459838867,
+      "compression_ratio": 6.13493268113058
     },
     {
       "input_file": "data/raw/lfs/lfs_2014_pub1214.csv",
@@ -661,8 +661,8 @@
       "error": null,
       "rows": 104097,
       "input_size_mb": 11.009553909301758,
-      "output_size_mb": 1.3146657943725586,
-      "compression_ratio": 8.374412688326018
+      "output_size_mb": 1.7832670211791992,
+      "compression_ratio": 6.173811200759831
     },
     {
       "input_file": "data/raw/lfs/lfs_2015_pub0115.csv",
@@ -672,8 +672,8 @@
       "error": null,
       "rows": 102614,
       "input_size_mb": 10.827984809875488,
-      "output_size_mb": 1.308854103088379,
-      "compression_ratio": 8.272873794203432
+      "output_size_mb": 1.777552604675293,
+      "compression_ratio": 6.09151300580128
     },
     {
       "input_file": "data/raw/lfs/lfs_2015_pub0215.csv",
@@ -683,8 +683,8 @@
       "error": null,
       "rows": 100523,
       "input_size_mb": 10.620813369750977,
-      "output_size_mb": 1.2716903686523438,
-      "compression_ratio": 8.351729030555006
+      "output_size_mb": 1.7474794387817383,
+      "compression_ratio": 6.077790178266884
     },
     {
       "input_file": "data/raw/lfs/lfs_2015_pub0315.csv",
@@ -694,8 +694,8 @@
       "error": null,
       "rows": 100587,
       "input_size_mb": 10.61760425567627,
-      "output_size_mb": 1.2851219177246094,
-      "compression_ratio": 8.261943173823864
+      "output_size_mb": 1.7565240859985352,
+      "compression_ratio": 6.0446676139032025
     },
     {
       "input_file": "data/raw/lfs/lfs_2015_pub0415.csv",
@@ -705,8 +705,8 @@
       "error": null,
       "rows": 100639,
       "input_size_mb": 10.626847267150879,
-      "output_size_mb": 1.284895896911621,
-      "compression_ratio": 8.27059008647595
+      "output_size_mb": 1.7475872039794922,
+      "compression_ratio": 6.080868092277234
     },
     {
       "input_file": "data/raw/lfs/lfs_2015_pub0515.csv",
@@ -716,8 +716,8 @@
       "error": null,
       "rows": 100650,
       "input_size_mb": 10.654181480407715,
-      "output_size_mb": 1.292323112487793,
-      "compression_ratio": 8.24420872570934
+      "output_size_mb": 1.7457008361816406,
+      "compression_ratio": 6.103096968041519
     },
     {
       "input_file": "data/raw/lfs/lfs_2015_pub0615.csv",
@@ -727,8 +727,8 @@
       "error": null,
       "rows": 100105,
       "input_size_mb": 10.609769821166992,
-      "output_size_mb": 1.2907629013061523,
-      "compression_ratio": 8.21976662827133
+      "output_size_mb": 1.7364768981933594,
+      "compression_ratio": 6.109940093188373
     },
     {
       "input_file": "data/raw/lfs/lfs_2015_pub0715.csv",
@@ -738,8 +738,8 @@
       "error": null,
       "rows": 101108,
       "input_size_mb": 10.688382148742676,
-      "output_size_mb": 1.2977361679077148,
-      "compression_ratio": 8.236174973820066
+      "output_size_mb": 1.7522964477539062,
+      "compression_ratio": 6.099642650330682
     },
     {
       "input_file": "data/raw/lfs/lfs_2015_pub0815.csv",
@@ -749,8 +749,8 @@
       "error": null,
       "rows": 102331,
       "input_size_mb": 10.811882972717285,
-      "output_size_mb": 1.2990665435791016,
-      "compression_ratio": 8.322809194153447
+      "output_size_mb": 1.759638786315918,
+      "compression_ratio": 6.144376366784726
     },
     {
       "input_file": "data/raw/lfs/lfs_2015_pub0915.csv",
@@ -760,8 +760,8 @@
       "error": null,
       "rows": 101936,
       "input_size_mb": 10.781124114990234,
-      "output_size_mb": 1.3049201965332031,
-      "compression_ratio": 8.261903021834266
+      "output_size_mb": 1.7633895874023438,
+      "compression_ratio": 6.1138639992039145
     },
     {
       "input_file": "data/raw/lfs/lfs_2015_pub1015.csv",
@@ -771,8 +771,8 @@
       "error": null,
       "rows": 101983,
       "input_size_mb": 10.819939613342285,
-      "output_size_mb": 1.2955713272094727,
-      "compression_ratio": 8.35148122384533
+      "output_size_mb": 1.7731380462646484,
+      "compression_ratio": 6.102141700775035
     },
     {
       "input_file": "data/raw/lfs/lfs_2015_pub1115.csv",
@@ -782,8 +782,8 @@
       "error": null,
       "rows": 101844,
       "input_size_mb": 10.77863597869873,
-      "output_size_mb": 1.2917613983154297,
-      "compression_ratio": 8.344138470738496
+      "output_size_mb": 1.7617454528808594,
+      "compression_ratio": 6.11815739956824
     },
     {
       "input_file": "data/raw/lfs/lfs_2015_pub1215.csv",
@@ -793,8 +793,8 @@
       "error": null,
       "rows": 101307,
       "input_size_mb": 10.684216499328613,
-      "output_size_mb": 1.2707271575927734,
-      "compression_ratio": 8.407954796188086
+      "output_size_mb": 1.7279901504516602,
+      "compression_ratio": 6.183030902424985
     },
     {
       "input_file": "data/raw/lfs/lfs_2016_pub0116.csv",
@@ -804,8 +804,8 @@
       "error": null,
       "rows": 101657,
       "input_size_mb": 10.705645561218262,
-      "output_size_mb": 1.2910699844360352,
-      "compression_ratio": 8.292072227126168
+      "output_size_mb": 1.7545204162597656,
+      "compression_ratio": 6.1017503484172835
     },
     {
       "input_file": "data/raw/lfs/lfs_2016_pub0216.csv",
@@ -815,8 +815,8 @@
       "error": null,
       "rows": 102039,
       "input_size_mb": 10.755823135375977,
-      "output_size_mb": 1.2953424453735352,
-      "compression_ratio": 8.303459192425631
+      "output_size_mb": 1.7737932205200195,
+      "compression_ratio": 6.063741258534471
     },
     {
       "input_file": "data/raw/lfs/lfs_2016_pub0316.csv",
@@ -826,8 +826,8 @@
       "error": null,
       "rows": 102354,
       "input_size_mb": 10.780112266540527,
-      "output_size_mb": 1.2990226745605469,
-      "compression_ratio": 8.29863287042883
+      "output_size_mb": 1.7701473236083984,
+      "compression_ratio": 6.089952018550385
     },
     {
       "input_file": "data/raw/lfs/lfs_2016_pub0416.csv",
@@ -837,8 +837,8 @@
       "error": null,
       "rows": 102675,
       "input_size_mb": 10.822948455810547,
-      "output_size_mb": 1.2971391677856445,
-      "compression_ratio": 8.34370646157149
+      "output_size_mb": 1.768803596496582,
+      "compression_ratio": 6.118796047931634
     },
     {
       "input_file": "data/raw/lfs/lfs_2016_pub0516.csv",
@@ -848,8 +848,8 @@
       "error": null,
       "rows": 103317,
       "input_size_mb": 10.926051139831543,
-      "output_size_mb": 1.307220458984375,
-      "compression_ratio": 8.35823144041088
+      "output_size_mb": 1.7733793258666992,
+      "compression_ratio": 6.161147240448223
     },
     {
       "input_file": "data/raw/lfs/lfs_2016_pub0616.csv",
@@ -859,8 +859,8 @@
       "error": null,
       "rows": 102918,
       "input_size_mb": 10.889464378356934,
-      "output_size_mb": 1.3243799209594727,
-      "compression_ratio": 8.222311593540207
+      "output_size_mb": 1.7843456268310547,
+      "compression_ratio": 6.102777519451936
     },
     {
       "input_file": "data/raw/lfs/lfs_2016_pub0716.csv",
@@ -870,8 +870,8 @@
       "error": null,
       "rows": 102040,
       "input_size_mb": 10.771980285644531,
-      "output_size_mb": 1.2932052612304688,
-      "compression_ratio": 8.329675580963169
+      "output_size_mb": 1.7509822845458984,
+      "compression_ratio": 6.151964175033414
     },
     {
       "input_file": "data/raw/lfs/lfs_2016_pub0816.csv",
@@ -881,8 +881,8 @@
       "error": null,
       "rows": 102460,
       "input_size_mb": 10.810150146484375,
-      "output_size_mb": 1.3014678955078125,
-      "compression_ratio": 8.30612125262331
+      "output_size_mb": 1.7618980407714844,
+      "compression_ratio": 6.13551402880891
     },
     {
       "input_file": "data/raw/lfs/lfs_2016_pub0916.csv",
@@ -892,8 +892,8 @@
       "error": null,
       "rows": 102362,
       "input_size_mb": 10.805553436279297,
-      "output_size_mb": 1.2966651916503906,
-      "compression_ratio": 8.333341178478022
+      "output_size_mb": 1.757089614868164,
+      "compression_ratio": 6.149688294122692
     },
     {
       "input_file": "data/raw/lfs/lfs_2016_pub1016.csv",
@@ -903,8 +903,8 @@
       "error": null,
       "rows": 102360,
       "input_size_mb": 10.83823299407959,
-      "output_size_mb": 1.2966108322143555,
-      "compression_ratio": 8.358894376634218
+      "output_size_mb": 1.7709989547729492,
+      "compression_ratio": 6.11984155319228
     },
     {
       "input_file": "data/raw/lfs/lfs_2016_pub1116.csv",
@@ -914,8 +914,8 @@
       "error": null,
       "rows": 102442,
       "input_size_mb": 10.831603050231934,
-      "output_size_mb": 1.3105649948120117,
-      "compression_ratio": 8.264834703436915
+      "output_size_mb": 1.7871246337890625,
+      "compression_ratio": 6.0609108315332
     },
     {
       "input_file": "data/raw/lfs/lfs_2016_pub1216.csv",
@@ -925,8 +925,8 @@
       "error": null,
       "rows": 102504,
       "input_size_mb": 10.817371368408203,
-      "output_size_mb": 1.3051462173461914,
-      "compression_ratio": 8.288244814748511
+      "output_size_mb": 1.7704334259033203,
+      "compression_ratio": 6.1100130680649025
     },
     {
       "input_file": "data/raw/lfs/lfs_2017_pub0117.csv",
@@ -936,8 +936,8 @@
       "error": null,
       "rows": 102746,
       "input_size_mb": 10.830180168151855,
-      "output_size_mb": 1.3006420135498047,
-      "compression_ratio": 8.326795578895194
+      "output_size_mb": 1.7726078033447266,
+      "compression_ratio": 6.109744156443648
     },
     {
       "input_file": "data/raw/lfs/lfs_2017_pub0217.csv",
@@ -947,8 +947,8 @@
       "error": null,
       "rows": 102984,
       "input_size_mb": 10.865983009338379,
-      "output_size_mb": 1.3076534271240234,
-      "compression_ratio": 8.30952818533607
+      "output_size_mb": 1.7840375900268555,
+      "compression_ratio": 6.090669316656501
     },
     {
       "input_file": "data/raw/lfs/lfs_2017_pub0317.csv",
@@ -958,8 +958,8 @@
       "error": null,
       "rows": 102802,
       "input_size_mb": 10.839563369750977,
-      "output_size_mb": 1.3076086044311523,
-      "compression_ratio": 8.289608475363698
+      "output_size_mb": 1.7830228805541992,
+      "compression_ratio": 6.0793181556827935
     },
     {
       "input_file": "data/raw/lfs/lfs_2017_pub0417.csv",
@@ -969,8 +969,8 @@
       "error": null,
       "rows": 103183,
       "input_size_mb": 10.915305137634277,
-      "output_size_mb": 1.3112220764160156,
-      "compression_ratio": 8.324528189358476
+      "output_size_mb": 1.7973957061767578,
+      "compression_ratio": 6.072844783218178
     },
     {
       "input_file": "data/raw/lfs/lfs_2017_pub0517.csv",
@@ -980,8 +980,8 @@
       "error": null,
       "rows": 103192,
       "input_size_mb": 10.92384147644043,
-      "output_size_mb": 1.323683738708496,
-      "compression_ratio": 8.252606840285507
+      "output_size_mb": 1.7872114181518555,
+      "compression_ratio": 6.112226771545981
     },
     {
       "input_file": "data/raw/lfs/lfs_2017_pub0617.csv",
@@ -991,8 +991,8 @@
       "error": null,
       "rows": 103541,
       "input_size_mb": 10.96998405456543,
-      "output_size_mb": 1.329763412475586,
-      "compression_ratio": 8.249575790435454
+      "output_size_mb": 1.7875003814697266,
+      "compression_ratio": 6.1370527068339085
     },
     {
       "input_file": "data/raw/lfs/lfs_2017_pub0717.csv",
@@ -1002,8 +1002,8 @@
       "error": null,
       "rows": 102734,
       "input_size_mb": 10.858208656311035,
-      "output_size_mb": 1.321542739868164,
-      "compression_ratio": 8.216312896088583
+      "output_size_mb": 1.780827522277832,
+      "compression_ratio": 6.097282595016529
     },
     {
       "input_file": "data/raw/lfs/lfs_2017_pub0817.csv",
@@ -1013,8 +1013,8 @@
       "error": null,
       "rows": 103133,
       "input_size_mb": 10.889350891113281,
-      "output_size_mb": 1.3171253204345703,
-      "compression_ratio": 8.267513138021267
+      "output_size_mb": 1.7756891250610352,
+      "compression_ratio": 6.132464707604145
     },
     {
       "input_file": "data/raw/lfs/lfs_2017_pub0917.csv",
@@ -1024,8 +1024,8 @@
       "error": null,
       "rows": 103273,
       "input_size_mb": 10.916092872619629,
-      "output_size_mb": 1.3067779541015625,
-      "compression_ratio": 8.35344125477283
+      "output_size_mb": 1.767660140991211,
+      "compression_ratio": 6.1754477681996365
     },
     {
       "input_file": "data/raw/lfs/lfs_2017_pub1017.csv",
@@ -1035,8 +1035,8 @@
       "error": null,
       "rows": 103190,
       "input_size_mb": 10.932865142822266,
-      "output_size_mb": 1.3291196823120117,
-      "compression_ratio": 8.225643851578875
+      "output_size_mb": 1.8046674728393555,
+      "compression_ratio": 6.058105056673489
     },
     {
       "input_file": "data/raw/lfs/lfs_2017_pub1117.csv",
@@ -1046,8 +1046,8 @@
       "error": null,
       "rows": 102980,
       "input_size_mb": 10.878549575805664,
-      "output_size_mb": 1.316664695739746,
-      "compression_ratio": 8.262201918988746
+      "output_size_mb": 1.7809867858886719,
+      "compression_ratio": 6.108158500669344
     },
     {
       "input_file": "data/raw/lfs/lfs_2017_pub1217.csv",
@@ -1057,8 +1057,8 @@
       "error": null,
       "rows": 102800,
       "input_size_mb": 10.856209754943848,
-      "output_size_mb": 1.3154420852661133,
-      "compression_ratio": 8.252898304335186
+      "output_size_mb": 1.7755765914916992,
+      "compression_ratio": 6.114188375182012
     },
     {
       "input_file": "data/raw/lfs/lfs_2018_pub0118.csv",
@@ -1068,8 +1068,8 @@
       "error": null,
       "rows": 102509,
       "input_size_mb": 10.799151420593262,
-      "output_size_mb": 1.2979135513305664,
-      "compression_ratio": 8.320393457270267
+      "output_size_mb": 1.764836311340332,
+      "compression_ratio": 6.119066879574617
     },
     {
       "input_file": "data/raw/lfs/lfs_2018_pub0218.csv",
@@ -1079,8 +1079,8 @@
       "error": null,
       "rows": 102568,
       "input_size_mb": 10.817160606384277,
-      "output_size_mb": 1.297255516052246,
-      "compression_ratio": 8.3384965201787
+      "output_size_mb": 1.7694292068481445,
+      "compression_ratio": 6.113361622222066
     },
     {
       "input_file": "data/raw/lfs/lfs_2018_pub0318.csv",
@@ -1090,8 +1090,8 @@
       "error": null,
       "rows": 102644,
       "input_size_mb": 10.820231437683105,
-      "output_size_mb": 1.3060054779052734,
-      "compression_ratio": 8.284981664118192
+      "output_size_mb": 1.7723588943481445,
+      "compression_ratio": 6.104988934344855
     },
     {
       "input_file": "data/raw/lfs/lfs_2018_pub0418.csv",
@@ -1101,8 +1101,8 @@
       "error": null,
       "rows": 103041,
       "input_size_mb": 10.870645523071289,
-      "output_size_mb": 1.3109416961669922,
-      "compression_ratio": 8.292241794471499
+      "output_size_mb": 1.7784233093261719,
+      "compression_ratio": 6.112518580961512
     },
     {
       "input_file": "data/raw/lfs/lfs_2018_pub0518.csv",
@@ -1112,8 +1112,8 @@
       "error": null,
       "rows": 103128,
       "input_size_mb": 10.913418769836426,
-      "output_size_mb": 1.3129453659057617,
-      "compression_ratio": 8.312165192271793
+      "output_size_mb": 1.7749080657958984,
+      "compression_ratio": 6.148723407227668
     },
     {
       "input_file": "data/raw/lfs/lfs_2018_pub0618.csv",
@@ -1123,8 +1123,8 @@
       "error": null,
       "rows": 102557,
       "input_size_mb": 10.856038093566895,
-      "output_size_mb": 1.3230199813842773,
-      "compression_ratio": 8.20549821341943
+      "output_size_mb": 1.776174545288086,
+      "compression_ratio": 6.1120333710255395
     },
     {
       "input_file": "data/raw/lfs/lfs_2018_pub0718.csv",
@@ -1134,8 +1134,8 @@
       "error": null,
       "rows": 101590,
       "input_size_mb": 10.730064392089844,
-      "output_size_mb": 1.2914934158325195,
-      "compression_ratio": 8.308261010508563
+      "output_size_mb": 1.7425832748413086,
+      "compression_ratio": 6.157561906513188
     },
     {
       "input_file": "data/raw/lfs/lfs_2018_pub0818.csv",
@@ -1145,8 +1145,8 @@
       "error": null,
       "rows": 101099,
       "input_size_mb": 10.669953346252441,
-      "output_size_mb": 1.2902336120605469,
-      "compression_ratio": 8.269784050356714
+      "output_size_mb": 1.7378320693969727,
+      "compression_ratio": 6.139806908935058
     },
     {
       "input_file": "data/raw/lfs/lfs_2018_pub0918.csv",
@@ -1156,8 +1156,8 @@
       "error": null,
       "rows": 101079,
       "input_size_mb": 10.679407119750977,
-      "output_size_mb": 1.2971220016479492,
-      "compression_ratio": 8.233155482817464
+      "output_size_mb": 1.7438888549804688,
+      "compression_ratio": 6.123903532757301
     },
     {
       "input_file": "data/raw/lfs/lfs_2018_pub1018.csv",
@@ -1167,8 +1167,8 @@
       "error": null,
       "rows": 100896,
       "input_size_mb": 10.685959815979004,
-      "output_size_mb": 1.2867460250854492,
-      "compression_ratio": 8.304637906512577
+      "output_size_mb": 1.7455883026123047,
+      "compression_ratio": 6.121695361951767
     },
     {
       "input_file": "data/raw/lfs/lfs_2018_pub1118.csv",
@@ -1178,8 +1178,8 @@
       "error": null,
       "rows": 100740,
       "input_size_mb": 10.635086059570312,
-      "output_size_mb": 1.2809953689575195,
-      "compression_ratio": 8.302204923836063
+      "output_size_mb": 1.7256059646606445,
+      "compression_ratio": 6.163102282543277
     },
     {
       "input_file": "data/raw/lfs/lfs_2018_pub1218.csv",
@@ -1189,8 +1189,8 @@
       "error": null,
       "rows": 100639,
       "input_size_mb": 10.623236656188965,
-      "output_size_mb": 1.2863550186157227,
-      "compression_ratio": 8.258401842767235
+      "output_size_mb": 1.733860969543457,
+      "compression_ratio": 6.126925308772692
     },
     {
       "input_file": "data/raw/lfs/lfs_2019_pub0119.csv",
@@ -1200,8 +1200,8 @@
       "error": null,
       "rows": 100599,
       "input_size_mb": 10.606614112854004,
-      "output_size_mb": 1.2761402130126953,
-      "compression_ratio": 8.31148019998057
+      "output_size_mb": 1.7281312942504883,
+      "compression_ratio": 6.137620531577852
     },
     {
       "input_file": "data/raw/lfs/lfs_2019_pub0219.csv",
@@ -1211,8 +1211,8 @@
       "error": null,
       "rows": 100003,
       "input_size_mb": 10.559504508972168,
-      "output_size_mb": 1.278630256652832,
-      "compression_ratio": 8.25845036438805
+      "output_size_mb": 1.733621597290039,
+      "compression_ratio": 6.091008859994917
     },
     {
       "input_file": "data/raw/lfs/lfs_2019_pub0319.csv",
@@ -1222,8 +1222,8 @@
       "error": null,
       "rows": 100364,
       "input_size_mb": 10.592326164245605,
-      "output_size_mb": 1.2693119049072266,
-      "compression_ratio": 8.344935648436854
+      "output_size_mb": 1.7224225997924805,
+      "compression_ratio": 6.149667430932328
     },
     {
       "input_file": "data/raw/lfs/lfs_2019_pub0419.csv",
@@ -1233,8 +1233,8 @@
       "error": null,
       "rows": 100885,
       "input_size_mb": 10.682991027832031,
-      "output_size_mb": 1.2969884872436523,
-      "compression_ratio": 8.236766272717981
+      "output_size_mb": 1.7682161331176758,
+      "compression_ratio": 6.041677161375087
     },
     {
       "input_file": "data/raw/lfs/lfs_2019_pub0519.csv",
@@ -1244,8 +1244,8 @@
       "error": null,
       "rows": 100916,
       "input_size_mb": 10.680079460144043,
-      "output_size_mb": 1.295644760131836,
-      "compression_ratio": 8.243061515609657
+      "output_size_mb": 1.7432861328125,
+      "compression_ratio": 6.126406479763322
     },
     {
       "input_file": "data/raw/lfs/lfs_2019_pub0619.csv",
@@ -1255,8 +1255,8 @@
       "error": null,
       "rows": 101343,
       "input_size_mb": 10.729879379272461,
-      "output_size_mb": 1.300821304321289,
-      "compression_ratio": 8.248542166113152
+      "output_size_mb": 1.7467927932739258,
+      "compression_ratio": 6.1426171556169455
     },
     {
       "input_file": "data/raw/lfs/lfs_2019_pub0719.csv",
@@ -1266,8 +1266,8 @@
       "error": null,
       "rows": 100617,
       "input_size_mb": 10.617878913879395,
-      "output_size_mb": 1.2841825485229492,
-      "compression_ratio": 8.268200596630088
+      "output_size_mb": 1.7303991317749023,
+      "compression_ratio": 6.136086593495016
     },
     {
       "input_file": "data/raw/lfs/lfs_2019_pub0819.csv",
@@ -1277,8 +1277,8 @@
       "error": null,
       "rows": 100891,
       "input_size_mb": 10.63778305053711,
-      "output_size_mb": 1.289597511291504,
-      "compression_ratio": 8.248917167871703
+      "output_size_mb": 1.7362165451049805,
+      "compression_ratio": 6.126990945068949
     },
     {
       "input_file": "data/raw/lfs/lfs_2019_pub0919.csv",
@@ -1288,8 +1288,8 @@
       "error": null,
       "rows": 100011,
       "input_size_mb": 10.556113243103027,
-      "output_size_mb": 1.274825096130371,
-      "compression_ratio": 8.280440411116206
+      "output_size_mb": 1.7151403427124023,
+      "compression_ratio": 6.154664420294086
     },
     {
       "input_file": "data/raw/lfs/lfs_2019_pub1019.csv",
@@ -1299,8 +1299,8 @@
       "error": null,
       "rows": 99699,
       "input_size_mb": 10.550285339355469,
-      "output_size_mb": 1.2737035751342773,
-      "compression_ratio": 8.283155944069033
+      "output_size_mb": 1.730097770690918,
+      "compression_ratio": 6.098086199569051
     },
     {
       "input_file": "data/raw/lfs/lfs_2019_pub1119.csv",
@@ -1310,8 +1310,8 @@
       "error": null,
       "rows": 99297,
       "input_size_mb": 10.485430717468262,
-      "output_size_mb": 1.2707443237304688,
-      "compression_ratio": 8.251408659994356
+      "output_size_mb": 1.7234344482421875,
+      "compression_ratio": 6.084032223078081
     },
     {
       "input_file": "data/raw/lfs/lfs_2019_pub1219.csv",
@@ -1321,8 +1321,8 @@
       "error": null,
       "rows": 98574,
       "input_size_mb": 10.392167091369629,
-      "output_size_mb": 1.2516508102416992,
-      "compression_ratio": 8.30276863669577
+      "output_size_mb": 1.6888494491577148,
+      "compression_ratio": 6.153400527532248
     },
     {
       "input_file": "data/raw/lfs/lfs_2020_pub0120.csv",
@@ -1332,8 +1332,8 @@
       "error": null,
       "rows": 99175,
       "input_size_mb": 10.448803901672363,
-      "output_size_mb": 1.2478790283203125,
-      "compression_ratio": 8.373250663357014
+      "output_size_mb": 1.696211814880371,
+      "compression_ratio": 6.160082019243149
     },
     {
       "input_file": "data/raw/lfs/lfs_2020_pub0220.csv",
@@ -1343,8 +1343,8 @@
       "error": null,
       "rows": 99174,
       "input_size_mb": 10.461849212646484,
-      "output_size_mb": 1.255950927734375,
-      "compression_ratio": 8.329823229255254
+      "output_size_mb": 1.7029552459716797,
+      "compression_ratio": 6.1433494728612885
     },
     {
       "input_file": "data/raw/lfs/lfs_2020_pub0320.csv",
@@ -1354,8 +1354,8 @@
       "error": null,
       "rows": 93698,
       "input_size_mb": 9.806389808654785,
-      "output_size_mb": 1.1733903884887695,
-      "compression_ratio": 8.357312199637676
+      "output_size_mb": 1.6200265884399414,
+      "compression_ratio": 6.053227693070257
     },
     {
       "input_file": "data/raw/lfs/lfs_2020_pub0420.csv",
@@ -1365,8 +1365,8 @@
       "error": null,
       "rows": 90353,
       "input_size_mb": 9.365342140197754,
-      "output_size_mb": 1.0854997634887695,
-      "compression_ratio": 8.627677734445353
+      "output_size_mb": 1.526968002319336,
+      "compression_ratio": 6.133292987130436
     },
     {
       "input_file": "data/raw/lfs/lfs_2020_pub0520.csv",
@@ -1376,8 +1376,8 @@
       "error": null,
       "rows": 89102,
       "input_size_mb": 9.28482437133789,
-      "output_size_mb": 1.0847711563110352,
-      "compression_ratio": 8.559247097712896
+      "output_size_mb": 1.5157623291015625,
+      "compression_ratio": 6.125514662210455
     },
     {
       "input_file": "data/raw/lfs/lfs_2020_pub0620.csv",
@@ -1387,8 +1387,8 @@
       "error": null,
       "rows": 87779,
       "input_size_mb": 9.201318740844727,
-      "output_size_mb": 1.0846452713012695,
-      "compression_ratio": 8.483251607049123
+      "output_size_mb": 1.495880126953125,
+      "compression_ratio": 6.151107013893139
     },
     {
       "input_file": "data/raw/lfs/lfs_2020_pub0720.csv",
@@ -1398,8 +1398,8 @@
       "error": null,
       "rows": 85929,
       "input_size_mb": 8.99515151977539,
-      "output_size_mb": 1.0639152526855469,
-      "compression_ratio": 8.454763193844366
+      "output_size_mb": 1.4675703048706055,
+      "compression_ratio": 6.129281500124443
     },
     {
       "input_file": "data/raw/lfs/lfs_2020_pub0820.csv",
@@ -1409,8 +1409,8 @@
       "error": null,
       "rows": 85453,
       "input_size_mb": 8.946590423583984,
-      "output_size_mb": 1.0667810440063477,
-      "compression_ratio": 8.386529245012296
+      "output_size_mb": 1.466200828552246,
+      "compression_ratio": 6.1018860781970865
     },
     {
       "input_file": "data/raw/lfs/lfs_2020_pub0920.csv",
@@ -1420,8 +1420,8 @@
       "error": null,
       "rows": 85682,
       "input_size_mb": 8.991640090942383,
-      "output_size_mb": 1.0653276443481445,
-      "compression_ratio": 8.44025792313332
+      "output_size_mb": 1.4575920104980469,
+      "compression_ratio": 6.168831899586233
     },
     {
       "input_file": "data/raw/lfs/lfs_2020_pub1020.csv",
@@ -1431,8 +1431,8 @@
       "error": null,
       "rows": 85097,
       "input_size_mb": 8.937162399291992,
-      "output_size_mb": 1.069687843322754,
-      "compression_ratio": 8.35492564964619
+      "output_size_mb": 1.4673633575439453,
+      "compression_ratio": 6.090626669491669
     },
     {
       "input_file": "data/raw/lfs/lfs_2020_pub1120.csv",
@@ -1442,8 +1442,8 @@
       "error": null,
       "rows": 84337,
       "input_size_mb": 8.84922981262207,
-      "output_size_mb": 1.0530462265014648,
-      "compression_ratio": 8.403458072322108
+      "output_size_mb": 1.4434680938720703,
+      "compression_ratio": 6.1305337126532615
     },
     {
       "input_file": "data/raw/lfs/lfs_2020_pub1220.csv",
@@ -1453,8 +1453,8 @@
       "error": null,
       "rows": 83232,
       "input_size_mb": 8.709829330444336,
-      "output_size_mb": 1.0364751815795898,
-      "compression_ratio": 8.40331682343859
+      "output_size_mb": 1.4188165664672852,
+      "compression_ratio": 6.138798725850066
     },
     {
       "input_file": "data/raw/lfs/lfs_2021_pub0121.csv",
@@ -1464,8 +1464,8 @@
       "error": null,
       "rows": 83787,
       "input_size_mb": 8.744474411010742,
-      "output_size_mb": 1.0383329391479492,
-      "compression_ratio": 8.421647894736358
+      "output_size_mb": 1.4262123107910156,
+      "compression_ratio": 6.131257138119094
     },
     {
       "input_file": "data/raw/lfs/lfs_2021_pub0221.csv",
@@ -1475,8 +1475,8 @@
       "error": null,
       "rows": 85326,
       "input_size_mb": 8.928715705871582,
-      "output_size_mb": 1.0651016235351562,
-      "compression_ratio": 8.382970703055047
+      "output_size_mb": 1.4678020477294922,
+      "compression_ratio": 6.083051675587453
     },
     {
       "input_file": "data/raw/lfs/lfs_2021_pub0321.csv",
@@ -1486,8 +1486,8 @@
       "error": null,
       "rows": 86552,
       "input_size_mb": 9.052311897277832,
-      "output_size_mb": 1.0667057037353516,
-      "compression_ratio": 8.486231830934036
+      "output_size_mb": 1.4644012451171875,
+      "compression_ratio": 6.18157894051328
     },
     {
       "input_file": "data/raw/lfs/lfs_2021_pub0421.csv",
@@ -1497,8 +1497,8 @@
       "error": null,
       "rows": 87597,
       "input_size_mb": 9.149762153625488,
-      "output_size_mb": 1.0734167098999023,
-      "compression_ratio": 8.523960982942699
+      "output_size_mb": 1.4725532531738281,
+      "compression_ratio": 6.213535662567581
     },
     {
       "input_file": "data/raw/lfs/lfs_2021_pub0521.csv",
@@ -1508,8 +1508,8 @@
       "error": null,
       "rows": 88057,
       "input_size_mb": 9.214491844177246,
-      "output_size_mb": 1.093327522277832,
-      "compression_ratio": 8.427933676250854
+      "output_size_mb": 1.484914779663086,
+      "compression_ratio": 6.205401124950708
     },
     {
       "input_file": "data/raw/lfs/lfs_2021_pub0621.csv",
@@ -1519,8 +1519,8 @@
       "error": null,
       "rows": 87573,
       "input_size_mb": 9.185918807983398,
-      "output_size_mb": 1.0962753295898438,
-      "compression_ratio": 8.379207813989742
+      "output_size_mb": 1.487081527709961,
+      "compression_ratio": 6.177145393050038
     },
     {
       "input_file": "data/raw/lfs/lfs_2021_pub0721.csv",
@@ -1530,8 +1530,8 @@
       "error": null,
       "rows": 86405,
       "input_size_mb": 9.042218208312988,
-      "output_size_mb": 1.0645408630371094,
-      "compression_ratio": 8.494007625518252
+      "output_size_mb": 1.449676513671875,
+      "compression_ratio": 6.237404085005157
     },
     {
       "input_file": "data/raw/lfs/lfs_2021_pub0821.csv",
@@ -1541,8 +1541,8 @@
       "error": null,
       "rows": 86862,
       "input_size_mb": 9.093984603881836,
-      "output_size_mb": 1.0754737854003906,
-      "compression_ratio": 8.455793834617936
+      "output_size_mb": 1.4637556076049805,
+      "compression_ratio": 6.212775245152812
     },
     {
       "input_file": "data/raw/lfs/lfs_2021_pub0921.csv",
@@ -1552,8 +1552,8 @@
       "error": null,
       "rows": 86049,
       "input_size_mb": 9.030009269714355,
-      "output_size_mb": 1.0678424835205078,
-      "compression_ratio": 8.456312058257733
+      "output_size_mb": 1.4504919052124023,
+      "compression_ratio": 6.2254806367858
     },
     {
       "input_file": "data/raw/lfs/lfs_2021_pub1021.csv",
@@ -1563,8 +1563,8 @@
       "error": null,
       "rows": 86555,
       "input_size_mb": 9.096760749816895,
-      "output_size_mb": 1.0811901092529297,
-      "compression_ratio": 8.413655167547256
+      "output_size_mb": 1.4730510711669922,
+      "compression_ratio": 6.1754550998766025
     },
     {
       "input_file": "data/raw/lfs/lfs_2021_pub1121.csv",
@@ -1574,8 +1574,8 @@
       "error": null,
       "rows": 89546,
       "input_size_mb": 9.408870697021484,
-      "output_size_mb": 1.1183958053588867,
-      "compression_ratio": 8.412827240533357
+      "output_size_mb": 1.5237550735473633,
+      "compression_ratio": 6.174792038668822
     },
     {
       "input_file": "data/raw/lfs/lfs_2021_pub1221.csv",
@@ -1585,8 +1585,8 @@
       "error": null,
       "rows": 92685,
       "input_size_mb": 9.72075366973877,
-      "output_size_mb": 1.1467761993408203,
-      "compression_ratio": 8.476591749398327
+      "output_size_mb": 1.55499267578125,
+      "compression_ratio": 6.251317977980139
     },
     {
       "input_file": "data/raw/lfs/lfs_2022_pub0122.csv",
@@ -1596,8 +1596,8 @@
       "error": null,
       "rows": 97899,
       "input_size_mb": 10.235835075378418,
-      "output_size_mb": 1.2170219421386719,
-      "compression_ratio": 8.410559186296174
+      "output_size_mb": 1.6590843200683594,
+      "compression_ratio": 6.169568931226275
     },
     {
       "input_file": "data/raw/lfs/lfs_2022_pub0222.csv",
@@ -1607,8 +1607,8 @@
       "error": null,
       "rows": 103658,
       "input_size_mb": 10.882933616638184,
-      "output_size_mb": 1.3202123641967773,
-      "compression_ratio": 8.243320477656187
+      "output_size_mb": 1.7819089889526367,
+      "compression_ratio": 6.10745761097199
     },
     {
       "input_file": "data/raw/lfs/lfs_2022_pub0322.csv",
@@ -1618,8 +1618,8 @@
       "error": null,
       "rows": 107967,
       "input_size_mb": 11.3358793258667,
-      "output_size_mb": 1.3611412048339844,
-      "compression_ratio": 8.328217003208946
+      "output_size_mb": 1.8408184051513672,
+      "compression_ratio": 6.158064964009619
     },
     {
       "input_file": "data/raw/lfs/lfs_2022_pub0422.csv",
@@ -1629,8 +1629,8 @@
       "error": null,
       "rows": 111708,
       "input_size_mb": 11.767321586608887,
-      "output_size_mb": 1.4091529846191406,
-      "compression_ratio": 8.350634540783593
+      "output_size_mb": 1.9126653671264648,
+      "compression_ratio": 6.152315919374743
     },
     {
       "input_file": "data/raw/lfs/lfs_2022_pub0522.csv",
@@ -1640,8 +1640,8 @@
       "error": null,
       "rows": 111139,
       "input_size_mb": 11.717548370361328,
-      "output_size_mb": 1.4050054550170898,
-      "compression_ratio": 8.33985969842288
+      "output_size_mb": 1.8887615203857422,
+      "compression_ratio": 6.203826287168456
     },
     {
       "input_file": "data/raw/lfs/lfs_2022_pub0622.csv",
@@ -1651,8 +1651,8 @@
       "error": null,
       "rows": 111740,
       "input_size_mb": 11.790873527526855,
-      "output_size_mb": 1.4167556762695312,
-      "compression_ratio": 8.32244664695714
+      "output_size_mb": 1.8970279693603516,
+      "compression_ratio": 6.215445274379668
     },
     {
       "input_file": "data/raw/lfs/lfs_2022_pub0722.csv",
@@ -1662,8 +1662,8 @@
       "error": null,
       "rows": 111294,
       "input_size_mb": 11.714160919189453,
-      "output_size_mb": 1.3928327560424805,
-      "compression_ratio": 8.410314065612182
+      "output_size_mb": 1.874079704284668,
+      "compression_ratio": 6.250620447149403
     },
     {
       "input_file": "data/raw/lfs/lfs_2022_pub0822.csv",
@@ -1673,8 +1673,8 @@
       "error": null,
       "rows": 111173,
       "input_size_mb": 11.69936752319336,
-      "output_size_mb": 1.4021873474121094,
-      "compression_ratio": 8.343655036387132
+      "output_size_mb": 1.8880987167358398,
+      "compression_ratio": 6.1963749138177056
     },
     {
       "input_file": "data/raw/lfs/lfs_2022_pub0922.csv",
@@ -1684,8 +1684,8 @@
       "error": null,
       "rows": 110439,
       "input_size_mb": 11.628469467163086,
-      "output_size_mb": 1.4036197662353516,
-      "compression_ratio": 8.28462931834581
+      "output_size_mb": 1.8790950775146484,
+      "compression_ratio": 6.188334803443407
     },
     {
       "input_file": "data/raw/lfs/lfs_2022_pub1022.csv",
@@ -1695,8 +1695,8 @@
       "error": null,
       "rows": 110059,
       "input_size_mb": 11.612449645996094,
-      "output_size_mb": 1.398167610168457,
-      "compression_ratio": 8.305477513241046
+      "output_size_mb": 1.8869524002075195,
+      "compression_ratio": 6.154076618317983
     },
     {
       "input_file": "data/raw/lfs/lfs_2022_pub1122.csv",
@@ -1706,8 +1706,8 @@
       "error": null,
       "rows": 109348,
       "input_size_mb": 11.524815559387207,
-      "output_size_mb": 1.3741159439086914,
-      "compression_ratio": 8.387076513066804
+      "output_size_mb": 1.8563194274902344,
+      "compression_ratio": 6.208422639291608
     },
     {
       "input_file": "data/raw/lfs/lfs_2022_pub1222.csv",
@@ -1717,8 +1717,8 @@
       "error": null,
       "rows": 110147,
       "input_size_mb": 11.595440864562988,
-      "output_size_mb": 1.3909549713134766,
-      "compression_ratio": 8.336316490255204
+      "output_size_mb": 1.8731660842895508,
+      "compression_ratio": 6.190289778261106
     },
     {
       "input_file": "data/raw/lfs/lfs_2023_pub0123.csv",
@@ -1728,8 +1728,8 @@
       "error": null,
       "rows": 108064,
       "input_size_mb": 11.361242294311523,
-      "output_size_mb": 1.3592166900634766,
-      "compression_ratio": 8.358668913770433
+      "output_size_mb": 1.8306512832641602,
+      "compression_ratio": 6.2061204109030275
     },
     {
       "input_file": "data/raw/lfs/lfs_2023_pub0223.csv",
@@ -1739,8 +1739,8 @@
       "error": null,
       "rows": 104851,
       "input_size_mb": 11.02489948272705,
-      "output_size_mb": 1.3134584426879883,
-      "compression_ratio": 8.3937939141528
+      "output_size_mb": 1.777359962463379,
+      "compression_ratio": 6.202963786495337
     },
     {
       "input_file": "data/raw/lfs/lfs_2023_pub0323.csv",
@@ -1750,8 +1750,8 @@
       "error": null,
       "rows": 101043,
       "input_size_mb": 10.617502212524414,
-      "output_size_mb": 1.268580436706543,
-      "compression_ratio": 8.369593212464563
+      "output_size_mb": 1.7200002670288086,
+      "compression_ratio": 6.172965444281864
     },
     {
       "input_file": "data/raw/lfs/lfs_2023_pub0423.csv",
@@ -1761,8 +1761,8 @@
       "error": null,
       "rows": 100024,
       "input_size_mb": 10.524292945861816,
-      "output_size_mb": 1.273463249206543,
-      "compression_ratio": 8.264308335885774
+      "output_size_mb": 1.7211275100708008,
+      "compression_ratio": 6.1147665610370066
     },
     {
       "input_file": "data/raw/lfs/lfs_2023_pub0523.csv",
@@ -1772,8 +1772,8 @@
       "error": null,
       "rows": 98785,
       "input_size_mb": 10.410284996032715,
-      "output_size_mb": 1.2519216537475586,
-      "compression_ratio": 8.315444472799156
+      "output_size_mb": 1.6852607727050781,
+      "compression_ratio": 6.177254680486485
     },
     {
       "input_file": "data/raw/lfs/lfs_2023_pub0623.csv",
@@ -1783,8 +1783,8 @@
       "error": null,
       "rows": 97522,
       "input_size_mb": 10.288847923278809,
-      "output_size_mb": 1.258493423461914,
-      "compression_ratio": 8.175527763169262
+      "output_size_mb": 1.6819000244140625,
+      "compression_ratio": 6.117395667951916
     },
     {
       "input_file": "data/raw/lfs/lfs_2023_pub0723.csv",
@@ -1794,8 +1794,8 @@
       "error": null,
       "rows": 99953,
       "input_size_mb": 10.519688606262207,
-      "output_size_mb": 1.2654695510864258,
-      "compression_ratio": 8.312873744951736
+      "output_size_mb": 1.7054443359375,
+      "compression_ratio": 6.168297835695369
     },
     {
       "input_file": "data/raw/lfs/lfs_2023_pub0823.csv",
@@ -1805,8 +1805,8 @@
       "error": null,
       "rows": 103403,
       "input_size_mb": 10.88695240020752,
-      "output_size_mb": 1.2998075485229492,
-      "compression_ratio": 8.37581872222471
+      "output_size_mb": 1.7560396194458008,
+      "compression_ratio": 6.199719117751682
     },
     {
       "input_file": "data/raw/lfs/lfs_2023_pub0923.csv",
@@ -1816,8 +1816,8 @@
       "error": null,
       "rows": 108982,
       "input_size_mb": 11.490354537963867,
-      "output_size_mb": 1.3771982192993164,
-      "compression_ratio": 8.343283034311407
+      "output_size_mb": 1.8543424606323242,
+      "compression_ratio": 6.196457656503048
     },
     {
       "input_file": "data/raw/lfs/lfs_2023_pub1023.csv",
@@ -1827,8 +1827,8 @@
       "error": null,
       "rows": 108602,
       "input_size_mb": 11.471206665039062,
-      "output_size_mb": 1.3885011672973633,
-      "compression_ratio": 8.261575096380437
+      "output_size_mb": 1.8791942596435547,
+      "compression_ratio": 6.104321895499468
     },
     {
       "input_file": "data/raw/lfs/lfs_2023_pub1123.csv",
@@ -1838,8 +1838,8 @@
       "error": null,
       "rows": 108149,
       "input_size_mb": 11.404671669006348,
-      "output_size_mb": 1.357675552368164,
-      "compression_ratio": 8.400145122384671
+      "output_size_mb": 1.8315305709838867,
+      "compression_ratio": 6.226853021011727
     },
     {
       "input_file": "data/raw/lfs/lfs_2023_pub1223.csv",
@@ -1849,8 +1849,8 @@
       "error": null,
       "rows": 108024,
       "input_size_mb": 11.384917259216309,
-      "output_size_mb": 1.3493976593017578,
-      "compression_ratio": 8.43703646640932
+      "output_size_mb": 1.825582504272461,
+      "compression_ratio": 6.23632031560988
     },
     {
       "input_file": "data/raw/lfs/lfs_2024_pub0124.csv",
@@ -1860,8 +1860,8 @@
       "error": null,
       "rows": 109278,
       "input_size_mb": 11.497666358947754,
-      "output_size_mb": 1.3540639877319336,
-      "compression_ratio": 8.49122823080645
+      "output_size_mb": 1.8401994705200195,
+      "compression_ratio": 6.248054378419446
     },
     {
       "input_file": "data/raw/lfs/lfs_2024_pub0224.csv",
@@ -1871,8 +1871,8 @@
       "error": null,
       "rows": 109932,
       "input_size_mb": 11.573036193847656,
-      "output_size_mb": 1.3792591094970703,
-      "compression_ratio": 8.3907629205854
+      "output_size_mb": 1.8699512481689453,
+      "compression_ratio": 6.188950757502348
     },
     {
       "input_file": "data/raw/lfs/lfs_2024_pub0324.csv",
@@ -1882,8 +1882,8 @@
       "error": null,
       "rows": 111282,
       "input_size_mb": 11.712310791015625,
-      "output_size_mb": 1.4029960632324219,
-      "compression_ratio": 8.348071030243048
+      "output_size_mb": 1.8993234634399414,
+      "compression_ratio": 6.166569842612794
     },
     {
       "input_file": "data/raw/lfs/lfs_2024_pub0424.csv",
@@ -1893,8 +1893,8 @@
       "error": null,
       "rows": 112084,
       "input_size_mb": 11.806687355041504,
-      "output_size_mb": 1.4109487533569336,
-      "compression_ratio": 8.367906578428874
+      "output_size_mb": 1.9072580337524414,
+      "compression_ratio": 6.190398543930836
     },
     {
       "input_file": "data/raw/lfs/lfs_2024_pub0524.csv",
@@ -1904,8 +1904,8 @@
       "error": null,
       "rows": 112971,
       "input_size_mb": 11.926447868347168,
-      "output_size_mb": 1.430887222290039,
-      "compression_ratio": 8.335002006139721
+      "output_size_mb": 1.9314661026000977,
+      "compression_ratio": 6.174816038599923
     },
     {
       "input_file": "data/raw/lfs/lfs_2024_pub0624.csv",
@@ -1915,8 +1915,8 @@
       "error": null,
       "rows": 113108,
       "input_size_mb": 11.94552230834961,
-      "output_size_mb": 1.4325828552246094,
-      "compression_ratio": 8.33845125591477
+      "output_size_mb": 1.9272346496582031,
+      "compression_ratio": 6.198270828343689
     },
     {
       "input_file": "data/raw/lfs/lfs_2024_pub0724.csv",
@@ -1926,8 +1926,8 @@
       "error": null,
       "rows": 112699,
       "input_size_mb": 11.86174488067627,
-      "output_size_mb": 1.4131975173950195,
-      "compression_ratio": 8.39355060751968
+      "output_size_mb": 1.9132623672485352,
+      "compression_ratio": 6.199748180765536
     },
     {
       "input_file": "data/raw/lfs/lfs_2024_pub0824.csv",
@@ -1937,8 +1937,8 @@
       "error": null,
       "rows": 112143,
       "input_size_mb": 11.796374320983887,
-      "output_size_mb": 1.399775505065918,
-      "compression_ratio": 8.427333010394673
+      "output_size_mb": 1.8978652954101562,
+      "compression_ratio": 6.215601470511382
     },
     {
       "input_file": "data/raw/lfs/lfs_2024_pub0924.csv",
@@ -1948,8 +1948,8 @@
       "error": null,
       "rows": 111645,
       "input_size_mb": 11.752991676330566,
-      "output_size_mb": 1.4176568984985352,
-      "compression_ratio": 8.290434511184168
+      "output_size_mb": 1.9113397598266602,
+      "compression_ratio": 6.149085538510667
     },
     {
       "input_file": "data/raw/lfs/lfs_2024_pub1024.csv",
@@ -1959,8 +1959,8 @@
       "error": null,
       "rows": 112719,
       "input_size_mb": 11.88366413116455,
-      "output_size_mb": 1.4149131774902344,
-      "compression_ratio": 8.398864552412842
+      "output_size_mb": 1.9205827713012695,
+      "compression_ratio": 6.187530320868653
     },
     {
       "input_file": "data/raw/lfs/lfs_2024_pub1124.csv",
@@ -1970,8 +1970,8 @@
       "error": null,
       "rows": 113107,
       "input_size_mb": 11.921194076538086,
-      "output_size_mb": 1.4177751541137695,
-      "compression_ratio": 8.4083812880681
+      "output_size_mb": 1.9259605407714844,
+      "compression_ratio": 6.1897395217467945
     },
     {
       "input_file": "data/raw/lfs/lfs_2024_pub1224.csv",
@@ -1981,8 +1981,8 @@
       "error": null,
       "rows": 112068,
       "input_size_mb": 11.791644096374512,
-      "output_size_mb": 1.4315967559814453,
-      "compression_ratio": 8.236707751052867
+      "output_size_mb": 1.928603172302246,
+      "compression_ratio": 6.114085191666662
     },
     {
       "input_file": "data/raw/lfs/lfs_2025_01.csv",
@@ -1992,8 +1992,8 @@
       "error": null,
       "rows": 111856,
       "input_size_mb": 11.75354290008545,
-      "output_size_mb": 1.401350975036621,
-      "compression_ratio": 8.387294196429483
+      "output_size_mb": 1.9011211395263672,
+      "compression_ratio": 6.182427124561694
     },
     {
       "input_file": "data/raw/lfs/lfs_2025_02.csv",
@@ -2003,8 +2003,8 @@
       "error": null,
       "rows": 113780,
       "input_size_mb": 11.968219757080078,
-      "output_size_mb": 1.446110725402832,
-      "compression_ratio": 8.276143414776335
+      "output_size_mb": 1.9592266082763672,
+      "compression_ratio": 6.108644965581158
     },
     {
       "input_file": "data/raw/lfs/lfs_2025_03.csv",
@@ -2014,8 +2014,8 @@
       "error": null,
       "rows": 115590,
       "input_size_mb": 12.156311988830566,
-      "output_size_mb": 1.4673852920532227,
-      "compression_ratio": 8.284335446637183
+      "output_size_mb": 1.983870506286621,
+      "compression_ratio": 6.127573322103855
     },
     {
       "input_file": "data/raw/lfs/lfs_2025_04.csv",
@@ -2025,8 +2025,8 @@
       "error": null,
       "rows": 116287,
       "input_size_mb": 12.254398345947266,
-      "output_size_mb": 1.4819364547729492,
-      "compression_ratio": 8.269179360882102
+      "output_size_mb": 2.010896682739258,
+      "compression_ratio": 6.093996997028329
     },
     {
       "input_file": "data/raw/lfs/lfs_2025_05.csv",
@@ -2036,8 +2036,8 @@
       "error": null,
       "rows": 116042,
       "input_size_mb": 12.229681015014648,
-      "output_size_mb": 1.4650020599365234,
-      "compression_ratio": 8.3478933917298
+      "output_size_mb": 1.9745454788208008,
+      "compression_ratio": 6.1936689461912104
     },
     {
       "input_file": "data/raw/lfs/lfs_2025_06.csv",
@@ -2047,8 +2047,8 @@
       "error": null,
       "rows": 114376,
       "input_size_mb": 12.064903259277344,
-      "output_size_mb": 1.441786766052246,
-      "compression_ratio": 8.368021917909703
+      "output_size_mb": 1.9382734298706055,
+      "compression_ratio": 6.2245620629916845
     },
     {
       "input_file": "data/raw/lfs/lfs_2025_07.csv",
@@ -2058,8 +2058,8 @@
       "error": null,
       "rows": 114155,
       "input_size_mb": 11.997583389282227,
-      "output_size_mb": 1.4415388107299805,
-      "compression_ratio": 8.322761274257177
+      "output_size_mb": 1.9403553009033203,
+      "compression_ratio": 6.183188915811876
     },
     {
       "input_file": "data/raw/lfs/lfs_2025_08.csv",
@@ -2069,8 +2069,8 @@
       "error": null,
       "rows": 113549,
       "input_size_mb": 11.915144920349121,
-      "output_size_mb": 1.4393682479858398,
-      "compression_ratio": 8.278037907965814
+      "output_size_mb": 1.9410972595214844,
+      "compression_ratio": 6.1383554388647275
     },
     {
       "input_file": "data/raw/lfs/lfs_2025_09.csv",
@@ -2080,8 +2080,8 @@
       "error": null,
       "rows": 112927,
       "input_size_mb": 11.860823631286621,
-      "output_size_mb": 1.4327373504638672,
-      "compression_ratio": 8.278435421151356
+      "output_size_mb": 1.9308815002441406,
+      "compression_ratio": 6.142698881203708
     },
     {
       "input_file": "data/raw/lfs/lfs_2025_10.csv",
@@ -2091,8 +2091,8 @@
       "error": null,
       "rows": 112776,
       "input_size_mb": 11.865314483642578,
-      "output_size_mb": 1.4336414337158203,
-      "compression_ratio": 8.276347351993838
+      "output_size_mb": 1.9405393600463867,
+      "compression_ratio": 6.114441545446906
     }
   ],
   "summary": {
@@ -2101,8 +2101,8 @@
     "failed": 0,
     "total_rows": 19552818,
     "total_input_mb": 2063.5845947265625,
-    "total_output_mb": 247.62558841705322,
-    "overall_compression_ratio": 8.333486890098994
+    "total_output_mb": 336.27026081085205,
+    "overall_compression_ratio": 6.136684789640984
   },
-  "completed_at": "2026-01-03T15:08:31.794345"
+  "completed_at": "2026-01-06T23:08:50.420720"
 }

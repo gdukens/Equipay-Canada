@@ -40,10 +40,45 @@ from statsmodels.stats.outliers_influence import variance_inflation_factor
 # Add project root
 sys.path.insert(0, str(Path.cwd().parent))
 
+# Force reload of custom modules to pick up changes
+import importlib
+import src.leakage_prevention
+importlib.reload(src.leakage_prevention)
+
 from src.constants import COLS, normalize_column_names, DATA_SCOPE_START, DATA_SCOPE_END
 
 # NEW: Weighted ML utilities for survey data
 from src.ml_utils import WeightedMLSplitter, WeightedMetrics, WeightedGapAnalysis
+
+# =============================================================================
+# CRITICAL: LEAKAGE PREVENTION - Import first for maximum protection
+# =============================================================================
+from src.leakage_prevention import (
+    LeakageGuard, 
+    LeakageConfig,
+    TARGET_DERIVED_FEATURES,
+    check_r2_sanity,
+    is_wage_derived
+)
+
+# Initialize leakage guard with custom config
+leakage_config = LeakageConfig(
+    correlation_threshold=0.90,
+    max_realistic_r2=0.60,
+    warning_correlation_threshold=0.70,
+    strict_mode=True,
+    verbose=True
+)
+LEAKAGE_GUARD = LeakageGuard(config=leakage_config)
+
+print("=" * 70)
+print("🛡️  DATA LEAKAGE PREVENTION ACTIVE")
+print("=" * 70)
+print(f"✓ {len(TARGET_DERIVED_FEATURES)} wage-derived features BLOCKED")
+print(f"✓ Target correlation threshold: {leakage_config.correlation_threshold}")
+print(f"✓ R² sanity check threshold: {leakage_config.max_realistic_r2}")
+print(f"✓ Pattern matching for 'wage', 'earn', 'income' terms: ENABLED")
+print("=" * 70)
 
 # Publication-quality figures
 plt.rcParams.update({
@@ -61,7 +96,7 @@ plt.style.use('seaborn-v0_8-whitegrid')
 # Ensure figures directory exists
 Path('../reports/figures').mkdir(parents=True, exist_ok=True)
 
-print("✓ Libraries loaded successfully")
+print("\n✓ Libraries loaded successfully")
 print("✓ Weighted ML utilities loaded (WeightedMLSplitter, WeightedMetrics)")
 print(f"✓ Analysis period: {DATA_SCOPE_START}-{DATA_SCOPE_END}")
 
@@ -130,21 +165,74 @@ print(f"  Total weighted population: {df[weight_col].sum():,.0f}")
 print(f"  Mean weight: {df[weight_col].mean():.1f}")
 print(f"  Weight range: [{df[weight_col].min():.1f}, {df[weight_col].max():.1f}]")
 
-# Define features
+# =============================================================================
+# DEFINE COMPREHENSIVE FEATURE SET (Using all 60 LFS columns)
+# =============================================================================
+# Organized by theory-driven categories for pay equity analysis
+
 potential_features = [
-    'IS_FEMALE', COLS.EDUC, COLS.NOC_10, COLS.PROV, 
-    COLS.AGE_12, COLS.TENURE, COLS.FTPTMAIN, COLS.UNION,
-    'EXPERIENCE', 'EXPERIENCE_SQ'
+    # Demographics & Identity (for gap decomposition)
+    'IS_FEMALE',           # Primary variable of interest
+    COLS.AGE_12,           # Age group (experience proxy)
+    'MARSTAT',             # Marital status
+    'IMMIG',               # Immigration status (key equity dimension)
+    
+    # Human Capital
+    COLS.EDUC,             # Education level
+    COLS.TENURE,           # Job tenure (years with employer)
+    'PREVTEN',             # Previous job tenure
+    'EXPERIENCE',          # Derived: Age - Education - 6
+    'EXPERIENCE_SQ',       # Derived: Experience squared
+    'SCHOOLN',             # Currently attending school
+    
+    # Job Characteristics
+    COLS.NOC_10,           # Occupation (10 categories)
+    'NOC_43',              # Occupation (43 detailed categories)
+    COLS.NAICS_21,         # Industry sector
+    'COWMAIN',             # Class of worker (public/private/self-emp)
+    COLS.FTPTMAIN,         # Full-time/part-time status
+    COLS.UNION,            # Union membership
+    'PERMTEMP',            # Permanent vs temporary
+    'ESTSIZE',             # Establishment size
+    'FIRMSIZE',            # Firm size
+    'MJH',                 # Multiple job holder
+    
+    # Work Hours
+    'UHRSMAIN',            # Usual hours worked (main job)
+    'AHRSMAIN',            # Actual hours worked (main job)
+    
+    # Geography
+    COLS.PROV,             # Province
+    'CMA',                 # Census Metropolitan Area
+    
+    # Family Responsibilities (motherhood penalty)
+    'EFAMTYPE',            # Economic family type
+    'AGYOWNK',             # Age of youngest child
+    
+    # Reason for Part-Time (occupational choice)
+    'WHYPT',               # Reason for part-time work
 ]
 
-# Filter to available features
+# Filter to available features (must exist in dataset)
 features = [f for f in potential_features if f in df.columns]
-print(f"Available features: {features}")
+print(f"Total potential features: {len(potential_features)}")
+print(f"Available in dataset: {len(features)}")
+
+# Filter out features with >50% missing values to avoid losing most data
+null_rates = df[features].isna().mean()
+high_null_features = null_rates[null_rates > 0.50].index.tolist()
+if high_null_features:
+    print(f"\n⚠ Excluding {len(high_null_features)} features with >50% missing:")
+    for f in high_null_features:
+        print(f"   - {f}: {null_rates[f]*100:.1f}% missing")
+    features = [f for f in features if f not in high_null_features]
+
+print(f"\nFeatures for modeling: {len(features)}")
 
 # Target
 target = wage_col
 
-# Remove rows with missing target
+# Remove rows with missing target or key features
 df_model = df[features + [target]].dropna()
 print(f"\nRows for modeling: {len(df_model):,}")
 
@@ -278,19 +366,65 @@ for cat, feats in sorted(categories.items()):
 
 # Apply automatic feature selection with anti-overfitting safeguards
 print("=" * 70)
-print("AUTOMATIC FEATURE SELECTION (ANTI-OVERFITTING)")
+print("AUTOMATIC FEATURE SELECTION + LEAKAGE PREVENTION")
 print("=" * 70)
 
 # Get target variable
 y_sample = df_enhanced['LOG_WAGE']
 
-# Run feature selection
+# =============================================================================
+# STEP 1: Run econometric feature selection
+# =============================================================================
 selected_features = engineer.select_features(df_enhanced, y_sample)
+print(f"\n✓ Initial selection: {len(selected_features)} features")
 
-print(f"\n✓ Selected {len(selected_features)} features after filtering")
-print(f"  Removed {len(engineer.feature_metadata_) - len(selected_features)} features")
+# =============================================================================
+# STEP 2: CRITICAL - Validate through LeakageGuard
+# =============================================================================
+print("\n🛡️  LEAKAGE GUARD VALIDATION")
+print("-" * 50)
 
-# Show removal reasons
+# Check each selected feature for leakage potential
+safe_features = []
+blocked_features = []
+
+for feat in selected_features:
+    if is_wage_derived(feat):
+        blocked_features.append(feat)
+    else:
+        safe_features.append(feat)
+
+# Also run correlation-based detection
+if len(df_enhanced) > 0:
+    X_selected = df_enhanced[safe_features].copy() if safe_features else pd.DataFrame()
+    validation = LEAKAGE_GUARD.validate_features(X_selected, y_sample)
+    
+    # Remove any correlation-flagged features
+    if validation['flagged_features']:
+        for feat_info in validation['flagged_features']:
+            feat_name = feat_info['feature'] if isinstance(feat_info, dict) else str(feat_info)
+            if feat_name in safe_features:
+                safe_features.remove(feat_name)
+                blocked_features.append(f"{feat_name} (correlation)")
+
+# Report
+if blocked_features:
+    print(f"⛔ BLOCKED {len(blocked_features)} wage-derived features:")
+    for feat in blocked_features[:10]:
+        print(f"   - {feat}")
+    if len(blocked_features) > 10:
+        print(f"   ... and {len(blocked_features) - 10} more")
+else:
+    print("✓ No wage-derived features detected")
+
+print(f"\n✓ FINAL SAFE FEATURES: {len(safe_features)}")
+selected_features = safe_features
+
+# =============================================================================
+# STEP 3: Show removal reasons summary
+# =============================================================================
+print(f"  Removed {len(engineer.feature_metadata_) - len(selected_features)} total features")
+
 if engineer.removed_features_:
     print("\nRemoval Reasons Summary:")
     reasons = {}
@@ -302,7 +436,7 @@ if engineer.removed_features_:
         print(f"  {reason}: {count} features")
 
 # Display selected features
-print("\nSelected Features:")
+print("\nSelected Safe Features:")
 print("-" * 50)
 for i, feat in enumerate(selected_features[:20], 1):
     if feat in engineer.feature_metadata_:
@@ -490,6 +624,24 @@ print(f"Weighted R² Score: {metrics_lr['weighted_r2']:.4f}")
 print(f"Weighted RMSE (log): {metrics_lr['weighted_rmse']:.4f}")
 print(f"Weighted MAE (log): {metrics_lr['weighted_mae']:.4f}")
 
+# =============================================================================
+# 🛡️ R² SANITY CHECK - CRITICAL LEAKAGE DETECTION
+# =============================================================================
+print("\n" + "=" * 50)
+print("🛡️ DATA LEAKAGE SANITY CHECK")
+print("=" * 50)
+
+sanity_result = check_r2_sanity(metrics_lr['weighted_r2'], model_type='wage')
+
+if sanity_result['is_suspicious']:
+    print(f"⛔ ALERT: {sanity_result['message']}")
+    print(f"   Observed R²: {sanity_result['observed']:.4f}")
+    print(f"   Max Expected: {sanity_result['threshold']:.2f}")
+    print(f"\n   🚨 POSSIBLE DATA LEAKAGE! Review features immediately.")
+else:
+    print(f"✓ R² = {sanity_result['observed']:.4f} is within expected range (< {sanity_result['threshold']:.2f})")
+    print(f"  {sanity_result['message']}")
+
 # Compare to unweighted
 print(f"\nUnweighted R² Score: {metrics_lr['unweighted_r2']:.4f}")
 print(f"Difference: {(metrics_lr['weighted_r2'] - metrics_lr['unweighted_r2'])*100:+.2f} pp")
@@ -504,22 +656,62 @@ print(f"\nIn dollars (weighted):")
 print(f"RMSE: ${dollar_rmse:.2f}")
 print(f"MAE: ${dollar_mae:.2f}")
 
-# Feature coefficients
+# Feature coefficients - feature_names defined in splitting cell
 coef_df = pd.DataFrame({
-    'Feature': features,
+    'Feature': feature_names,
     'Coefficient': lr_model.coef_
 }).sort_values('Coefficient', key=abs, ascending=False)
 
-print("\nFeature Coefficients (Linear Regression):")
-print("-" * 50)
-for _, row in coef_df.iterrows():
+print("Feature Coefficients (Linear Regression):")
+print("-" * 60)
+for _, row in coef_df.head(20).iterrows():
     pct_effect = (np.exp(row['Coefficient']) - 1) * 100
-    print(f"{row['Feature']:<20} {row['Coefficient']:>10.4f}  ({pct_effect:>+6.1f}%)")
+    print(f"{row['Feature']:<35} {row['Coefficient']:>10.4f}  ({pct_effect:>+6.1f}%)")
 
-# Gender effect
-gender_coef = coef_df[coef_df['Feature'] == 'IS_FEMALE']['Coefficient'].values[0]
-gender_effect = (np.exp(gender_coef) - 1) * 100
-print(f"\n*** Gender Effect: {gender_effect:.1f}% (negative = women earn less) ***")
+# =============================================================================
+# 🎯 GENDER WAGE GAP COEFFICIENT - PRIMARY RESULT
+# =============================================================================
+print("\n" + "=" * 70)
+print("🎯 GENDER WAGE GAP COEFFICIENT (PRIMARY RESEARCH QUESTION)")
+print("=" * 70)
+
+# Find gender coefficient
+gender_features = ['IS_FEMALE', 'SEX', 'FEMALE', 'is_female']
+gender_coef = None
+gender_col = None
+
+for gf in gender_features:
+    if gf in feature_names:
+        idx = list(feature_names).index(gf)
+        gender_coef = lr_model.coef_[idx]
+        gender_col = gf
+        break
+
+if gender_coef is not None:
+    # Convert to percentage effect: (exp(coef) - 1) * 100
+    gender_effect = (np.exp(gender_coef) - 1) * 100
+    
+    print(f"\n  Coefficient on {gender_col}: {gender_coef:.4f}")
+    print(f"  Gender wage gap: {gender_effect:.1f}%")
+    print(f"\n  Interpretation: Women earn {abs(gender_effect):.1f}% {'less' if gender_effect < 0 else 'more'} than men,")
+    print(f"                  controlling for education, experience, occupation, etc.")
+    
+    # Validation check
+    print("\n  📊 VALIDATION:")
+    if -20 <= gender_effect <= -8:
+        print(f"  ✓ PLAUSIBLE: Gender gap of {gender_effect:.1f}% is within expected range (-8% to -20%)")
+        print(f"    This aligns with Statistics Canada's published gender wage gap estimates.")
+    elif -5 < gender_effect < 0:
+        print(f"  ⚠️ SUSPICIOUS: Gap of {gender_effect:.1f}% is smaller than expected.")
+        print(f"    Canadian data typically shows -10% to -15% adjusted gap.")
+    elif gender_effect >= 0:
+        print(f"  ⛔ IMPLAUSIBLE: Positive or zero gap suggests possible data issues.")
+    elif gender_effect < -25:
+        print(f"  ⚠️ SUSPICIOUS: Gap of {gender_effect:.1f}% is larger than typically observed.")
+else:
+    print("\n  ⚠️ WARNING: Gender coefficient not found in model!")
+    print(f"    Available features: {feature_names[:10]}")
+print("=" * 70)
 
 # Residual Diagnostics for OLS
 residuals = y_test - y_pred_lr
@@ -630,9 +822,17 @@ metrics_rf = WeightedMetrics.evaluate(y_test, y_pred_rf, w_test)
 print(f"Weighted R² Score: {metrics_rf['weighted_r2']:.4f}")
 print(f"Weighted RMSE (log): {metrics_rf['weighted_rmse']:.4f}")
 
+# 🛡️ R² SANITY CHECK
+rf_sanity = check_r2_sanity(metrics_rf['weighted_r2'], model_type='wage')
+if rf_sanity['is_suspicious']:
+    print(f"\n⛔ WARNING: R² = {rf_sanity['observed']:.4f} exceeds threshold!")
+    print(f"   Possible data leakage in Random Forest features.")
+else:
+    print(f"✓ R² sanity check passed")
+
 # Feature importance
 importance_df = pd.DataFrame({
-    'Feature': features,
+    'Feature': feature_names,
     'Importance': rf_model.feature_importances_
 }).sort_values('Importance', ascending=False)
 
@@ -643,7 +843,6 @@ ax.set_xlabel('Feature Importance')
 ax.set_title('Random Forest Feature Importance\n(Red = Gender)')
 plt.gca().invert_yaxis()
 plt.tight_layout()
-plt.show()
 
 # ============================================================================
 # GRADIENT BOOSTING WITH SURVEY WEIGHTS
@@ -820,10 +1019,11 @@ lasso_gender = lasso_model.coef_[gender_idx]
 print(f"{'Lasso':<25} {lasso_gender:>12.4f} {(np.exp(lasso_gender)-1)*100:>11.1f}%")
 
 # For tree models: compute WEIGHTED average effect using survey weights
+# X_test is numpy array, need to work with indices
 X_male = X_test.copy()
-X_male['IS_FEMALE'] = 0
 X_female = X_test.copy()
-X_female['IS_FEMALE'] = 1
+X_male[:, gender_idx] = 0
+X_female[:, gender_idx] = 1
 
 # Random Forest - weighted average
 rf_pred_male = rf_model.predict(X_male)
@@ -864,51 +1064,47 @@ print("BIAS AMPLIFICATION CHECK (Survey-Weighted)")
 print("=" * 70)
 
 # Prepare data for bias analysis
-# Need gender indicator in test set
-test_gender = df.loc[X_test.index, 'SEX'].values  # 1=Male, 2=Female
+# gender_idx is the index of IS_FEMALE in our features
+test_gender = X_test[:, gender_idx]  # 0=Male, 1=Female
 
-# Create analyzer
 from src.ml_utils import WeightedGapAnalysis
 
 # Analyze each model
 bias_results = []
 
 for name, preds in models_preds.items():
-    analyzer = WeightedGapAnalysis(
-        y_true=y_test.values,
+    # Check bias amplification (returns gap analysis + status)
+    bias_check = WeightedGapAnalysis.check_bias_amplification(
+        y_true=y_test,
         y_pred=preds,
-        weights=w_test.values,
-        group_indicator=test_gender,
-        group_names={1: 'Male', 2: 'Female'}
+        weights=w_test,
+        groups=test_gender,
+        tolerance=2.0
     )
-    
-    actual_gap = analyzer.compute_gap(use_predictions=False)
-    predicted_gap = analyzer.compute_gap(use_predictions=True)
-    
-    bias_check = analyzer.check_bias_amplification()
     
     bias_results.append({
         'Model': name,
-        'Actual Gap (log)': actual_gap,
-        'Predicted Gap (log)': predicted_gap,
-        'Bias Amplification': 'YES' if bias_check['amplifies_bias'] else 'NO',
-        'Gap Change (%)': (predicted_gap - actual_gap) / abs(actual_gap) * 100 if actual_gap != 0 else 0
+        'Actual Gap (%)': bias_check['actual_gap_pct'],
+        'Predicted Gap (%)': bias_check['predicted_gap_pct'],
+        'Gap Change (pp)': bias_check['gap_amplification'],
+        'Status': bias_check['status']
     })
     
     print(f"\n{name}:")
-    print(f"  Actual wage gap (log scale): {actual_gap:.4f}")
-    print(f"  Predicted wage gap (log scale): {predicted_gap:.4f}")
-    print(f"  Amplifies bias: {'⚠️ YES' if bias_check['amplifies_bias'] else '✅ NO'}")
+    print(f"  Actual wage gap: {bias_check['actual_gap_pct']:.1f}%")
+    print(f"  Predicted wage gap: {bias_check['predicted_gap_pct']:.1f}%")
+    status_icon = '⚠️' if bias_check['status'] == 'AMPLIFYING' else '✅'
+    print(f"  Status: {status_icon} {bias_check['status']}")
 
 # Summary table
 bias_df = pd.DataFrame(bias_results)
 print("\n" + "=" * 70)
 print("BIAS AMPLIFICATION SUMMARY")
 print("=" * 70)
-display(bias_df.round(4))
+display(bias_df.round(2))
 
 # Warning for models that amplify bias
-amplifying = bias_df[bias_df['Bias Amplification'] == 'YES']
+amplifying = bias_df[bias_df['Status'] == 'AMPLIFYING']
 if len(amplifying) > 0:
     print(f"\n⚠️ WARNING: {len(amplifying)} model(s) AMPLIFY the wage gap bias!")
     print("Consider bias mitigation techniques for production deployment.")

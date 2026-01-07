@@ -157,35 +157,107 @@ def convert_single_file(
         elif 'SEX' in available_cols:
             select_parts.append("CAST(SEX AS TINYINT) AS GENDER")  # Rename to GENDER
         
-        # Core columns with type casting
+        # ALL 60 LFS PUMF columns with optimized type casting
         # Note: Column names that are SQL reserved words must be quoted
-        # TENURE can be > 127 months so use SMALLINT
         column_types = {
+            # =================================================================
+            # IDENTIFICATION & TIME (3 cols)
+            # =================================================================
             'REC_NUM': 'INTEGER',
             'SURVYEAR': 'SMALLINT',
             'SURVMNTH': 'TINYINT',
-            'LFSSTAT': 'TINYINT',
+            
+            # =================================================================
+            # GEOGRAPHY (2 cols)
+            # =================================================================
             'PROV': 'TINYINT',
-            'AGE_6': 'TINYINT',
+            'CMA': 'SMALLINT',  # Census Metropolitan Area
+            
+            # =================================================================
+            # DEMOGRAPHICS (6 cols)
+            # =================================================================
             'AGE_12': 'TINYINT',
+            'AGE_6': 'TINYINT',
             'MARSTAT': 'TINYINT',
-            'EDUC': 'TINYINT',
             'IMMIG': 'TINYINT',
+            'EFAMTYPE': 'TINYINT',  # Economic family type
+            'AGYOWNK': 'TINYINT',   # Age of youngest child
+            
+            # =================================================================
+            # HUMAN CAPITAL (2 cols)
+            # =================================================================
+            'EDUC': 'TINYINT',
+            'SCHOOLN': 'TINYINT',   # Attending school
+            
+            # =================================================================
+            # EMPLOYMENT STATUS (3 cols)
+            # =================================================================
+            'LFSSTAT': 'TINYINT',
+            'EVERWORK': 'TINYINT',  # Ever worked at a job
+            'PRIORACT': 'TINYINT',  # Prior main activity
+            
+            # =================================================================
+            # JOB CHARACTERISTICS (14 cols)
+            # =================================================================
             'NOC_10': 'TINYINT',
             'NOC_40': 'TINYINT',
             'NOC_43': 'TINYINT',
             'NAICS_21': 'TINYINT',
             'COWMAIN': 'TINYINT',
             'FTPTMAIN': 'TINYINT',
-            '"UNION"': 'TINYINT',  # UNION is a SQL reserved word - must quote
+            'FTPTLAST': 'TINYINT',  # Full/part-time status at last job
+            '"UNION"': 'TINYINT',   # UNION is a SQL reserved word - must quote
             'PERMTEMP': 'TINYINT',
             'ESTSIZE': 'TINYINT',
-            'TENURE': 'SMALLINT',  # Can exceed 127 months
-            'HRLYEARN': 'FLOAT',
+            'FIRMSIZE': 'TINYINT',  # Firm size
+            'MJH': 'TINYINT',       # Multiple job holder
+            'WHYPT': 'TINYINT',     # Reason for part-time work
+            'TENURE': 'SMALLINT',   # Can exceed 127 months
+            'PREVTEN': 'SMALLINT',  # Previous job tenure
+            
+            # =================================================================
+            # WORK HOURS & EARNINGS (12 cols)
+            # =================================================================
             'UHRSMAIN': 'FLOAT',
-            'UTOTHRS': 'FLOAT',
             'AHRSMAIN': 'FLOAT',
+            'UTOTHRS': 'FLOAT',
             'ATOTHRS': 'FLOAT',
+            'HRSAWAY': 'FLOAT',     # Hours away from work
+            'PAIDOT': 'SMALLINT',   # Paid overtime (can be >127)
+            'UNPAIDOT': 'SMALLINT', # Unpaid overtime (can be >127)
+            'XTRAHRS': 'SMALLINT',  # Extra hours worked (can be >127)
+            # HRLYEARN handled specially below (cents -> dollars conversion)
+            'YABSENT': 'TINYINT',   # Reason for absence
+            'WKSAWAY': 'TINYINT',   # Weeks away from work
+            'PAYAWAY': 'TINYINT',   # Paid while away
+            'YAWAY': 'TINYINT',     # Year of absence
+            
+            # =================================================================
+            # UNEMPLOYMENT (7 cols)
+            # =================================================================
+            'DURUNEMP': 'SMALLINT', # Duration of unemployment (weeks)
+            'FLOWUNEM': 'TINYINT',  # Unemployment flow
+            'UNEMFTPT': 'TINYINT',  # Seeking FT/PT while unemployed
+            'WHYLEFTO': 'TINYINT',  # Why left last job (objective)
+            'WHYLEFTN': 'TINYINT',  # Why left last job (subjective)
+            'DURJLESS': 'SMALLINT', # Duration jobless
+            'AVAILABL': 'TINYINT',  # Availability for work
+            
+            # =================================================================
+            # JOB SEARCH (8 cols)
+            # =================================================================
+            'LKPUBAG': 'TINYINT',   # Looked at public employment agency
+            'LKEMPLOY': 'TINYINT',  # Looked at employers directly
+            'LKRELS': 'TINYINT',    # Looked through friends/relatives
+            'LKATADS': 'TINYINT',   # Looked at ads
+            'LKANSADS': 'TINYINT',  # Answered ads
+            'LKOTHERN': 'TINYINT',  # Other job search methods
+            'YNOLOOK': 'TINYINT',   # Reason not looking
+            'TLOLOOK': 'TINYINT',   # Time since last looked
+            
+            # =================================================================
+            # SURVEY WEIGHT (1 col)
+            # =================================================================
             'FINALWT': 'FLOAT',
         }
         
@@ -196,6 +268,11 @@ def convert_single_file(
                 # For output, use unquoted alias
                 alias = check_col
                 select_parts.append(f"CAST({col} AS {dtype}) AS {alias}")
+        
+        # Handle HRLYEARN specially: convert from cents to dollars
+        # LFS PUMF stores HRLYEARN in cents (e.g., 2500 = $25.00/hour)
+        if 'HRLYEARN' in available_cols:
+            select_parts.append("CAST(HRLYEARN / 100.0 AS FLOAT) AS HRLYEARN")
         
         select_clause = ", ".join(select_parts)
         

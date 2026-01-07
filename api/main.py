@@ -157,8 +157,9 @@ class ModelService:
             raise HTTPException(status_code=500, detail="Data store not available")
         
         # Query similar workers using SQL (memory-efficient)
+        # Note: lfs view already converts HRLYEARN from cents to dollars
         query = f"""
-            SELECT HRLYEARN / 100.0 as HRLYEARN
+            SELECT HRLYEARN
             FROM lfs
             WHERE GENDER = {profile.sex}
               AND FTPTMAIN = {profile.full_time}
@@ -171,7 +172,7 @@ class ModelService:
         # Fallback to broader filters if too few matches
         if len(similar) < 30:
             query = f"""
-                SELECT HRLYEARN / 100.0 as HRLYEARN
+                SELECT HRLYEARN
                 FROM lfs
                 WHERE GENDER = {profile.sex}
                   AND FTPTMAIN = {profile.full_time}
@@ -180,8 +181,8 @@ class ModelService:
             similar = self.data_store.query(query)
         
         if len(similar) < 10:
-            # Get overall wages (converting from cents)
-            similar = self.data_store.query("SELECT HRLYEARN / 100.0 as HRLYEARN FROM lfs WHERE HRLYEARN > 0")
+            # Get overall wages (view already in dollars)
+            similar = self.data_store.query("SELECT HRLYEARN FROM lfs WHERE HRLYEARN > 0")
         
         # Calculate prediction statistics
         wages = similar['HRLYEARN']
@@ -194,14 +195,14 @@ class ModelService:
         ci_lower = max(predicted - 1.96 * se, wages.quantile(0.1))
         ci_upper = predicted + 1.96 * se
         
-        # Percentile in overall distribution (converting from cents)
-        overall_wages = self.data_store.query("SELECT HRLYEARN / 100.0 as HRLYEARN FROM lfs WHERE HRLYEARN > 0")['HRLYEARN']
+        # Percentile in overall distribution (view already in dollars)
+        overall_wages = self.data_store.query("SELECT HRLYEARN FROM lfs WHERE HRLYEARN > 0")['HRLYEARN']
         percentile = (overall_wages < predicted).mean() * 100
         
         # Comparison to averages
         overall_avg = overall_wages.mean()
         gender_wages = self.data_store.query(f"""
-            SELECT HRLYEARN / 100.0 as HRLYEARN FROM lfs 
+            SELECT HRLYEARN FROM lfs 
             WHERE GENDER = {profile.sex} AND HRLYEARN IS NOT NULL AND HRLYEARN > 0
         """)
         gender_avg = gender_wages['HRLYEARN'].mean()
@@ -223,12 +224,12 @@ class ModelService:
         if self.data_store is None:
             raise HTTPException(status_code=500, detail="Data store not available")
         
-        # Get detailed stats for statistical test (convert cents to dollars)
+        # Get detailed stats for statistical test (view already in dollars)
         stats = self.data_store.query("""
             SELECT 
                 GENDER,
-                AVG(HRLYEARN) / 100.0 as avg_wage,
-                STDDEV(HRLYEARN) / 100.0 as std_wage,
+                AVG(HRLYEARN) as avg_wage,
+                STDDEV(HRLYEARN) as std_wage,
                 COUNT(*) as n
             FROM lfs
             WHERE HRLYEARN IS NOT NULL AND HRLYEARN > 0
@@ -392,12 +393,12 @@ async def get_wage_gap_by_dimension(
     
     col = dimension_map[dimension]
     
-    # Use SQL aggregation (memory-efficient, convert cents to dollars)
+    # Use SQL aggregation (memory-efficient, view already in dollars)
     query = f"""
         SELECT 
             {col} as group_val,
             GENDER,
-            AVG(HRLYEARN) / 100.0 as avg_wage,
+            AVG(HRLYEARN) as avg_wage,
             COUNT(*) as n
         FROM lfs
         WHERE HRLYEARN IS NOT NULL AND HRLYEARN > 0
@@ -445,20 +446,20 @@ async def get_statistics():
     if model_service.data_store is None:
         raise HTTPException(status_code=500, detail="Data store not available")
     
-    # Use SQL for all statistics (memory-efficient, convert cents to dollars)
+    # Use SQL for all statistics (memory-efficient, view already in dollars)
     stats = model_service.data_store.query("""
         SELECT 
             COUNT(*) as sample_size,
-            AVG(HRLYEARN) / 100.0 as mean_wage,
-            MEDIAN(HRLYEARN) / 100.0 as median_wage,
-            STDDEV(HRLYEARN) / 100.0 as std_wage,
-            MIN(HRLYEARN) / 100.0 as min_wage,
-            MAX(HRLYEARN) / 100.0 as max_wage,
-            QUANTILE_CONT(HRLYEARN, 0.10) / 100.0 as p10,
-            QUANTILE_CONT(HRLYEARN, 0.25) / 100.0 as p25,
-            QUANTILE_CONT(HRLYEARN, 0.50) / 100.0 as p50,
-            QUANTILE_CONT(HRLYEARN, 0.75) / 100.0 as p75,
-            QUANTILE_CONT(HRLYEARN, 0.90) / 100.0 as p90
+            AVG(HRLYEARN) as mean_wage,
+            MEDIAN(HRLYEARN) as median_wage,
+            STDDEV(HRLYEARN) as std_wage,
+            MIN(HRLYEARN) as min_wage,
+            MAX(HRLYEARN) as max_wage,
+            QUANTILE_CONT(HRLYEARN, 0.10) as p10,
+            QUANTILE_CONT(HRLYEARN, 0.25) as p25,
+            QUANTILE_CONT(HRLYEARN, 0.50) as p50,
+            QUANTILE_CONT(HRLYEARN, 0.75) as p75,
+            QUANTILE_CONT(HRLYEARN, 0.90) as p90
         FROM lfs
         WHERE HRLYEARN IS NOT NULL AND HRLYEARN > 0
     """)

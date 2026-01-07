@@ -69,7 +69,7 @@ class WeightedMLSplitter:
             target_col: Name of target column (defaults to HRLYEARN)
             weight_col: Name of weight column (defaults to FINALWT)
             feature_cols: List of feature columns. If None, auto-detected.
-            stratify_cols: Columns to stratify by. Defaults to ['SEX']
+            stratify_cols: Columns to stratify by. Defaults to ['GENDER']
             random_state: Random seed for reproducibility
         """
         self.df = df.copy()
@@ -78,7 +78,7 @@ class WeightedMLSplitter:
         self.random_state = random_state
         
         # Default stratification by gender
-        self.stratify_cols = stratify_cols or ['SEX']
+        self.stratify_cols = stratify_cols or ['GENDER']
         
         # Validate required columns
         self._validate_columns()
@@ -605,7 +605,7 @@ def prepare_weighted_training_data(
     feature_cols: Optional[List[str]] = None,
     test_size: float = 0.2,
     val_size: float = 0.1,
-    stratify_by: str = 'SEX',
+    stratify_by: str = 'GENDER',
     random_state: int = 42
 ) -> Dict[str, Dict[str, np.ndarray]]:
     """

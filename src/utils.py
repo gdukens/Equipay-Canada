@@ -375,3 +375,177 @@ class DataValidator:
         if errors:
             raise ValueError(f"Data validation failed: {errors}")
         return self
+
+
+# =============================================================================
+# Classification Change Detection
+# =============================================================================
+
+# Known classification revision years
+CLASSIFICATION_REVISIONS = {
+    'NOC': {
+        2011: 'NOC 2011 introduced (from NOC-S 2006)',
+        2016: 'NOC 2016 v1.0 (minor updates)',
+        2022: 'NOC 2021 major restructuring (TEER categories)',
+    },
+    'NAICS': {
+        2012: 'NAICS 2012 (information sector restructured)',
+        2017: 'NAICS 2017 (cannabis production, professional services)',
+        2022: 'NAICS 2022 (digital industries expanded)',
+    }
+}
+
+
+def detect_classification_breaks(
+    df: pd.DataFrame,
+    variable: str,
+    classification_col: str = 'NOC_10',
+    weight_col: str = 'FINALWT',
+    test_years: Optional[List[int]] = None
+) -> Dict[str, Any]:
+    """
+    Detect potential structural breaks caused by classification revisions.
+    
+    Parameters
+    ----------
+    df : DataFrame
+        LFS data with SURVYEAR, classification column, and analysis variable
+    variable : str
+        Variable to analyze (e.g., 'HRLYEARN', computed wage gap)
+    classification_col : str
+        Classification column ('NOC_10', 'NOC_43', 'NAICS_21')
+    weight_col : str
+        Survey weight column
+    test_years : List[int], optional
+        Years to test for breaks. Default: NOC/NAICS revision years
+        
+    Returns
+    -------
+    Dict with break detection results
+    """
+    from scipy import stats
+    
+    if test_years is None:
+        # Default to classification revision years
+        test_years = [2012, 2017, 2022]
+    
+    results = {
+        'classification': classification_col,
+        'variable': variable,
+        'test_years': test_years,
+        'breaks': [],
+        'recommendations': []
+    }
+    
+    for year in test_years:
+        if year not in df['SURVYEAR'].values or (year - 1) not in df['SURVYEAR'].values:
+            continue
+            
+        # Compare distributions before/after break year
+        before = df[df['SURVYEAR'] == year - 1]
+        after = df[df['SURVYEAR'] == year]
+        
+        break_result = {
+            'year': year,
+            'tests': {}
+        }
+        
+        # 1. Chi-square test for distribution of classification codes
+        before_counts = before.groupby(classification_col)[weight_col].sum()
+        after_counts = after.groupby(classification_col)[weight_col].sum()
+        
+        # Align indices
+        all_codes = sorted(set(before_counts.index) | set(after_counts.index))
+        before_freq = np.array([before_counts.get(c, 0) for c in all_codes])
+        after_freq = np.array([after_counts.get(c, 0) for c in all_codes])
+        
+        # Normalize to compare proportions
+        before_prop = before_freq / before_freq.sum()
+        after_prop = after_freq / after_freq.sum()
+        
+        # Two-sample chi-square test
+        expected = (before_freq.sum() + after_freq.sum()) / 2 * (before_prop + after_prop) / 2
+        expected = np.maximum(expected, 1)  # Avoid division by zero
+        
+        chi2_stat = np.sum((before_freq - expected)**2 / expected + 
+                          (after_freq - expected)**2 / expected)
+        chi2_pval = 1 - stats.chi2.cdf(chi2_stat, len(all_codes) - 1)
+        
+        break_result['tests']['chi2_distribution'] = {
+            'statistic': chi2_stat,
+            'p_value': chi2_pval,
+            'significant': chi2_pval < 0.05,
+            'interpretation': 'Distribution shift detected' if chi2_pval < 0.05 else 'No significant shift'
+        }
+        
+        # 2. Mean comparison by classification code
+        mean_changes = []
+        for code in all_codes:
+            b = before[before[classification_col] == code][variable]
+            a = after[after[classification_col] == code][variable]
+            
+            if len(b) >= 30 and len(a) >= 30:
+                t_stat, t_pval = stats.ttest_ind(b, a)
+                mean_change = a.mean() - b.mean()
+                mean_changes.append({
+                    'code': code,
+                    'mean_change': mean_change,
+                    'pct_change': mean_change / b.mean() * 100 if b.mean() != 0 else np.nan,
+                    't_statistic': t_stat,
+                    'p_value': t_pval,
+                    'significant': t_pval < 0.05
+                })
+        
+        break_result['tests']['mean_changes'] = mean_changes
+        
+        # Count significant changes
+        n_significant = sum(1 for m in mean_changes if m['significant'])
+        break_result['n_significant_changes'] = n_significant
+        break_result['pct_significant'] = n_significant / len(mean_changes) * 100 if mean_changes else 0
+        
+        # Flag potential break
+        break_result['potential_break'] = (
+            chi2_pval < 0.05 or 
+            n_significant > len(mean_changes) * 0.3  # >30% of codes show significant change
+        )
+        
+        results['breaks'].append(break_result)
+    
+    # Generate recommendations
+    for br in results['breaks']:
+        if br['potential_break']:
+            results['recommendations'].append(
+                f"⚠️ {br['year']}: Potential classification break detected. "
+                f"Consider including structural break dummy or splitting analysis."
+            )
+    
+    return results
+
+
+def create_structural_break_dummies(
+    df: pd.DataFrame,
+    break_years: Optional[List[int]] = None
+) -> pd.DataFrame:
+    """
+    Create dummy variables for known classification break years.
+    
+    Parameters
+    ----------
+    df : DataFrame
+        Must contain 'SURVYEAR' column
+    break_years : List[int], optional
+        Years for break dummies. Default: [2012, 2017, 2022]
+        
+    Returns
+    -------
+    DataFrame with added dummy columns
+    """
+    if break_years is None:
+        break_years = [2012, 2017, 2022]
+    
+    df = df.copy()
+    
+    for year in break_years:
+        df[f'post_{year}'] = (df['SURVYEAR'] >= year).astype(int)
+    
+    return df

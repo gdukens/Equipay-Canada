@@ -97,10 +97,46 @@ FROM lfs WHERE HRLYEARN > 0
 """
 ```
 
-**Variance Estimation:**
-- LFS uses complex survey design (stratification + clustering)
-- For proper standard errors: use bootstrap or Taylor series linearization
-- Python: `statsmodels.stats.weightstats` or survey-specific packages
+**Variance Estimation with Poisson Bootstrap (per StatsCan Guide, January 2025):**
+
+The LFS PUMF uses a complex survey design. For proper variance estimation, we implement
+the Poisson Bootstrap method as specified in the official StatsCan LFS PUMF User Guide:
+
+```python
+from src.bootstrap_variance import PoissonBootstrap
+
+# Generate 1000 bootstrap replicates (per StatsCan recommendation)
+bs = PoissonBootstrap(df, n_replicates=1000, seed=42, calibrate=True)
+
+# Estimate wage gap with proper variance
+gap_result = bs.estimate_wage_gap()
+# Returns: male_wage, female_wage, gap, gap_cv, 95% CI, quality assessment
+
+# Quality thresholds per StatsCan:
+# - CV < 15%: Acceptable
+# - CV 15-35%: Marginal (requires warning)
+# - CV > 35%: Unacceptable (should not publish)
+```
+
+Reference: Beaumont, J.-F., & Patak, Z. (2012). "On the generalized bootstrap for sample
+surveys with special attention to Poisson sampling." International Statistical Review.
+
+### 1.5 Critical Data Transformations (per StatsCan PUMF Guide)
+
+The LFS PUMF stores variables with implicit decimals for space efficiency:
+
+| Variable | Raw Storage | Transformation | Example |
+|----------|-------------|----------------|---------|
+| HRLYEARN | Cents (integer) | ÷ 100 → Dollars | 2345 → $23.45 |
+| AHRSMAIN | Tenths (integer) | ÷ 10 → Hours | 435 → 43.5 hrs |
+| UHRSMAIN | Tenths (integer) | ÷ 10 → Hours | 400 → 40.0 hrs |
+| ATOTHRS | Tenths (integer) | ÷ 10 → Hours | 450 → 45.0 hrs |
+| UTOTHRS | Tenths (integer) | ÷ 10 → Hours | 440 → 44.0 hrs |
+| HRSAWAY | Tenths (integer) | ÷ 10 → Hours | 80 → 8.0 hrs |
+
+**Implementation in EquiPay Canada:**
+These transformations are applied automatically in `src/data_store.py` when creating 
+the DuckDB view, ensuring all downstream analyses use correctly scaled values.
 
 ### 2. Enhanced Decomposition Methods
 

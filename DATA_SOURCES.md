@@ -52,7 +52,7 @@ the primary source of Canadian labour market statistics.
 
 | Variable | Description |
 |----------|-------------|
-| HRLYEARN | Hourly earnings (dollars) |
+| HRLYEARN | Hourly earnings in **dollars** (converted from cents during ETL) |
 | GENDER | Gender (1=Male, 2=Female) |
 | PROV | Province code |
 | EDUC | Highest level of education |
@@ -62,6 +62,10 @@ the primary source of Canadian labour market statistics.
 | FTPTMAIN | Full-time/Part-time status |
 | UNION | Union membership status |
 | FINALWT | Survey weight for population inference |
+
+> **Note:** The raw LFS PUMF stores HRLYEARN in cents (e.g., 2500 = $25.00/hour). 
+> The Parquet files store HRLYEARN in dollars after conversion during the ETL process
+> (`scripts/convert_to_parquet.py`). No further conversion is needed when querying the data.
 
 ---
 

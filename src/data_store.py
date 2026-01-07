@@ -99,30 +99,79 @@ class EquiPayDataStore:
                 # Single parquet file
                 parquet_files_exist = self.parquet_path.suffix == '.parquet'
         
+        # CPI deflators for inflation adjustment (BASE_YEAR = 2010)
+        # Format: year -> deflator (multiply nominal by deflator to get real)
+        cpi_deflators = {
+            2010: 1.0000, 2011: 0.9716, 2012: 0.9572, 2013: 0.9487,
+            2014: 0.9305, 2015: 0.9202, 2016: 0.9074, 2017: 0.8936,
+            2018: 0.8733, 2019: 0.8566, 2020: 0.8504, 2021: 0.8227,
+            2022: 0.7704, 2023: 0.7416, 2024: 0.7213, 2025: 0.7061
+        }
+        
+        # Build CASE statement for CPI deflation
+        deflator_cases = " ".join([
+            f"WHEN SURVYEAR = {year} THEN {deflator}" 
+            for year, deflator in cpi_deflators.items()
+        ])
+        deflator_sql = f"CASE {deflator_cases} ELSE 1.0 END"
+        
+        # Hours variables with implicit decimal (divide by 10)
+        # Per StatsCan LFS PUMF Guide: AHRSMAIN, UHRSMAIN, ATOTHRS, UTOTHRS, HRSAWAY have 1 implicit decimal
+        hours_vars = ['AHRSMAIN', 'UHRSMAIN', 'ATOTHRS', 'UTOTHRS', 'HRSAWAY']
+        hours_exclude = ', '.join(hours_vars)
+        hours_transform = ', '.join([f'{v} / 10.0 AS {v}' for v in hours_vars])
+        
         if parquet_files_exist:
             if self.parquet_path.is_dir():
                 # Partitioned Parquet
                 parquet_glob = str(self.parquet_path / "**/*.parquet")
+                # LFS PUMF data transformations per StatsCan Guide:
+                # - HRLYEARN has 2 implicit decimals (divide by 100 → dollars)
+                # - Hours variables have 1 implicit decimal (divide by 10 → hours)
+                # - REAL_HRLYEARN computed using CPI deflators (2010 constant dollars)
                 self.conn.execute(f"""
                     CREATE OR REPLACE VIEW lfs AS 
-                    SELECT * FROM read_parquet('{parquet_glob}', hive_partitioning=true)
+                    SELECT 
+                        * EXCLUDE (HRLYEARN, {hours_exclude}),
+                        HRLYEARN / 100.0 AS HRLYEARN,
+                        (HRLYEARN / 100.0) * ({deflator_sql}) AS REAL_HRLYEARN,
+                        LN(GREATEST(HRLYEARN / 100.0, 0.01)) AS LOG_HRLYEARN,
+                        LN(GREATEST((HRLYEARN / 100.0) * ({deflator_sql}), 0.01)) AS LOG_REAL_HRLYEARN,
+                        {hours_transform}
+                    FROM read_parquet('{parquet_glob}', hive_partitioning=true)
                 """)
             else:
                 # Single Parquet file
+                # LFS PUMF data transformations per StatsCan Guide
                 self.conn.execute(f"""
                     CREATE OR REPLACE VIEW lfs AS 
-                    SELECT * FROM read_parquet('{self.parquet_path}')
+                    SELECT 
+                        * EXCLUDE (HRLYEARN, {hours_exclude}),
+                        HRLYEARN / 100.0 AS HRLYEARN,
+                        (HRLYEARN / 100.0) * ({deflator_sql}) AS REAL_HRLYEARN,
+                        LN(GREATEST(HRLYEARN / 100.0, 0.01)) AS LOG_HRLYEARN,
+                        LN(GREATEST((HRLYEARN / 100.0) * ({deflator_sql}), 0.01)) AS LOG_REAL_HRLYEARN,
+                        {hours_transform}
+                    FROM read_parquet('{self.parquet_path}')
                 """)
             self._source = "parquet"
             logger.info(f"DuckDB: Registered Parquet source: {self.parquet_path}")
             
-        # Fallback to CSV
+        # Fallback to CSV (raw LFS files also store HRLYEARN in cents)
         elif self.raw_csv_path.exists():
             csv_glob = str(self.raw_csv_path / "*.csv")
             # DuckDB efficiently reads CSVs with automatic schema detection
+            # Apply StatsCan PUMF transformations: HRLYEARN/100, hours/10
             self.conn.execute(f"""
                 CREATE OR REPLACE VIEW lfs AS 
-                SELECT * FROM read_csv_auto('{csv_glob}', 
+                SELECT 
+                    * EXCLUDE (HRLYEARN, {hours_exclude}),
+                    HRLYEARN / 100.0 AS HRLYEARN,
+                    (HRLYEARN / 100.0) * ({deflator_sql}) AS REAL_HRLYEARN,
+                    LN(GREATEST(HRLYEARN / 100.0, 0.01)) AS LOG_HRLYEARN,
+                    LN(GREATEST((HRLYEARN / 100.0) * ({deflator_sql}), 0.01)) AS LOG_REAL_HRLYEARN,
+                    {hours_transform}
+                FROM read_csv_auto('{csv_glob}', 
                     header=true,
                     ignore_errors=true,
                     parallel=true
@@ -298,11 +347,8 @@ class EquiPayDataStore:
         
         df = self.query(sql)
         
-        # Convert cents to dollars (LFS stores HRLYEARN in cents)
-        df['male_wage'] = df['male_wage'] / 100
-        df['female_wage'] = df['female_wage'] / 100
-        
-        # Calculate gap metrics
+        # View already converts HRLYEARN from cents to dollars
+        # Just calculate gap metrics
         df['raw_gap'] = df['male_wage'] - df['female_wage']
         df['raw_gap_pct'] = (df['raw_gap'] / df['male_wage']) * 100
         
@@ -428,7 +474,7 @@ class EquiPayDataStore:
         by: Optional[List[str]] = None,
         years: Optional[List[int]] = None,
         gender: Optional[int] = None,
-        convert_cents: bool = True
+        convert_cents: bool = True  # Deprecated: view already converts
     ) -> pd.DataFrame:
         """
         Get weighted statistics for a column.
@@ -438,7 +484,7 @@ class EquiPayDataStore:
             by: Grouping columns
             years: Filter by years
             gender: Filter by gender (1=Male, 2=Female)
-            convert_cents: If True and column is HRLYEARN, divide by 100
+            convert_cents: DEPRECATED - view already converts HRLYEARN to dollars
             
         Returns:
             DataFrame with weighted mean, std, quantiles
@@ -485,11 +531,8 @@ class EquiPayDataStore:
         
         df = self.query(sql)
         
-        # Convert cents to dollars if needed
-        if convert_cents and column == 'HRLYEARN':
-            for col in ['weighted_mean', 'weighted_std', 'p10', 'p25', 'median', 'p75', 'p90']:
-                if col in df.columns:
-                    df[col] = df[col] / 100
+        # View already converts HRLYEARN from cents to dollars
+        # No additional conversion needed
         
         return df
     
@@ -522,7 +565,7 @@ class EquiPayDataStore:
                 SELECT 
                     {group_by},
                     GENDER,
-                    SUM(HRLYEARN * FINALWT) / SUM(FINALWT) / 100.0 as avg_wage,
+                    SUM(HRLYEARN * FINALWT) / SUM(FINALWT) as avg_wage,
                     SUM(FINALWT) as population,
                     COUNT(*) as n_obs
                 FROM lfs
@@ -581,8 +624,8 @@ class EquiPayDataStore:
         
         sql = f"""
             SELECT 
-                HRLYEARN / 100.0 as wage_dollars,
-                LN(HRLYEARN / 100.0) as log_wage,
+                HRLYEARN as wage_dollars,
+                LOG_HRLYEARN as log_wage,
                 GENDER,
                 CASE WHEN GENDER = 1 THEN 1 ELSE 0 END as is_male,
                 SURVYEAR,
@@ -632,7 +675,7 @@ class EquiPayDataStore:
         sql = f"""
             SELECT 
                 {dims_str},
-                SUM(HRLYEARN * FINALWT) / SUM(FINALWT) / 100.0 as avg_wage,
+                SUM(HRLYEARN * FINALWT) / SUM(FINALWT) as avg_wage,
                 SUM(FINALWT) as population,
                 COUNT(*) as n_obs
             FROM lfs

@@ -291,12 +291,12 @@ class LFSDataLoader:
         # Convert HRLYEARN to numeric, coercing errors to NaN
         df['HRLYEARN'] = pd.to_numeric(df['HRLYEARN'], errors='coerce')
         
-        # LFS PUMF HRLYEARN is in CENTS (e.g., 2500 = $25.00)
-        # Convert to dollars for analysis
-        df['HRLYEARN'] = df['HRLYEARN'] / 100.0
+        # NOTE: HRLYEARN is now stored in DOLLARS in Parquet files (converted during ETL)
+        # Previously was in CENTS (e.g., 2500 = $25.00) but convert_to_parquet.py now handles this
+        # No conversion needed here anymore
         
         # Flag records with valid hourly earnings (positive and within reasonable range)
-        # After conversion to dollars: $5 to $500/hour
+        # Values in dollars: $5 to $500/hour
         df['HAS_VALID_WAGE'] = (
             df['HRLYEARN'].notna() & 
             (df['HRLYEARN'] >= 5) & 
