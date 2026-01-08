@@ -38,7 +38,9 @@ from .constants import (
     IMMIG_CODES, MARSTAT_CODES, COWMAIN_CODES, FIRMSIZE_CODES,
     LFSSTAT_CODES, WHYPT_CODES, EFAMTYPE_CODES, AGYOWNK_CODES, SCHOOLN_CODES,
     EXTENDED_BINARY_FEATURES, EXTENDED_CATEGORICAL_FEATURES, INTERSECTIONAL_ATTRIBUTES,
-    normalize_column_names, get_wage_column, get_all_mappings
+    normalize_column_names, get_wage_column, get_all_mappings,
+    # Pay equity dimensions (new)
+    EQUITY_DIMENSIONS, EquityDimension, get_equity_dimension, PROTECTED_ATTRIBUTES
 )
 
 # Data loading

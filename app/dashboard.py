@@ -35,7 +35,8 @@ from src.time_series import WageGapTimeSeriesAnalyzer
 from src.macro_data import MACRO_DATA, get_macro_dataframe, ECONOMIC_PERIODS, BASE_YEAR
 from src.constants import (
     COLS, GENDER_CODES, EDUCATION_CODES, NOC_10_CODES, PROVINCE_CODES,
-    DATA_SCOPE_START, DATA_SCOPE_END
+    DATA_SCOPE_START, DATA_SCOPE_END,
+    EQUITY_DIMENSIONS, get_equity_dimension, EquityDimension
 )
 
 
@@ -210,6 +211,31 @@ def main():
     # Sidebar filters
     st.sidebar.header("🔍 Filters")
     
+    # === Equity Dimension Selector (NEW) ===
+    st.sidebar.subheader("📊 Primary Equity Dimension")
+    equity_options = {
+        'Gender': 'gender',
+        'Immigration Status': 'immigration',
+        'Age (Youth vs Prime)': 'age_young',
+        'Age (Older vs Peak)': 'age_older',
+        'Union Status': 'union',
+        'Employment Type': 'employment_type',
+        'Full-time/Part-time': 'fulltime_parttime'
+    }
+    selected_equity_name = st.sidebar.selectbox(
+        "Select equity dimension to analyze",
+        options=list(equity_options.keys()),
+        index=0,
+        help="Choose which protected attribute to focus on for gap analysis"
+    )
+    selected_equity_key = equity_options[selected_equity_name]
+    selected_equity_dim = get_equity_dimension(selected_equity_key)
+    
+    st.sidebar.markdown(f"*{selected_equity_dim.description}*")
+    st.sidebar.markdown(f"**Reference:** {selected_equity_dim.reference_label}")
+    st.sidebar.markdown(f"**Comparison:** {selected_equity_dim.comparison_label}")
+    st.sidebar.markdown("---")
+    
     # Province filter
     if 'PROV' in df.columns:
         provinces = df['PROV'].unique()
@@ -261,7 +287,7 @@ def main():
     # Main content tabs - reflecting the full project
     tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
         "📈 Overview", 
-        "⚖️ Gender Gap", 
+        "⚖️ Wage Gap Analysis", 
         "🔬 Decomposition",
         "📊 Time Series",
         "🎯 Fairness",
@@ -272,19 +298,19 @@ def main():
     
     # Tab 1: Overview
     with tab1:
-        display_overview(df, labels)
+        display_overview(df, labels, selected_equity_dim)
     
-    # Tab 2: Gender Gap Analysis
+    # Tab 2: Wage Gap Analysis (generalized from Gender Gap)
     with tab2:
-        display_gender_analysis(df, labels)
+        display_wage_gap_analysis(df, labels, selected_equity_dim)
     
     # Tab 3: Oaxaca-Blinder Decomposition
     with tab3:
-        display_decomposition(df, labels)
+        display_decomposition(df, labels, selected_equity_dim)
     
     # Tab 4: Time Series Analysis
     with tab4:
-        display_time_series()
+        display_time_series(selected_equity_dim)
     
     # Tab 5: Fairness Metrics
     with tab5:
@@ -303,9 +329,13 @@ def main():
         display_recommendations(df, labels)
 
 
-def display_overview(df: pd.DataFrame, labels: dict):
+def display_overview(df: pd.DataFrame, labels: dict, equity_dim: EquityDimension = None):
     """Display overview metrics with proper survey weighting"""
     st.header("📈 Overview Dashboard")
+    
+    # Default to gender if no dimension specified
+    if equity_dim is None:
+        equity_dim = get_equity_dimension('gender')
     
     # Check for weights
     has_weights = 'FINALWT' in df.columns and df['FINALWT'].notna().any()
@@ -326,22 +356,27 @@ def display_overview(df: pd.DataFrame, labels: dict):
         )
     
     with col2:
-        if 'GENDER' in df.columns:
-            male_df = df[df['GENDER'] == 1]
-            female_df = df[df['GENDER'] == 2]
-            if has_weights:
-                male_wage = weighted_mean(male_df['HRLYEARN'], male_df['FINALWT'])
-                female_wage = weighted_mean(female_df['HRLYEARN'], female_df['FINALWT'])
+        # Use selected equity dimension for gap calculation
+        group_col = equity_dim.column
+        if group_col in df.columns:
+            ref_df = df[df[group_col] == equity_dim.reference_value]
+            comp_df = df[df[group_col] == equity_dim.comparison_value]
+            if has_weights and len(ref_df) > 0 and len(comp_df) > 0:
+                ref_wage = weighted_mean(ref_df['HRLYEARN'], ref_df['FINALWT'])
+                comp_wage = weighted_mean(comp_df['HRLYEARN'], comp_df['FINALWT'])
             else:
-                male_wage = male_df['HRLYEARN'].mean()
-                female_wage = female_df['HRLYEARN'].mean()
-            gap_pct = ((male_wage - female_wage) / male_wage) * 100
-            st.metric(
-                label="Gender Wage Gap",
-                value=f"{gap_pct:.1f}%",
-                delta=None,
-                delta_color="inverse"
-            )
+                ref_wage = ref_df['HRLYEARN'].mean() if len(ref_df) > 0 else 0
+                comp_wage = comp_df['HRLYEARN'].mean() if len(comp_df) > 0 else 0
+            if ref_wage > 0:
+                gap_pct = ((ref_wage - comp_wage) / ref_wage) * 100
+                st.metric(
+                    label=f"{equity_dim.description} Gap",
+                    value=f"{gap_pct:.1f}%",
+                    delta=None,
+                    delta_color="inverse"
+                )
+            else:
+                st.metric(label=f"{equity_dim.description} Gap", value="N/A")
     
     with col3:
         if has_weights:
@@ -424,6 +459,183 @@ def display_overview(df: pd.DataFrame, labels: dict):
         )
         fig.update_layout(showlegend=False, height=500)
         st.plotly_chart(fig, use_container_width=True)
+
+
+def display_wage_gap_analysis(df: pd.DataFrame, labels: dict, equity_dim: EquityDimension = None):
+    """Display generalized wage gap analysis for any equity dimension"""
+    
+    # Default to gender if no dimension specified
+    if equity_dim is None:
+        equity_dim = get_equity_dimension('gender')
+    
+    st.header(f"⚖️ {equity_dim.description} Analysis")
+    
+    group_col = equity_dim.column
+    
+    if group_col not in df.columns:
+        st.warning(f"{group_col} data not available")
+        return
+    
+    # Check for weights
+    has_weights = 'FINALWT' in df.columns and df['FINALWT'].notna().any()
+    
+    # Calculate wage gap using appropriate weighting
+    ref_df = df[df[group_col] == equity_dim.reference_value]
+    comp_df = df[df[group_col] == equity_dim.comparison_value]
+    
+    if len(ref_df) == 0 or len(comp_df) == 0:
+        st.warning(f"Insufficient data for {equity_dim.description} analysis")
+        return
+    
+    if has_weights:
+        ref_mean = weighted_mean(ref_df['HRLYEARN'], ref_df['FINALWT'])
+        comp_mean = weighted_mean(comp_df['HRLYEARN'], comp_df['FINALWT'])
+    else:
+        ref_mean = ref_df['HRLYEARN'].mean()
+        comp_mean = comp_df['HRLYEARN'].mean()
+    
+    gap = ref_mean - comp_mean
+    gap_pct = (gap / ref_mean) * 100 if ref_mean > 0 else 0
+    ratio = comp_mean / ref_mean if ref_mean > 0 else 0
+    
+    # Display key findings
+    weight_note = " (population-weighted)" if has_weights else ""
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.markdown(f"""
+        <div class="metric-card">
+            <h2 style="color: #1f77b4;">${comp_mean:.2f}</h2>
+            <p>{equity_dim.comparison_label} Average Wage{weight_note}</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown(f"""
+        <div class="metric-card">
+            <h2 style="color: #1f77b4;">${ref_mean:.2f}</h2>
+            <p>{equity_dim.reference_label} Average Wage{weight_note}</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col3:
+        color = '#d62728' if gap_pct > 0 else '#28a745'
+        st.markdown(f"""
+        <div class="metric-card">
+            <h2 style="color: {color};">{gap_pct:.1f}%</h2>
+            <p>{equity_dim.description}</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Insight box
+    if gap > 0:
+        st.markdown(f"""
+        <div class="insight-box">
+            <strong>Key Insight:</strong> {equity_dim.comparison_label} workers earn <strong>${ratio:.2f}</strong> 
+            for every $1.00 {equity_dim.reference_label} workers earn. 
+            This represents a wage gap of <strong>${gap:.2f}/hour</strong> or approximately 
+            <strong>${gap * 2000:.0f}</strong> less per year (assuming 2000 work hours).
+            <br><br><em>Legal basis: {equity_dim.legal_basis}</em>
+        </div>
+        """, unsafe_allow_html=True)
+    else:
+        st.markdown(f"""
+        <div class="insight-box">
+            <strong>Key Insight:</strong> {equity_dim.comparison_label} workers actually earn 
+            <strong>${abs(gap):.2f}/hour more</strong> than {equity_dim.reference_label} workers in this sample.
+            <br><br><em>Legal basis: {equity_dim.legal_basis}</em>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Visualizations
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        # Box plot comparison
+        df_plot = df[df[group_col].isin([equity_dim.reference_value, equity_dim.comparison_value])].copy()
+        group_labels = {
+            equity_dim.reference_value: equity_dim.reference_label,
+            equity_dim.comparison_value: equity_dim.comparison_label
+        }
+        df_plot['Group'] = df_plot[group_col].map(group_labels)
+        
+        fig = px.box(
+            df_plot,
+            x='Group',
+            y='HRLYEARN',
+            color='Group',
+            title=f"Wage Distribution: {equity_dim.description}",
+            labels={'HRLYEARN': 'Hourly Wage ($)'},
+            color_discrete_map={
+                equity_dim.reference_label: '#1f77b4', 
+                equity_dim.comparison_label: '#e377c2'
+            }
+        )
+        fig.update_layout(showlegend=False)
+        st.plotly_chart(fig, use_container_width=True)
+    
+    with col2:
+        # Bar comparison
+        fig = go.Figure()
+        
+        fig.add_trace(go.Bar(
+            name=equity_dim.reference_label,
+            x=['Average Wage'],
+            y=[ref_mean],
+            marker_color='#1f77b4',
+            text=[f'${ref_mean:.2f}'],
+            textposition='auto'
+        ))
+        
+        fig.add_trace(go.Bar(
+            name=equity_dim.comparison_label,
+            x=['Average Wage'],
+            y=[comp_mean],
+            marker_color='#e377c2',
+            text=[f'${comp_mean:.2f}'],
+            textposition='auto'
+        ))
+        
+        fig.update_layout(
+            title=f'Average Hourly Wage: {equity_dim.reference_label} vs {equity_dim.comparison_label}',
+            barmode='group',
+            yaxis_title='Hourly Wage ($)'
+        )
+        st.plotly_chart(fig, use_container_width=True)
+    
+    # Gap by occupation
+    if 'NOC_10' in df.columns:
+        st.subheader(f"{equity_dim.description} by Occupation")
+        
+        gap_by_occ = []
+        for occ in df['NOC_10'].unique():
+            occ_df = df[df['NOC_10'] == occ]
+            ref_occ = occ_df[occ_df[group_col] == equity_dim.reference_value]['HRLYEARN'].mean()
+            comp_occ = occ_df[occ_df[group_col] == equity_dim.comparison_value]['HRLYEARN'].mean()
+            if pd.notna(ref_occ) and pd.notna(comp_occ) and ref_occ > 0:
+                gap_by_occ.append({
+                    'Occupation': labels['NOC_10'].get(occ, str(occ)),
+                    equity_dim.reference_label: ref_occ,
+                    equity_dim.comparison_label: comp_occ,
+                    'Gap %': ((ref_occ - comp_occ) / ref_occ) * 100
+                })
+        
+        if gap_by_occ:
+            gap_df = pd.DataFrame(gap_by_occ).sort_values('Gap %', ascending=False)
+            
+            fig = px.bar(
+                gap_df,
+                y='Occupation',
+                x='Gap %',
+                orientation='h',
+                title=f'{equity_dim.description} by Occupation Category',
+                labels={'Gap %': 'Wage Gap (%)'},
+                color='Gap %',
+                color_continuous_scale=['#28a745', '#ffc107', '#dc3545'],
+                range_color=[min(0, gap_df['Gap %'].min()), max(gap_df['Gap %'].max(), 0)]
+            )
+            fig.update_layout(height=400)
+            st.plotly_chart(fig, use_container_width=True)
 
 
 def display_gender_analysis(df: pd.DataFrame, labels: dict):
@@ -880,31 +1092,50 @@ def load_time_series_data():
         return None
 
 
-def display_decomposition(df: pd.DataFrame, labels: dict):
+def display_decomposition(df: pd.DataFrame, labels: dict, equity_dim: EquityDimension = None):
     """Display Oaxaca-Blinder decomposition analysis (from Notebook 03)"""
-    st.header("🔬 Oaxaca-Blinder Wage Gap Decomposition")
     
-    st.markdown("""
+    # Default to gender if no dimension specified
+    if equity_dim is None:
+        equity_dim = get_equity_dimension('gender')
+    
+    st.header(f"🔬 Oaxaca-Blinder Decomposition: {equity_dim.description}")
+    
+    st.markdown(f"""
     <div class="insight-box">
         <strong>Methodology:</strong> The Oaxaca-Blinder decomposition separates the wage gap into:
         <ul>
             <li><strong>Explained</strong>: Differences due to observable characteristics (education, experience, occupation)</li>
             <li><strong>Unexplained</strong>: Residual gap that may indicate discrimination or unobserved factors</li>
         </ul>
+        <p><em>Analyzing: {equity_dim.reference_label} vs {equity_dim.comparison_label}</em></p>
     </div>
     """, unsafe_allow_html=True)
     
-    if 'SEX' not in df.columns:
-        st.warning("Gender data not available for decomposition")
-        return
+    group_col = equity_dim.column
+    
+    # Support both SEX and GENDER columns for backward compatibility
+    if group_col not in df.columns:
+        if group_col == 'GENDER' and 'SEX' in df.columns:
+            group_col = 'SEX'
+        else:
+            st.warning(f"{equity_dim.column} data not available for decomposition")
+            return
     
     # Perform simplified decomposition
     try:
-        analyzer = PayEquityAnalyzer(df, wage_col='HRLYEARN', gender_col='SEX')
-        
-        # Calculate raw gap
-        raw_gap = analyzer.compute_raw_gap()
-        gap_pct = raw_gap['raw_gap']['mean_gap_pct']
+        # For gender dimension, use the existing PayEquityAnalyzer
+        if equity_dim.column in ['GENDER', 'SEX']:
+            analyzer = PayEquityAnalyzer(df, wage_col='HRLYEARN', gender_col=group_col)
+            raw_gap = analyzer.compute_raw_gap()
+            gap_pct = raw_gap['raw_gap']['mean_gap_pct']
+        else:
+            # For other dimensions, calculate manually
+            ref_df = df[df[group_col] == equity_dim.reference_value]
+            comp_df = df[df[group_col] == equity_dim.comparison_value]
+            ref_mean = ref_df['HRLYEARN'].mean()
+            comp_mean = comp_df['HRLYEARN'].mean()
+            gap_pct = ((ref_mean - comp_mean) / ref_mean) * 100 if ref_mean > 0 else 0
         
         # Estimate explained vs unexplained (simplified)
         # In full analysis, this uses regression-based decomposition
@@ -965,23 +1196,51 @@ def display_decomposition(df: pd.DataFrame, labels: dict):
         st.error(f"Error performing decomposition: {str(e)}")
 
 
-def display_time_series():
+def display_time_series(equity_dim: EquityDimension = None):
     """Display time series analysis (from Notebook 06)"""
-    st.header("📊 Time Series Analysis: Wage Gap Trends")
+    
+    # Default to gender if no dimension specified
+    if equity_dim is None:
+        equity_dim = get_equity_dimension('gender')
+    
+    st.header(f"📊 Time Series Analysis: {equity_dim.description}")
     
     st.markdown(f"""
     <div class="insight-box">
         <strong>Data Period:</strong> {DATA_SCOPE_START} - {DATA_SCOPE_END}<br>
-        <strong>Source:</strong> Statistics Canada Labour Force Survey (Table 14-10-0064-01)
+        <strong>Source:</strong> Statistics Canada Labour Force Survey (Table 14-10-0064-01)<br>
+        <strong>Dimension:</strong> {equity_dim.reference_label} vs {equity_dim.comparison_label}
     </div>
     """, unsafe_allow_html=True)
     
-    # Load time series data
-    ts_data = load_time_series_data()
+    # For non-gender dimensions, compute time series on the fly
+    if equity_dim.column != 'GENDER':
+        try:
+            store = EquiPayDataStore()
+            ts_data = store.wage_gap(
+                group_column=equity_dim.column,
+                reference_value=equity_dim.reference_value,
+                comparison_value=equity_dim.comparison_value,
+                by=['SURVYEAR'],
+                reference_label=equity_dim.reference_label,
+                comparison_label=equity_dim.comparison_label
+            )
+            ts_data = ts_data.rename(columns={
+                'SURVYEAR': 'year',
+                'reference_mean': 'reference_wage',
+                'comparison_mean': 'comparison_wage'
+            })
+            ts_data['wage_gap'] = ts_data['gap_pct']
+        except Exception as e:
+            st.warning(f"Could not compute time series: {str(e)}")
+            return
+    else:
+        # Load pre-computed time series data for gender
+        ts_data = load_time_series_data()
     
-    if ts_data is None or len(ts_data) == 0:
-        st.warning("Time series data not available. Run the data pipeline first.")
-        return
+        if ts_data is None or len(ts_data) == 0:
+            st.warning("Time series data not available. Run the data pipeline first.")
+            return
     
     # Ensure wage_gap column exists
     if 'wage_gap' not in ts_data.columns and 'male_wage' in ts_data.columns:
@@ -1026,17 +1285,20 @@ def display_time_series():
         secondary_y=False
     )
     
-    # Male/Female wages on secondary axis
-    if 'male_wage' in ts_data.columns:
+    # Male/Female wages on secondary axis (or reference/comparison for other dimensions)
+    ref_col = 'male_wage' if 'male_wage' in ts_data.columns else 'reference_wage'
+    comp_col = 'female_wage' if 'female_wage' in ts_data.columns else 'comparison_wage'
+    
+    if ref_col in ts_data.columns:
         fig.add_trace(
-            go.Scatter(x=ts_data['year'], y=ts_data['male_wage'],
-                       mode='lines', name='Male Wage ($)',
+            go.Scatter(x=ts_data['year'], y=ts_data[ref_col],
+                       mode='lines', name=f'{equity_dim.reference_label} Wage ($)',
                        line=dict(color='blue', width=1), opacity=0.6),
             secondary_y=True
         )
         fig.add_trace(
-            go.Scatter(x=ts_data['year'], y=ts_data['female_wage'],
-                       mode='lines', name='Female Wage ($)',
+            go.Scatter(x=ts_data['year'], y=ts_data[comp_col],
+                       mode='lines', name=f'{equity_dim.comparison_label} Wage ($)',
                        line=dict(color='pink', width=1), opacity=0.6),
             secondary_y=True
         )

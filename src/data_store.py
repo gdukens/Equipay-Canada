@@ -290,23 +290,48 @@ class EquiPayDataStore:
         sql = f"SELECT {col_str} FROM lfs WHERE {where_clause} {limit_clause}"
         return self.query(sql)
     
-    def get_gender_gap(
+    def get_wage_gap(
         self,
+        group_column: str = 'GENDER',
+        reference_value: int = 1,
+        comparison_value: int = 2,
         by: Optional[List[str]] = None,
         years: Optional[List[int]] = None,
-        weighted: bool = True
+        weighted: bool = True,
+        reference_label: str = None,
+        comparison_label: str = None
     ) -> pd.DataFrame:
         """
-        Calculate gender wage gap statistics.
+        Calculate wage gap statistics for any protected attribute.
+        
+        This is a generalized pay equity gap calculator that works with
+        any categorical column (gender, immigration status, age group, etc.).
         
         Args:
+            group_column: Column to calculate gap for (e.g., 'GENDER', 'IMMIG', 'AGE_6')
+            reference_value: Value for reference group (e.g., 1 for Male, 1 for Canadian-born)
+            comparison_value: Value for comparison group (e.g., 2 for Female, 2 for Immigrant)
             by: Group by columns (e.g., ['PROV', 'SURVYEAR'])
             years: Filter to specific years
             weighted: Use survey weights (FINALWT)
+            reference_label: Label for reference group (auto-detected if None)
+            comparison_label: Label for comparison group (auto-detected if None)
             
         Returns:
-            DataFrame with columns: [grouping cols], male_wage, female_wage, 
-            raw_gap, raw_gap_pct
+            DataFrame with columns: [grouping cols], reference_wage, comparison_wage, 
+            raw_gap, raw_gap_pct, reference_n, comparison_n
+            
+        Examples:
+            # Gender gap (traditional)
+            store.get_wage_gap(group_column='GENDER', reference_value=1, comparison_value=2)
+            
+            # Immigration status gap
+            store.get_wage_gap(group_column='IMMIG', reference_value=1, comparison_value=2,
+                              reference_label='Canadian-born', comparison_label='Immigrant')
+            
+            # Age gap (older vs younger)
+            store.get_wage_gap(group_column='AGE_6', reference_value=4, comparison_value=1,
+                              reference_label='45-54', comparison_label='15-24')
         """
         group_cols = by or []
         group_str = ", ".join(group_cols) if group_cols else ""
@@ -322,12 +347,12 @@ class EquiPayDataStore:
             sql = f"""
                 SELECT 
                     {select_groups}
-                    SUM(CASE WHEN GENDER = 1 THEN HRLYEARN * FINALWT END) / 
-                        NULLIF(SUM(CASE WHEN GENDER = 1 THEN FINALWT END), 0) as male_wage,
-                    SUM(CASE WHEN GENDER = 2 THEN HRLYEARN * FINALWT END) / 
-                        NULLIF(SUM(CASE WHEN GENDER = 2 THEN FINALWT END), 0) as female_wage,
-                    SUM(CASE WHEN GENDER = 1 THEN FINALWT END) as male_n,
-                    SUM(CASE WHEN GENDER = 2 THEN FINALWT END) as female_n
+                    SUM(CASE WHEN {group_column} = {reference_value} THEN HRLYEARN * FINALWT END) / 
+                        NULLIF(SUM(CASE WHEN {group_column} = {reference_value} THEN FINALWT END), 0) as reference_wage,
+                    SUM(CASE WHEN {group_column} = {comparison_value} THEN HRLYEARN * FINALWT END) / 
+                        NULLIF(SUM(CASE WHEN {group_column} = {comparison_value} THEN FINALWT END), 0) as comparison_wage,
+                    SUM(CASE WHEN {group_column} = {reference_value} THEN FINALWT END) as reference_n,
+                    SUM(CASE WHEN {group_column} = {comparison_value} THEN FINALWT END) as comparison_n
                 FROM lfs
                 WHERE HRLYEARN > 0 AND FINALWT > 0 {year_filter}
                 {group_by}
@@ -336,10 +361,10 @@ class EquiPayDataStore:
             sql = f"""
                 SELECT 
                     {select_groups}
-                    AVG(CASE WHEN GENDER = 1 THEN HRLYEARN END) as male_wage,
-                    AVG(CASE WHEN GENDER = 2 THEN HRLYEARN END) as female_wage,
-                    COUNT(CASE WHEN GENDER = 1 THEN 1 END) as male_n,
-                    COUNT(CASE WHEN GENDER = 2 THEN 1 END) as female_n
+                    AVG(CASE WHEN {group_column} = {reference_value} THEN HRLYEARN END) as reference_wage,
+                    AVG(CASE WHEN {group_column} = {comparison_value} THEN HRLYEARN END) as comparison_wage,
+                    COUNT(CASE WHEN {group_column} = {reference_value} THEN 1 END) as reference_n,
+                    COUNT(CASE WHEN {group_column} = {comparison_value} THEN 1 END) as comparison_n
                 FROM lfs
                 WHERE HRLYEARN > 0 {year_filter}
                 {group_by}
@@ -347,12 +372,132 @@ class EquiPayDataStore:
         
         df = self.query(sql)
         
-        # View already converts HRLYEARN from cents to dollars
-        # Just calculate gap metrics
-        df['raw_gap'] = df['male_wage'] - df['female_wage']
-        df['raw_gap_pct'] = (df['raw_gap'] / df['male_wage']) * 100
+        # Calculate gap metrics
+        df['raw_gap'] = df['reference_wage'] - df['comparison_wage']
+        df['raw_gap_pct'] = (df['raw_gap'] / df['reference_wage']) * 100
+        
+        # Add metadata columns for clarity
+        df['group_column'] = group_column
+        df['reference_label'] = reference_label or str(reference_value)
+        df['comparison_label'] = comparison_label or str(comparison_value)
         
         return df
+    
+    def get_gender_gap(
+        self,
+        by: Optional[List[str]] = None,
+        years: Optional[List[int]] = None,
+        weighted: bool = True
+    ) -> pd.DataFrame:
+        """
+        Calculate gender wage gap statistics.
+        
+        This is a convenience wrapper around get_wage_gap() for backward compatibility.
+        For new code, prefer using get_wage_gap(group_column='GENDER', ...) directly.
+        
+        Args:
+            by: Group by columns (e.g., ['PROV', 'SURVYEAR'])
+            years: Filter to specific years
+            weighted: Use survey weights (FINALWT)
+            
+        Returns:
+            DataFrame with columns: [grouping cols], male_wage, female_wage, 
+            raw_gap, raw_gap_pct
+        """
+        df = self.get_wage_gap(
+            group_column='GENDER',
+            reference_value=1,
+            comparison_value=2,
+            by=by,
+            years=years,
+            weighted=weighted,
+            reference_label='Male',
+            comparison_label='Female'
+        )
+        
+        # Rename for backward compatibility
+        df = df.rename(columns={
+            'reference_wage': 'male_wage',
+            'comparison_wage': 'female_wage',
+            'reference_n': 'male_n',
+            'comparison_n': 'female_n'
+        })
+        
+        return df.drop(columns=['group_column', 'reference_label', 'comparison_label'], errors='ignore')
+    
+    def get_immigration_gap(
+        self,
+        by: Optional[List[str]] = None,
+        years: Optional[List[int]] = None,
+        weighted: bool = True
+    ) -> pd.DataFrame:
+        """
+        Calculate immigrant vs. Canadian-born wage gap.
+        
+        Analyzes pay disparities based on immigration status (IMMIG variable).
+        
+        Args:
+            by: Group by columns (e.g., ['PROV', 'SURVYEAR', 'EDUC'])
+            years: Filter to specific years
+            weighted: Use survey weights (FINALWT)
+            
+        Returns:
+            DataFrame with wage gap between Canadian-born and immigrants
+        """
+        df = self.get_wage_gap(
+            group_column='IMMIG',
+            reference_value=1,  # Canadian-born
+            comparison_value=2,  # Immigrant (landed)
+            by=by,
+            years=years,
+            weighted=weighted,
+            reference_label='Canadian-born',
+            comparison_label='Immigrant'
+        )
+        
+        return df.rename(columns={
+            'reference_wage': 'canadian_born_wage',
+            'comparison_wage': 'immigrant_wage',
+            'reference_n': 'canadian_born_n',
+            'comparison_n': 'immigrant_n'
+        })
+    
+    def get_age_gap(
+        self,
+        reference_age_group: int = 4,
+        comparison_age_group: int = 1,
+        by: Optional[List[str]] = None,
+        years: Optional[List[int]] = None,
+        weighted: bool = True
+    ) -> pd.DataFrame:
+        """
+        Calculate age-based wage gap.
+        
+        Analyzes pay disparities between age groups (AGE_6 variable).
+        AGE_6 codes: 1=15-24, 2=25-34, 3=35-44, 4=45-54, 5=55-64, 6=65+
+        
+        Args:
+            reference_age_group: AGE_6 code for reference group (default: 4=45-54, peak earnings)
+            comparison_age_group: AGE_6 code for comparison group (default: 1=15-24)
+            by: Group by columns (e.g., ['PROV', 'SURVYEAR'])
+            years: Filter to specific years
+            weighted: Use survey weights (FINALWT)
+            
+        Returns:
+            DataFrame with wage gap between age groups
+        """
+        age_labels = {1: '15-24', 2: '25-34', 3: '35-44', 4: '45-54', 5: '55-64', 6: '65+'}
+        
+        return self.get_wage_gap(
+            group_column='AGE_6',
+            reference_value=reference_age_group,
+            comparison_value=comparison_age_group,
+            by=by,
+            years=years,
+            weighted=weighted,
+            reference_label=age_labels.get(reference_age_group, str(reference_age_group)),
+            comparison_label=age_labels.get(comparison_age_group, str(comparison_age_group))
+        )
     
     def get_summary_stats(self) -> Dict[str, Any]:
         """Get summary statistics about the dataset."""
@@ -387,7 +532,7 @@ class EquiPayDataStore:
         return stats
     
     def get_yearly_stats(self, weighted: bool = True) -> pd.DataFrame:
-        """Get yearly aggregate statistics."""
+        """Get yearly aggregate statistics including multiple equity dimensions."""
         if weighted:
             sql = """
                 SELECT 
@@ -396,10 +541,21 @@ class EquiPayDataStore:
                     SUM(CASE WHEN HRLYEARN > 0 THEN FINALWT END) as employed_with_wages,
                     SUM(CASE WHEN HRLYEARN > 0 THEN HRLYEARN * FINALWT END) / 
                         NULLIF(SUM(CASE WHEN HRLYEARN > 0 THEN FINALWT END), 0) as avg_wage,
+                    -- Gender dimension
                     SUM(CASE WHEN GENDER = 2 AND HRLYEARN > 0 THEN HRLYEARN * FINALWT END) / 
                         NULLIF(SUM(CASE WHEN GENDER = 2 AND HRLYEARN > 0 THEN FINALWT END), 0) as female_avg_wage,
                     SUM(CASE WHEN GENDER = 1 AND HRLYEARN > 0 THEN HRLYEARN * FINALWT END) / 
-                        NULLIF(SUM(CASE WHEN GENDER = 1 AND HRLYEARN > 0 THEN FINALWT END), 0) as male_avg_wage
+                        NULLIF(SUM(CASE WHEN GENDER = 1 AND HRLYEARN > 0 THEN FINALWT END), 0) as male_avg_wage,
+                    -- Immigration dimension
+                    SUM(CASE WHEN IMMIG = 2 AND HRLYEARN > 0 THEN HRLYEARN * FINALWT END) / 
+                        NULLIF(SUM(CASE WHEN IMMIG = 2 AND HRLYEARN > 0 THEN FINALWT END), 0) as immigrant_avg_wage,
+                    SUM(CASE WHEN IMMIG = 1 AND HRLYEARN > 0 THEN HRLYEARN * FINALWT END) / 
+                        NULLIF(SUM(CASE WHEN IMMIG = 1 AND HRLYEARN > 0 THEN FINALWT END), 0) as canadian_born_avg_wage,
+                    -- Union dimension
+                    SUM(CASE WHEN UNION = 1 AND HRLYEARN > 0 THEN HRLYEARN * FINALWT END) / 
+                        NULLIF(SUM(CASE WHEN UNION = 1 AND HRLYEARN > 0 THEN FINALWT END), 0) as union_avg_wage,
+                    SUM(CASE WHEN UNION = 2 AND HRLYEARN > 0 THEN HRLYEARN * FINALWT END) / 
+                        NULLIF(SUM(CASE WHEN UNION = 2 AND HRLYEARN > 0 THEN FINALWT END), 0) as nonunion_avg_wage
                 FROM lfs
                 WHERE FINALWT > 0
                 GROUP BY SURVYEAR
@@ -411,19 +567,31 @@ class EquiPayDataStore:
                     SURVYEAR as year,
                     COUNT(*) as records,
                     AVG(CASE WHEN HRLYEARN > 0 THEN HRLYEARN END) as avg_wage,
+                    -- Gender dimension
                     AVG(CASE WHEN GENDER = 2 AND HRLYEARN > 0 THEN HRLYEARN END) as female_avg_wage,
-                    AVG(CASE WHEN GENDER = 1 AND HRLYEARN > 0 THEN HRLYEARN END) as male_avg_wage
+                    AVG(CASE WHEN GENDER = 1 AND HRLYEARN > 0 THEN HRLYEARN END) as male_avg_wage,
+                    -- Immigration dimension
+                    AVG(CASE WHEN IMMIG = 2 AND HRLYEARN > 0 THEN HRLYEARN END) as immigrant_avg_wage,
+                    AVG(CASE WHEN IMMIG = 1 AND HRLYEARN > 0 THEN HRLYEARN END) as canadian_born_avg_wage,
+                    -- Union dimension
+                    AVG(CASE WHEN UNION = 1 AND HRLYEARN > 0 THEN HRLYEARN END) as union_avg_wage,
+                    AVG(CASE WHEN UNION = 2 AND HRLYEARN > 0 THEN HRLYEARN END) as nonunion_avg_wage
                 FROM lfs
                 GROUP BY SURVYEAR
                 ORDER BY SURVYEAR
             """
         
         df = self.query(sql)
+        # Gender gap (backward compatible)
         df['wage_gap_pct'] = ((df['male_avg_wage'] - df['female_avg_wage']) / df['male_avg_wage']) * 100
+        # Immigration gap
+        df['immigration_gap_pct'] = ((df['canadian_born_avg_wage'] - df['immigrant_avg_wage']) / df['canadian_born_avg_wage']) * 100
+        # Union premium (positive = union earns more)
+        df['union_premium_pct'] = ((df['union_avg_wage'] - df['nonunion_avg_wage']) / df['nonunion_avg_wage']) * 100
         return df
     
     def get_provincial_stats(self, year: Optional[int] = None, weighted: bool = True) -> pd.DataFrame:
-        """Get provincial aggregate statistics."""
+        """Get provincial aggregate statistics including multiple equity dimensions."""
         year_filter = f"AND SURVYEAR = {year}" if year else ""
         
         if weighted:
@@ -433,10 +601,16 @@ class EquiPayDataStore:
                     SUM(FINALWT) as population,
                     SUM(CASE WHEN HRLYEARN > 0 THEN HRLYEARN * FINALWT END) / 
                         NULLIF(SUM(CASE WHEN HRLYEARN > 0 THEN FINALWT END), 0) as avg_wage,
+                    -- Gender dimension
                     SUM(CASE WHEN GENDER = 2 AND HRLYEARN > 0 THEN HRLYEARN * FINALWT END) / 
                         NULLIF(SUM(CASE WHEN GENDER = 2 AND HRLYEARN > 0 THEN FINALWT END), 0) as female_avg_wage,
                     SUM(CASE WHEN GENDER = 1 AND HRLYEARN > 0 THEN HRLYEARN * FINALWT END) / 
-                        NULLIF(SUM(CASE WHEN GENDER = 1 AND HRLYEARN > 0 THEN FINALWT END), 0) as male_avg_wage
+                        NULLIF(SUM(CASE WHEN GENDER = 1 AND HRLYEARN > 0 THEN FINALWT END), 0) as male_avg_wage,
+                    -- Immigration dimension
+                    SUM(CASE WHEN IMMIG = 2 AND HRLYEARN > 0 THEN HRLYEARN * FINALWT END) / 
+                        NULLIF(SUM(CASE WHEN IMMIG = 2 AND HRLYEARN > 0 THEN FINALWT END), 0) as immigrant_avg_wage,
+                    SUM(CASE WHEN IMMIG = 1 AND HRLYEARN > 0 THEN HRLYEARN * FINALWT END) / 
+                        NULLIF(SUM(CASE WHEN IMMIG = 1 AND HRLYEARN > 0 THEN FINALWT END), 0) as canadian_born_avg_wage
                 FROM lfs
                 WHERE FINALWT > 0 {year_filter}
                 GROUP BY PROV
@@ -448,8 +622,12 @@ class EquiPayDataStore:
                     PROV,
                     COUNT(*) as records,
                     AVG(CASE WHEN HRLYEARN > 0 THEN HRLYEARN END) as avg_wage,
+                    -- Gender dimension
                     AVG(CASE WHEN GENDER = 2 AND HRLYEARN > 0 THEN HRLYEARN END) as female_avg_wage,
-                    AVG(CASE WHEN GENDER = 1 AND HRLYEARN > 0 THEN HRLYEARN END) as male_avg_wage
+                    AVG(CASE WHEN GENDER = 1 AND HRLYEARN > 0 THEN HRLYEARN END) as male_avg_wage,
+                    -- Immigration dimension
+                    AVG(CASE WHEN IMMIG = 2 AND HRLYEARN > 0 THEN HRLYEARN END) as immigrant_avg_wage,
+                    AVG(CASE WHEN IMMIG = 1 AND HRLYEARN > 0 THEN HRLYEARN END) as canadian_born_avg_wage
                 FROM lfs
                 WHERE 1=1 {year_filter}
                 GROUP BY PROV
@@ -457,7 +635,10 @@ class EquiPayDataStore:
             """
         
         df = self.query(sql)
+        # Gender gap (backward compatible)
         df['wage_gap_pct'] = ((df['male_avg_wage'] - df['female_avg_wage']) / df['male_avg_wage']) * 100
+        # Immigration gap
+        df['immigration_gap_pct'] = ((df['canadian_born_avg_wage'] - df['immigrant_avg_wage']) / df['canadian_born_avg_wage']) * 100
         
         # Add province labels
         df['province_name'] = df['PROV'].map(PROVINCE_CODES)
@@ -539,11 +720,105 @@ class EquiPayDataStore:
     def get_weighted_wage_gap_by_group(
         self,
         group_by: str,
+        equity_dimension: str = 'GENDER',
+        reference_value: int = 1,
+        comparison_value: int = 2,
+        years: Optional[List[int]] = None,
+        min_obs: int = 30,
+        reference_label: str = None,
+        comparison_label: str = None
+    ) -> pd.DataFrame:
+        """
+        Get weighted wage gap by any grouping variable for any equity dimension.
+        
+        Args:
+            group_by: Column to group by (e.g., 'NOC_10', 'EDUC', 'PROV')
+            equity_dimension: Protected attribute column (e.g., 'GENDER', 'IMMIG')
+            reference_value: Code for reference group (typically higher-paid)
+            comparison_value: Code for comparison group (typically lower-paid)
+            years: Filter by years
+            min_obs: Minimum observations per cell
+            reference_label: Human-readable label for reference group
+            comparison_label: Human-readable label for comparison group
+            
+        Returns:
+            DataFrame with wage gap by group
+            
+        Examples:
+            # Gender gap by occupation (traditional)
+            store.get_weighted_wage_gap_by_group('NOC_10')
+            
+            # Immigration gap by education level
+            store.get_weighted_wage_gap_by_group('EDUC', 
+                equity_dimension='IMMIG', reference_value=1, comparison_value=2,
+                reference_label='Canadian-born', comparison_label='Immigrant')
+        """
+        self._initialize()
+        
+        year_filter = ""
+        if years:
+            years_str = ", ".join(str(y) for y in years)
+            year_filter = f"AND SURVYEAR IN ({years_str})"
+        
+        ref_label = reference_label or str(reference_value)
+        comp_label = comparison_label or str(comparison_value)
+        
+        sql = f"""
+            WITH wage_by_group AS (
+                SELECT 
+                    {group_by},
+                    {equity_dimension},
+                    SUM(HRLYEARN * FINALWT) / SUM(FINALWT) as avg_wage,
+                    SUM(FINALWT) as population,
+                    COUNT(*) as n_obs
+                FROM lfs
+                WHERE HRLYEARN > 0 AND FINALWT > 0 {year_filter}
+                GROUP BY {group_by}, {equity_dimension}
+                HAVING COUNT(*) >= {min_obs}
+            )
+            SELECT 
+                ref.{group_by},
+                ref.avg_wage as reference_wage,
+                comp.avg_wage as comparison_wage,
+                ref.avg_wage - comp.avg_wage as wage_gap,
+                (ref.avg_wage - comp.avg_wage) / ref.avg_wage * 100 as gap_pct,
+                ref.population as reference_pop,
+                comp.population as comparison_pop,
+                ref.n_obs as reference_n,
+                comp.n_obs as comparison_n
+            FROM wage_by_group ref
+            JOIN wage_by_group comp ON ref.{group_by} = comp.{group_by}
+            WHERE ref.{equity_dimension} = {reference_value} AND comp.{equity_dimension} = {comparison_value}
+            ORDER BY gap_pct DESC
+        """
+        
+        df = self.query(sql)
+        df['equity_dimension'] = equity_dimension
+        df['reference_label'] = ref_label
+        df['comparison_label'] = comp_label
+        
+        # Add backward-compatible column names for gender
+        if equity_dimension == 'GENDER' and reference_value == 1:
+            df['male_wage'] = df['reference_wage']
+            df['female_wage'] = df['comparison_wage']
+            df['male_pop'] = df['reference_pop']
+            df['female_pop'] = df['comparison_pop']
+            df['male_n'] = df['reference_n']
+            df['female_n'] = df['comparison_n']
+        
+        return df
+    
+    def get_gender_gap_by_group(
+        self,
+        group_by: str,
         years: Optional[List[int]] = None,
         min_obs: int = 30
     ) -> pd.DataFrame:
         """
         Get weighted gender wage gap by any grouping variable.
+        
+        This is a convenience wrapper for backward compatibility.
+        For new code, prefer get_weighted_wage_gap_by_group().
         
         Args:
             group_by: Column to group by (e.g., 'NOC_10', 'EDUC', 'PROV')
@@ -553,43 +828,16 @@ class EquiPayDataStore:
         Returns:
             DataFrame with wage gap by group
         """
-        self._initialize()
-        
-        year_filter = ""
-        if years:
-            years_str = ", ".join(str(y) for y in years)
-            year_filter = f"AND SURVYEAR IN ({years_str})"
-        
-        sql = f"""
-            WITH wage_by_group AS (
-                SELECT 
-                    {group_by},
-                    GENDER,
-                    SUM(HRLYEARN * FINALWT) / SUM(FINALWT) as avg_wage,
-                    SUM(FINALWT) as population,
-                    COUNT(*) as n_obs
-                FROM lfs
-                WHERE HRLYEARN > 0 AND FINALWT > 0 {year_filter}
-                GROUP BY {group_by}, GENDER
-                HAVING COUNT(*) >= {min_obs}
-            )
-            SELECT 
-                m.{group_by},
-                m.avg_wage as male_wage,
-                f.avg_wage as female_wage,
-                m.avg_wage - f.avg_wage as wage_gap,
-                (m.avg_wage - f.avg_wage) / m.avg_wage * 100 as gap_pct,
-                m.population as male_pop,
-                f.population as female_pop,
-                m.n_obs as male_n,
-                f.n_obs as female_n
-            FROM wage_by_group m
-            JOIN wage_by_group f ON m.{group_by} = f.{group_by}
-            WHERE m.GENDER = 1 AND f.GENDER = 2
-            ORDER BY gap_pct DESC
-        """
-        
-        return self.query(sql)
+        return self.get_weighted_wage_gap_by_group(
+            group_by=group_by,
+            equity_dimension='GENDER',
+            reference_value=1,
+            comparison_value=2,
+            years=years,
+            min_obs=min_obs,
+            reference_label='Male',
+            comparison_label='Female'
+        )
     
     def get_decomposition_data(
         self,
@@ -626,17 +874,28 @@ class EquiPayDataStore:
             SELECT 
                 HRLYEARN as wage_dollars,
                 LOG_HRLYEARN as log_wage,
+                -- Gender dimension
                 GENDER,
                 CASE WHEN GENDER = 1 THEN 1 ELSE 0 END as is_male,
+                CASE WHEN GENDER = 2 THEN 1 ELSE 0 END as is_female,
+                -- Immigration dimension
+                IMMIG,
+                CASE WHEN IMMIG = 1 THEN 1 ELSE 0 END as is_canadian_born,
+                CASE WHEN IMMIG = 2 THEN 1 ELSE 0 END as is_immigrant,
+                -- Demographics
                 SURVYEAR,
                 PROV,
                 EDUC,
                 AGE_12,
+                -- Employment
                 NOC_10,
                 NAICS_21,
                 UNION,
+                CASE WHEN UNION = 1 THEN 1 ELSE 0 END as is_union,
                 FTPTMAIN,
                 CASE WHEN FTPTMAIN = 1 THEN 1 ELSE 0 END as is_fulltime,
+                PERMTEMP,
+                CASE WHEN PERMTEMP = 1 THEN 1 ELSE 0 END as is_permanent,
                 TENURE,
                 FINALWT
             FROM lfs

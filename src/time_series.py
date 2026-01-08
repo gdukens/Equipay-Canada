@@ -3,7 +3,14 @@ Advanced Time Series Analysis for Pay Equity Research
 ======================================================
 
 This module provides time series econometric methods for analyzing
-gender wage gap trends over time using Statistics Canada data.
+pay equity gap trends over time using Statistics Canada data.
+
+Supports analysis of gaps across multiple protected attributes:
+- Gender (male vs. female)
+- Immigration status (Canadian-born vs. immigrant)
+- Age groups
+- Provincial disparities
+- Any other categorical dimension
 
 Key Features:
 - Structural break detection (Chow, CUSUM, Bai-Perron)
@@ -74,40 +81,98 @@ class TimeSeriesResult:
 
 class WageGapTimeSeriesAnalyzer:
     """
-    Comprehensive time series analysis for gender wage gap trends.
+    Comprehensive time series analysis for pay equity gap trends.
     
-    Implements multiple econometric methods for temporal analysis:
+    Analyzes wage gaps over time for any protected attribute (gender,
+    immigration status, age, etc.) using econometric methods:
     - Unit root tests (ADF, KPSS, PP)
     - Structural break detection
     - Cointegration analysis
     - VAR/VECM models
     - Forecasting
+    
+    Examples:
+        # Gender gap analysis (traditional)
+        analyzer = WageGapTimeSeriesAnalyzer(data, group_column='GENDER')
+        
+        # Immigration gap analysis
+        analyzer = WageGapTimeSeriesAnalyzer(data, group_column='IMMIG',
+                                              reference_value=1, comparison_value=2,
+                                              reference_label='Canadian-born',
+                                              comparison_label='Immigrant')
     """
     
     def __init__(self, data: pd.DataFrame, date_column: str = 'REF_DATE',
-                 wage_column: str = 'VALUE', gender_column: str = 'Gender'):
+                 wage_column: str = 'VALUE', group_column: str = 'GENDER',
+                 reference_value: Any = None, comparison_value: Any = None,
+                 reference_label: str = None, comparison_label: str = None):
         """
         Initialize the analyzer with time series data.
         
         Parameters
         ----------
         data : pd.DataFrame
-            Panel data with wage information by gender over time
+            Panel data with wage information by group over time
         date_column : str
             Column name containing date/period information
-        gender_column : str
-            Column name for gender variable
+        group_column : str
+            Column for the protected attribute (e.g., 'GENDER', 'IMMIG', 'AGE_6')
         wage_column : str
             Column name for wage values
+        reference_value : Any
+            Value identifying reference group (e.g., 1 for Male, 'Canadian-born')
+            If None, attempts to auto-detect based on group_column
+        comparison_value : Any
+            Value identifying comparison group (e.g., 2 for Female, 'Immigrant')
+        reference_label : str
+            Human-readable label for reference group
+        comparison_label : str
+            Human-readable label for comparison group
         """
         self.raw_data = data.copy()
         self.date_column = date_column
         self.wage_column = wage_column
-        self.gender_column = gender_column
+        self.group_column = group_column
+        
+        # Auto-detect reference/comparison values for common attributes
+        self.reference_value, self.comparison_value = self._detect_group_values(
+            group_column, reference_value, comparison_value
+        )
+        self.reference_label = reference_label or str(self.reference_value)
+        self.comparison_label = comparison_label or str(self.comparison_value)
+        
+        # Legacy alias for backward compatibility
+        self.gender_column = group_column
         
         # Prepare time series
         self.ts_data = self._prepare_time_series()
-        logger.info(f"Initialized time series analyzer with {len(self.ts_data)} periods")
+        logger.info(f"Initialized time series analyzer for {group_column} with {len(self.ts_data)} periods")
+    
+    def _detect_group_values(self, group_column: str, ref_val: Any, comp_val: Any) -> Tuple[Any, Any]:
+        """Auto-detect reference and comparison values for common attributes."""
+        defaults = {
+            'GENDER': (1, 2),        # Male vs Female
+            'SEX': (1, 2),           # Legacy column name
+            'IMMIG': (1, 2),         # Canadian-born vs Immigrant
+            'UNION': (2, 1),         # Union vs Non-union (union = 1)
+            'FTPTMAIN': (1, 2),      # Full-time vs Part-time
+            'PERMTEMP': (1, 2),      # Permanent vs Temporary
+        }
+        
+        if ref_val is not None and comp_val is not None:
+            return ref_val, comp_val
+        
+        if group_column in defaults:
+            return defaults[group_column]
+        
+        # Try to infer from data
+        if group_column in self.raw_data.columns:
+            unique_vals = sorted(self.raw_data[group_column].dropna().unique())
+            if len(unique_vals) >= 2:
+                return unique_vals[0], unique_vals[1]
+        
+        raise ValueError(f"Cannot auto-detect group values for '{group_column}'. "
+                        f"Please specify reference_value and comparison_value.")
     
     def _prepare_time_series(self) -> pd.DataFrame:
         """Convert panel data to time series of wage gaps."""
@@ -124,25 +189,45 @@ class WageGapTimeSeriesAnalyzer:
         # Filter for valid data
         df = df[df[self.wage_column].notna() & (df[self.wage_column] > 0)]
         
-        # Aggregate by year and gender
-        if self.gender_column in df.columns:
-            agg_data = df.groupby(['year', self.gender_column])[self.wage_column].mean().reset_index()
+        # Aggregate by year and group
+        if self.group_column in df.columns:
+            agg_data = df.groupby(['year', self.group_column])[self.wage_column].mean().reset_index()
             
-            # Pivot to get male/female wages by year
-            pivot = agg_data.pivot(index='year', columns=self.gender_column, values=self.wage_column)
+            # Pivot to get reference/comparison wages by year
+            pivot = agg_data.pivot(index='year', columns=self.group_column, values=self.wage_column)
             
-            # Standardize column names
-            male_cols = [c for c in pivot.columns if 'male' in str(c).lower() and 'female' not in str(c).lower()]
-            female_cols = [c for c in pivot.columns if 'female' in str(c).lower()]
+            # Try to find reference and comparison columns
+            ref_col = None
+            comp_col = None
             
-            if male_cols and female_cols:
+            # First try exact match on configured values
+            if self.reference_value in pivot.columns:
+                ref_col = self.reference_value
+            if self.comparison_value in pivot.columns:
+                comp_col = self.comparison_value
+            
+            # Fallback: try string matching for gender labels
+            if ref_col is None or comp_col is None:
+                male_cols = [c for c in pivot.columns if 'male' in str(c).lower() and 'female' not in str(c).lower()]
+                female_cols = [c for c in pivot.columns if 'female' in str(c).lower()]
+                if male_cols and female_cols:
+                    ref_col = male_cols[0]
+                    comp_col = female_cols[0]
+            
+            if ref_col is not None and comp_col is not None:
                 ts_df = pd.DataFrame({
                     'year': pivot.index,
-                    'male_wage': pivot[male_cols[0]].values,
-                    'female_wage': pivot[female_cols[0]].values
+                    'reference_wage': pivot[ref_col].values,
+                    'comparison_wage': pivot[comp_col].values
                 })
-                ts_df['wage_gap'] = (ts_df['male_wage'] - ts_df['female_wage']) / ts_df['male_wage'] * 100
-                ts_df['wage_ratio'] = ts_df['female_wage'] / ts_df['male_wage']
+                # Add legacy column names for backward compatibility
+                ts_df['male_wage'] = ts_df['reference_wage']
+                ts_df['female_wage'] = ts_df['comparison_wage']
+                
+                ts_df['wage_gap'] = (ts_df['reference_wage'] - ts_df['comparison_wage']) / ts_df['reference_wage'] * 100
+                ts_df['wage_ratio'] = ts_df['comparison_wage'] / ts_df['reference_wage']
+                ts_df['reference_label'] = self.reference_label
+                ts_df['comparison_label'] = self.comparison_label
                 ts_df = ts_df.dropna().sort_values('year').reset_index(drop=True)
                 return ts_df
         
@@ -352,45 +437,60 @@ class WageGapTimeSeriesAnalyzer:
     
     def granger_causality_analysis(self, max_lag: int = 4) -> Dict[str, Any]:
         """
-        Test Granger causality between male and female wages.
+        Test Granger causality between reference and comparison group wages.
         
         Helps understand lead-lag relationships in wage dynamics.
+        For gender: tests if male wages lead/lag female wages.
+        For immigration: tests if Canadian-born wages lead/lag immigrant wages.
         """
         results = {}
         
-        if 'male_wage' not in self.ts_data.columns or 'female_wage' not in self.ts_data.columns:
-            logger.warning("Need male/female wage columns for Granger causality")
+        # Use generic column names, fall back to legacy names
+        ref_col = 'reference_wage' if 'reference_wage' in self.ts_data.columns else 'male_wage'
+        comp_col = 'comparison_wage' if 'comparison_wage' in self.ts_data.columns else 'female_wage'
+        
+        if ref_col not in self.ts_data.columns or comp_col not in self.ts_data.columns:
+            logger.warning(f"Need {ref_col}/{comp_col} columns for Granger causality")
             return results
         
         # Prepare data
-        df = self.ts_data[['male_wage', 'female_wage']].dropna()
+        df = self.ts_data[[ref_col, comp_col]].dropna()
         
         if len(df) < max_lag + 5:
             logger.warning("Insufficient data for Granger causality test")
             return results
         
         try:
-            # Test: male wages -> female wages
-            gc_mf = grangercausalitytests(df[['female_wage', 'male_wage']], maxlag=max_lag, verbose=False)
-            results['male_to_female'] = {
+            # Test: reference wages -> comparison wages
+            gc_ref_to_comp = grangercausalitytests(df[[comp_col, ref_col]], maxlag=max_lag, verbose=False)
+            results['reference_to_comparison'] = {
                 lag: {
-                    'f_stat': gc_mf[lag][0]['ssr_ftest'][0],
-                    'p_value': gc_mf[lag][0]['ssr_ftest'][1],
-                    'significant': gc_mf[lag][0]['ssr_ftest'][1] < 0.05
+                    'f_stat': gc_ref_to_comp[lag][0]['ssr_ftest'][0],
+                    'p_value': gc_ref_to_comp[lag][0]['ssr_ftest'][1],
+                    'significant': gc_ref_to_comp[lag][0]['ssr_ftest'][1] < 0.05
                 }
                 for lag in range(1, max_lag + 1)
             }
+            # Legacy key names for backward compatibility
+            results['male_to_female'] = results['reference_to_comparison']
             
-            # Test: female wages -> male wages  
-            gc_fm = grangercausalitytests(df[['male_wage', 'female_wage']], maxlag=max_lag, verbose=False)
-            results['female_to_male'] = {
+            # Test: comparison wages -> reference wages  
+            gc_comp_to_ref = grangercausalitytests(df[[ref_col, comp_col]], maxlag=max_lag, verbose=False)
+            results['comparison_to_reference'] = {
                 lag: {
-                    'f_stat': gc_fm[lag][0]['ssr_ftest'][0],
-                    'p_value': gc_fm[lag][0]['ssr_ftest'][1],
-                    'significant': gc_fm[lag][0]['ssr_ftest'][1] < 0.05
+                    'f_stat': gc_comp_to_ref[lag][0]['ssr_ftest'][0],
+                    'p_value': gc_comp_to_ref[lag][0]['ssr_ftest'][1],
+                    'significant': gc_comp_to_ref[lag][0]['ssr_ftest'][1] < 0.05
                 }
                 for lag in range(1, max_lag + 1)
             }
+            # Legacy key names for backward compatibility
+            results['female_to_male'] = results['comparison_to_reference']
+            
+            # Add metadata
+            results['reference_label'] = getattr(self, 'reference_label', 'Reference')
+            results['comparison_label'] = getattr(self, 'comparison_label', 'Comparison')
+            
         except Exception as e:
             logger.warning(f"Granger causality test failed: {e}")
         
@@ -398,21 +498,25 @@ class WageGapTimeSeriesAnalyzer:
     
     def cointegration_analysis(self) -> Dict[str, Any]:
         """
-        Test for cointegration between male and female wages.
+        Test for cointegration between reference and comparison group wages.
         
         If cointegrated, wages move together in the long run,
         implying the wage gap is stationary.
         """
         results = {}
         
-        if 'male_wage' not in self.ts_data.columns:
+        # Use generic column names, fall back to legacy names
+        ref_col = 'reference_wage' if 'reference_wage' in self.ts_data.columns else 'male_wage'
+        comp_col = 'comparison_wage' if 'comparison_wage' in self.ts_data.columns else 'female_wage'
+        
+        if ref_col not in self.ts_data.columns:
             return results
         
-        male = self.ts_data['male_wage'].dropna().values
-        female = self.ts_data['female_wage'].dropna().values
+        reference = self.ts_data[ref_col].dropna().values
+        comparison = self.ts_data[comp_col].dropna().values
         
-        n = min(len(male), len(female))
-        male, female = male[:n], female[:n]
+        n = min(len(reference), len(comparison))
+        reference, comparison = reference[:n], comparison[:n]
         
         if n < 10:
             logger.warning("Insufficient data for cointegration test")
@@ -420,7 +524,7 @@ class WageGapTimeSeriesAnalyzer:
         
         try:
             # Engle-Granger two-step cointegration test
-            coint_stat, p_value, crit_values = coint(male, female)
+            coint_stat, p_value, crit_values = coint(reference, comparison)
             
             results['engle_granger'] = {
                 'statistic': coint_stat,
@@ -436,12 +540,14 @@ class WageGapTimeSeriesAnalyzer:
             }
             
             # Estimate cointegrating vector
-            X = sm.add_constant(male)
-            coint_model = OLS(female, X).fit()
+            X = sm.add_constant(reference)
+            coint_model = OLS(comparison, X).fit()
+            ref_label = getattr(self, 'reference_label', 'Reference')
+            comp_label = getattr(self, 'comparison_label', 'Comparison')
             results['cointegrating_vector'] = {
                 'constant': coint_model.params[0],
                 'coefficient': coint_model.params[1],
-                'interpretation': f"Female wage = {coint_model.params[0]:.2f} + {coint_model.params[1]:.3f} × Male wage"
+                'interpretation': f"{comp_label} wage = {coint_model.params[0]:.2f} + {coint_model.params[1]:.3f} × {ref_label} wage"
             }
             
         except Exception as e:

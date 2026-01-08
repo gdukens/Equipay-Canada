@@ -450,6 +450,9 @@ class EquiPayDataStore:
         """
         Compute gender wage gap.
         
+        This is a convenience wrapper around wage_gap() for backward compatibility.
+        For new code, prefer using wage_gap(group_column='IS_FEMALE', ...).
+        
         Args:
             by: Grouping columns (PROV, NOC_10, EDUC, etc.)
             year: Year filter
@@ -457,6 +460,55 @@ class EquiPayDataStore:
             
         Returns:
             DataFrame with gap statistics
+        """
+        return self.wage_gap(
+            group_column='IS_FEMALE',
+            reference_value=0,   # Male
+            comparison_value=1,  # Female
+            by=by,
+            year=year,
+            weighted=weighted,
+            reference_label='Male',
+            comparison_label='Female'
+        )
+    
+    def wage_gap(
+        self,
+        group_column: str = 'IS_FEMALE',
+        reference_value: Any = 0,
+        comparison_value: Any = 1,
+        by: List[str] = None,
+        year: int = None,
+        weighted: bool = True,
+        reference_label: str = None,
+        comparison_label: str = None
+    ) -> 'pd.DataFrame':
+        """
+        Compute wage gap for any protected attribute.
+        
+        This is a generalized gap calculation that works for gender, immigration
+        status, age, union status, or any binary/categorical attribute.
+        
+        Args:
+            group_column: Column identifying groups (e.g., 'IS_FEMALE', 'IMMIG', 'AGE_6')
+            reference_value: Value for reference group (typically higher-paid)
+            comparison_value: Value for comparison group (typically lower-paid)
+            by: Grouping columns (PROV, NOC_10, EDUC, etc.)
+            year: Year filter
+            weighted: Use survey weights
+            reference_label: Label for reference group
+            comparison_label: Label for comparison group
+            
+        Returns:
+            DataFrame with gap statistics
+            
+        Examples:
+            # Gender gap (traditional)
+            store.wage_gap(group_column='IS_FEMALE', reference_value=0, comparison_value=1)
+            
+            # Immigration gap
+            store.wage_gap(group_column='IMMIG', reference_value=1, comparison_value=2,
+                          reference_label='Canadian-born', comparison_label='Immigrant')
         """
         weight = "FINALWT" if weighted else "1"
         
@@ -469,20 +521,24 @@ class EquiPayDataStore:
             group_cols_str = ', '.join(group_cols) if group_cols else ''
             where = "HRLYEARN > 0"
         
+        # Reference and comparison labels
+        ref_label = reference_label or str(reference_value)
+        comp_label = comparison_label or str(comparison_value)
+        
         if group_cols:
             sql = f"""
                 SELECT 
                     {group_cols_str},
-                    SUM(CASE WHEN IS_FEMALE = 0 THEN {weight} END) as male_weight,
-                    SUM(CASE WHEN IS_FEMALE = 1 THEN {weight} END) as female_weight,
-                    SUM(CASE WHEN IS_FEMALE = 0 THEN LOG_REAL_HRLYEARN * {weight} END) / 
-                        NULLIF(SUM(CASE WHEN IS_FEMALE = 0 THEN {weight} END), 0) as male_mean,
-                    SUM(CASE WHEN IS_FEMALE = 1 THEN LOG_REAL_HRLYEARN * {weight} END) / 
-                        NULLIF(SUM(CASE WHEN IS_FEMALE = 1 THEN {weight} END), 0) as female_mean,
-                    (SUM(CASE WHEN IS_FEMALE = 0 THEN LOG_REAL_HRLYEARN * {weight} END) / 
-                        NULLIF(SUM(CASE WHEN IS_FEMALE = 0 THEN {weight} END), 0)) -
-                    (SUM(CASE WHEN IS_FEMALE = 1 THEN LOG_REAL_HRLYEARN * {weight} END) / 
-                        NULLIF(SUM(CASE WHEN IS_FEMALE = 1 THEN {weight} END), 0)) as gap,
+                    SUM(CASE WHEN {group_column} = {reference_value} THEN {weight} END) as reference_weight,
+                    SUM(CASE WHEN {group_column} = {comparison_value} THEN {weight} END) as comparison_weight,
+                    SUM(CASE WHEN {group_column} = {reference_value} THEN LOG_REAL_HRLYEARN * {weight} END) / 
+                        NULLIF(SUM(CASE WHEN {group_column} = {reference_value} THEN {weight} END), 0) as reference_mean,
+                    SUM(CASE WHEN {group_column} = {comparison_value} THEN LOG_REAL_HRLYEARN * {weight} END) / 
+                        NULLIF(SUM(CASE WHEN {group_column} = {comparison_value} THEN {weight} END), 0) as comparison_mean,
+                    (SUM(CASE WHEN {group_column} = {reference_value} THEN LOG_REAL_HRLYEARN * {weight} END) / 
+                        NULLIF(SUM(CASE WHEN {group_column} = {reference_value} THEN {weight} END), 0)) -
+                    (SUM(CASE WHEN {group_column} = {comparison_value} THEN LOG_REAL_HRLYEARN * {weight} END) / 
+                        NULLIF(SUM(CASE WHEN {group_column} = {comparison_value} THEN {weight} END), 0)) as gap,
                     COUNT(*) as n
                 FROM {self.TABLE_NAME}
                 WHERE {where}
@@ -492,16 +548,16 @@ class EquiPayDataStore:
         else:
             sql = f"""
                 SELECT 
-                    SUM(CASE WHEN IS_FEMALE = 0 THEN {weight} END) as male_weight,
-                    SUM(CASE WHEN IS_FEMALE = 1 THEN {weight} END) as female_weight,
-                    SUM(CASE WHEN IS_FEMALE = 0 THEN LOG_REAL_HRLYEARN * {weight} END) / 
-                        NULLIF(SUM(CASE WHEN IS_FEMALE = 0 THEN {weight} END), 0) as male_mean,
-                    SUM(CASE WHEN IS_FEMALE = 1 THEN LOG_REAL_HRLYEARN * {weight} END) / 
-                        NULLIF(SUM(CASE WHEN IS_FEMALE = 1 THEN {weight} END), 0) as female_mean,
-                    (SUM(CASE WHEN IS_FEMALE = 0 THEN LOG_REAL_HRLYEARN * {weight} END) / 
-                        NULLIF(SUM(CASE WHEN IS_FEMALE = 0 THEN {weight} END), 0)) -
-                    (SUM(CASE WHEN IS_FEMALE = 1 THEN LOG_REAL_HRLYEARN * {weight} END) / 
-                        NULLIF(SUM(CASE WHEN IS_FEMALE = 1 THEN {weight} END), 0)) as gap,
+                    SUM(CASE WHEN {group_column} = {reference_value} THEN {weight} END) as reference_weight,
+                    SUM(CASE WHEN {group_column} = {comparison_value} THEN {weight} END) as comparison_weight,
+                    SUM(CASE WHEN {group_column} = {reference_value} THEN LOG_REAL_HRLYEARN * {weight} END) / 
+                        NULLIF(SUM(CASE WHEN {group_column} = {reference_value} THEN {weight} END), 0) as reference_mean,
+                    SUM(CASE WHEN {group_column} = {comparison_value} THEN LOG_REAL_HRLYEARN * {weight} END) / 
+                        NULLIF(SUM(CASE WHEN {group_column} = {comparison_value} THEN {weight} END), 0) as comparison_mean,
+                    (SUM(CASE WHEN {group_column} = {reference_value} THEN LOG_REAL_HRLYEARN * {weight} END) / 
+                        NULLIF(SUM(CASE WHEN {group_column} = {reference_value} THEN {weight} END), 0)) -
+                    (SUM(CASE WHEN {group_column} = {comparison_value} THEN LOG_REAL_HRLYEARN * {weight} END) / 
+                        NULLIF(SUM(CASE WHEN {group_column} = {comparison_value} THEN {weight} END), 0)) as gap,
                     COUNT(*) as n
                 FROM {self.TABLE_NAME}
                 WHERE {where}
@@ -509,11 +565,79 @@ class EquiPayDataStore:
         
         result = self._connection.execute(sql).fetchdf()
         
-        # Add percentage gap
+        # Add percentage gap and metadata
         import numpy as np
         result['gap_pct'] = (np.exp(result['gap']) - 1) * 100
+        result['group_column'] = group_column
+        result['reference_label'] = ref_label
+        result['comparison_label'] = comp_label
+        
+        # Add backward-compatible column names for gender gap calls
+        if group_column == 'IS_FEMALE' and reference_value == 0:
+            result['male_weight'] = result['reference_weight']
+            result['female_weight'] = result['comparison_weight']
+            result['male_mean'] = result['reference_mean']
+            result['female_mean'] = result['comparison_mean']
         
         return result
+    
+    def immigration_gap(
+        self,
+        by: List[str] = None,
+        year: int = None,
+        weighted: bool = True
+    ) -> 'pd.DataFrame':
+        """
+        Compute immigrant vs. Canadian-born wage gap.
+        
+        Analyzes pay disparities based on immigration status (IMMIG variable).
+        
+        Args:
+            by: Grouping columns (e.g., ['PROV', 'EDUC'])
+            year: Year filter
+            weighted: Use survey weights
+            
+        Returns:
+            DataFrame with immigration wage gap statistics
+        """
+        return self.wage_gap(
+            group_column='IMMIG',
+            reference_value=1,   # Canadian-born
+            comparison_value=2,  # Immigrant
+            by=by,
+            year=year,
+            weighted=weighted,
+            reference_label='Canadian-born',
+            comparison_label='Immigrant'
+        )
+    
+    def union_gap(
+        self,
+        by: List[str] = None,
+        year: int = None,
+        weighted: bool = True
+    ) -> 'pd.DataFrame':
+        """
+        Compute union vs. non-union wage gap (union premium).
+        
+        Args:
+            by: Grouping columns
+            year: Year filter
+            weighted: Use survey weights
+            
+        Returns:
+            DataFrame with union wage premium statistics
+        """
+        return self.wage_gap(
+            group_column='UNION',
+            reference_value=1,   # Union
+            comparison_value=2,  # Non-union
+            by=by,
+            year=year,
+            weighted=weighted,
+            reference_label='Union',
+            comparison_label='Non-union'
+        )
     
     def sample(self, n: int = 1000, where: str = None, random_state: int = None) -> 'pd.DataFrame':
         """

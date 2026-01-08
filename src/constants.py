@@ -738,6 +738,117 @@ INTERSECTIONAL_ATTRIBUTES = [
 
 
 # =============================================================================
+# PAY EQUITY DIMENSION CONFIGURATIONS
+# =============================================================================
+# Standardized definitions for all protected attributes that can be analyzed
+# for pay equity. Each dimension specifies the column, reference/comparison
+# values, and human-readable labels.
+
+@dataclass
+class EquityDimension:
+    """Configuration for a pay equity dimension (protected attribute)."""
+    column: str                    # LFS column name
+    reference_value: int           # Code for reference group (typically higher-paid)
+    comparison_value: int          # Code for comparison group (typically lower-paid)
+    reference_label: str           # Human-readable label for reference
+    comparison_label: str          # Human-readable label for comparison
+    description: str               # Brief description of the equity dimension
+    legal_basis: str = ""          # Canadian legal framework reference
+
+
+# Pre-defined equity dimensions for common analyses
+EQUITY_DIMENSIONS = {
+    'gender': EquityDimension(
+        column='GENDER',
+        reference_value=1,
+        comparison_value=2,
+        reference_label='Male',
+        comparison_label='Female',
+        description='Gender-based wage gap (traditional pay equity focus)',
+        legal_basis='Pay Equity Act (2018), Canadian Human Rights Act'
+    ),
+    'immigration': EquityDimension(
+        column='IMMIG',
+        reference_value=1,
+        comparison_value=2,
+        reference_label='Canadian-born',
+        comparison_label='Immigrant',
+        description='Immigration status wage gap (credential recognition, discrimination)',
+        legal_basis='Canadian Human Rights Act, Employment Equity Act'
+    ),
+    'age_young': EquityDimension(
+        column='AGE_6',
+        reference_value=4,  # 45-54 (peak earnings)
+        comparison_value=1,  # 15-24
+        reference_label='45-54 years',
+        comparison_label='15-24 years',
+        description='Youth wage penalty (experience, entry-level positions)',
+        legal_basis='Canadian Human Rights Act (age discrimination)'
+    ),
+    'age_older': EquityDimension(
+        column='AGE_6',
+        reference_value=4,  # 45-54 (peak earnings)
+        comparison_value=6,  # 65+
+        reference_label='45-54 years',
+        comparison_label='65+ years',
+        description='Older worker wage patterns',
+        legal_basis='Canadian Human Rights Act (age discrimination)'
+    ),
+    'union': EquityDimension(
+        column='UNION',
+        reference_value=1,  # Union member
+        comparison_value=2,  # Non-union
+        reference_label='Union',
+        comparison_label='Non-union',
+        description='Union wage premium analysis',
+        legal_basis='Canada Labour Code'
+    ),
+    'employment_type': EquityDimension(
+        column='PERMTEMP',
+        reference_value=1,  # Permanent
+        comparison_value=2,  # Temporary
+        reference_label='Permanent',
+        comparison_label='Temporary',
+        description='Temporary worker wage penalty',
+        legal_basis='Employment Standards Act (provincial)'
+    ),
+    'fulltime_parttime': EquityDimension(
+        column='FTPTMAIN',
+        reference_value=1,  # Full-time
+        comparison_value=2,  # Part-time
+        reference_label='Full-time',
+        comparison_label='Part-time',
+        description='Part-time worker hourly wage gap',
+        legal_basis='Employment Standards Act (provincial)'
+    ),
+}
+
+
+def get_equity_dimension(name: str) -> EquityDimension:
+    """
+    Get a pre-configured equity dimension by name.
+    
+    Args:
+        name: Key from EQUITY_DIMENSIONS (e.g., 'gender', 'immigration', 'age_young')
+        
+    Returns:
+        EquityDimension configuration object
+        
+    Example:
+        dim = get_equity_dimension('immigration')
+        store.get_wage_gap(
+            group_column=dim.column,
+            reference_value=dim.reference_value,
+            comparison_value=dim.comparison_value
+        )
+    """
+    if name not in EQUITY_DIMENSIONS:
+        available = ', '.join(EQUITY_DIMENSIONS.keys())
+        raise ValueError(f"Unknown equity dimension '{name}'. Available: {available}")
+    return EQUITY_DIMENSIONS[name]
+
+
+# =============================================================================
 # ANALYSIS THRESHOLDS AND PARAMETERS
 # =============================================================================
 
