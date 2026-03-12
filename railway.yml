@@ -1,0 +1,17 @@
+# Railway Configuration - Optimized for size limits
+# Use Dockerfile.railway to exclude large data files
+
+services:
+  - type: web
+    name: equipay-api
+    env: python
+    dockerfile: Dockerfile.railway
+    startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT
+    healthcheckPath: /health
+    envVars:
+      - key: EQUIPAY_MODE
+        value: RAILWAY
+      - key: PYTHONPATH
+        value: /app
+      - key: LOG_LEVEL
+        value: INFO

@@ -1,0 +1,18 @@
+# Only exclude basic development artifacts
+.git/
+.vscode/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+.venv/
+venv/
+ENV/
+.pytest_cache/
+.coverage
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini

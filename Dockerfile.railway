@@ -1,0 +1,44 @@
+FROM python:3.10-slim
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements first for better caching
+COPY requirements.txt .
+
+# Install Python dependencies
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
+COPY src/ ./src/
+COPY api/ ./api/
+COPY app/ ./app/
+COPY scripts/ ./scripts/
+COPY config.yaml ./
+COPY pyrightconfig.json ./
+COPY railway_start.py ./
+
+# Create data directories
+RUN mkdir -p data/processed data/raw data/cache
+
+# Create a non-root user
+RUN groupadd -r appuser && useradd -r -g appuser appuser
+RUN chown -R appuser:appuser /app
+USER appuser
+
+# Set environment variables
+ENV PYTHONPATH=/app
+ENV EQUIPAY_MODE=RAILWAY
+ENV LOG_LEVEL=INFO
+
+# Expose ports
+EXPOSE 8000 8501
+
+# Use Railway startup script
+CMD ["python", "railway_start.py"]

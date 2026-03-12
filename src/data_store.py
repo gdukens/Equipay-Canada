@@ -87,17 +87,8 @@ class EquiPayDataStore:
         if self._initialized:
             return
             
-        # Try Parquet first (fastest)
-        # Check if parquet directory exists and has parquet files
-        parquet_files_exist = False
-        if self.parquet_path.exists():
-            if self.parquet_path.is_dir():
-                # Check for parquet files in subdirectories (hive partitioned)
-                parquet_files = list(self.parquet_path.glob("**/*.parquet"))
-                parquet_files_exist = len(parquet_files) > 0
-            else:
-                # Single parquet file
-                parquet_files_exist = self.parquet_path.suffix == '.parquet'
+        # Check for Railway deployment mode
+        equipay_mode = os.environ.get('EQUIPAY_MODE', 'PRODUCTION')
         
         # CPI deflators for inflation adjustment (BASE_YEAR = 2010)
         # Format: year -> deflator (multiply nominal by deflator to get real)
@@ -121,69 +112,115 @@ class EquiPayDataStore:
         hours_exclude = ', '.join(hours_vars)
         hours_transform = ', '.join([f'{v} / 10.0 AS {v}' for v in hours_vars])
         
-        if parquet_files_exist:
-            if self.parquet_path.is_dir():
-                # Partitioned Parquet
-                parquet_glob = str(self.parquet_path / "**/*.parquet")
-                # LFS PUMF data transformations per StatsCan Guide:
-                # - HRLYEARN has 2 implicit decimals (divide by 100 → dollars)
-                # - Hours variables have 1 implicit decimal (divide by 10 → hours)
-                # - REAL_HRLYEARN computed using CPI deflators (2010 constant dollars)
-                self.conn.execute(f"""
-                    CREATE OR REPLACE VIEW lfs AS 
-                    SELECT 
-                        * EXCLUDE (HRLYEARN, {hours_exclude}),
-                        HRLYEARN / 100.0 AS HRLYEARN,
-                        (HRLYEARN / 100.0) * ({deflator_sql}) AS REAL_HRLYEARN,
-                        LN(GREATEST(HRLYEARN / 100.0, 0.01)) AS LOG_HRLYEARN,
-                        LN(GREATEST((HRLYEARN / 100.0) * ({deflator_sql}), 0.01)) AS LOG_REAL_HRLYEARN,
-                        {hours_transform}
-                    FROM read_parquet('{parquet_glob}', hive_partitioning=true)
-                """)
-            else:
-                # Single Parquet file
-                # LFS PUMF data transformations per StatsCan Guide
-                self.conn.execute(f"""
-                    CREATE OR REPLACE VIEW lfs AS 
-                    SELECT 
-                        * EXCLUDE (HRLYEARN, {hours_exclude}),
-                        HRLYEARN / 100.0 AS HRLYEARN,
-                        (HRLYEARN / 100.0) * ({deflator_sql}) AS REAL_HRLYEARN,
-                        LN(GREATEST(HRLYEARN / 100.0, 0.01)) AS LOG_HRLYEARN,
-                        LN(GREATEST((HRLYEARN / 100.0) * ({deflator_sql}), 0.01)) AS LOG_REAL_HRLYEARN,
-                        {hours_transform}
-                    FROM read_parquet('{self.parquet_path}')
-                """)
-            self._source = "parquet"
-            logger.info(f"DuckDB: Registered Parquet source: {self.parquet_path}")
+        # For Railway mode, use sample data if available
+        if equipay_mode == 'RAILWAY':
+            sample_csv = Path('data/processed/lfs_processed.csv')
+            sample_duckdb = Path('data/processed/lfs_data.duckdb')
             
-        # Fallback to CSV (raw LFS files also store HRLYEARN in cents)
-        elif self.raw_csv_path.exists():
-            csv_glob = str(self.raw_csv_path / "*.csv")
-            # DuckDB efficiently reads CSVs with automatic schema detection
-            # Apply StatsCan PUMF transformations: HRLYEARN/100, hours/10
-            self.conn.execute(f"""
-                CREATE OR REPLACE VIEW lfs AS 
-                SELECT 
-                    * EXCLUDE (HRLYEARN, {hours_exclude}),
-                    HRLYEARN / 100.0 AS HRLYEARN,
-                    (HRLYEARN / 100.0) * ({deflator_sql}) AS REAL_HRLYEARN,
-                    LN(GREATEST(HRLYEARN / 100.0, 0.01)) AS LOG_HRLYEARN,
-                    LN(GREATEST((HRLYEARN / 100.0) * ({deflator_sql}), 0.01)) AS LOG_REAL_HRLYEARN,
-                    {hours_transform}
-                FROM read_csv_auto('{csv_glob}', 
-                    header=true,
-                    ignore_errors=true,
-                    parallel=true
-                )
-            """)
-            self._source = "csv"
-            logger.info(f"DuckDB: Registered CSV source: {self.raw_csv_path}")
+            if sample_duckdb.exists():
+                # Use existing sample DuckDB
+                sample_conn = duckdb.connect(str(sample_duckdb))
+                # Copy data to our in-memory connection
+                self.conn.execute("CREATE TABLE lfs AS SELECT * FROM sample_conn.lfs_data")
+                sample_conn.close()
+                self._source = "sample_duckdb"
+                logger.info(f"Railway mode: Using sample DuckDB: {sample_duckdb}")
+            elif sample_csv.exists():
+                # Use CSV sample data with transformations
+                self.conn.execute(f"""
+                    CREATE OR REPLACE VIEW lfs AS 
+                    SELECT 
+                        *,
+                        HRLYEARN AS HRLYEARN,  -- Already in dollars for sample data
+                        HRLYEARN * ({deflator_sql}) AS REAL_HRLYEARN,
+                        LN(GREATEST(HRLYEARN, 0.01)) AS LOG_HRLYEARN,
+                        LN(GREATEST(HRLYEARN * ({deflator_sql}), 0.01)) AS LOG_REAL_HRLYEARN
+                    FROM read_csv_auto('{sample_csv}', header=true)
+                """)
+                self._source = "sample_csv"
+                logger.info(f"Railway mode: Using sample CSV: {sample_csv}")
+            else:
+                # Generate sample data on the fly
+                logger.warning("Railway mode: No sample data found, generating minimal dataset")
+                self._create_minimal_sample_data(deflator_sql)
+                self._source = "generated_sample"
         else:
-            raise FileNotFoundError(
-                f"No data found. Expected Parquet at {self.parquet_path} "
-                f"or CSVs at {self.raw_csv_path}"
-            )
+            # Normal production mode
+            # Try Parquet first (fastest)
+            # Check if parquet directory exists and has parquet files
+            parquet_files_exist = False
+            if self.parquet_path.exists():
+                if self.parquet_path.is_dir():
+                    # Check for parquet files in subdirectories (hive partitioned)
+                    parquet_files = list(self.parquet_path.glob("**/*.parquet"))
+                    parquet_files_exist = len(parquet_files) > 0
+                else:
+                    # Single parquet file
+                    parquet_files_exist = self.parquet_path.suffix == '.parquet'
+            
+            if parquet_files_exist:
+                if self.parquet_path.is_dir():
+                    # Partitioned Parquet
+                    parquet_glob = str(self.parquet_path / "**/*.parquet")
+                    # LFS PUMF data transformations per StatsCan Guide:
+                    # - HRLYEARN has 2 implicit decimals (divide by 100 → dollars)
+                    # - Hours variables have 1 implicit decimal (divide by 10 → hours)
+                    # - REAL_HRLYEARN computed using CPI deflators (2010 constant dollars)
+                    self.conn.execute(f"""
+                        CREATE OR REPLACE VIEW lfs AS 
+                        SELECT 
+                            * EXCLUDE (HRLYEARN, {hours_exclude}),
+                            HRLYEARN / 100.0 AS HRLYEARN,
+                            (HRLYEARN / 100.0) * ({deflator_sql}) AS REAL_HRLYEARN,
+                            LN(GREATEST(HRLYEARN / 100.0, 0.01)) AS LOG_HRLYEARN,
+                            LN(GREATEST((HRLYEARN / 100.0) * ({deflator_sql}), 0.01)) AS LOG_REAL_HRLYEARN,
+                            {hours_transform}
+                        FROM read_parquet('{parquet_glob}', hive_partitioning=true)
+                    """)
+                else:
+                    # Single Parquet file
+                    # LFS PUMF data transformations per StatsCan Guide
+                    self.conn.execute(f"""
+                        CREATE OR REPLACE VIEW lfs AS 
+                        SELECT 
+                            * EXCLUDE (HRLYEARN, {hours_exclude}),
+                            HRLYEARN / 100.0 AS HRLYEARN,
+                            (HRLYEARN / 100.0) * ({deflator_sql}) AS REAL_HRLYEARN,
+                            LN(GREATEST(HRLYEARN / 100.0, 0.01)) AS LOG_HRLYEARN,
+                            LN(GREATEST((HRLYEARN / 100.0) * ({deflator_sql}), 0.01)) AS LOG_REAL_HRLYEARN,
+                            {hours_transform}
+                        FROM read_parquet('{self.parquet_path}')
+                    """)
+                self._source = "parquet"
+                logger.info(f"DuckDB: Registered Parquet source: {self.parquet_path}")
+                
+            # Fallback to CSV (raw LFS files also store HRLYEARN in cents)
+            elif self.raw_csv_path.exists():
+                csv_glob = str(self.raw_csv_path / "*.csv")
+                # DuckDB efficiently reads CSVs with automatic schema detection
+                # Apply StatsCan PUMF transformations: HRLYEARN/100, hours/10
+                self.conn.execute(f"""
+                    CREATE OR REPLACE VIEW lfs AS 
+                    SELECT 
+                        * EXCLUDE (HRLYEARN, {hours_exclude}),
+                        HRLYEARN / 100.0 AS HRLYEARN,
+                        (HRLYEARN / 100.0) * ({deflator_sql}) AS REAL_HRLYEARN,
+                        LN(GREATEST(HRLYEARN / 100.0, 0.01)) AS LOG_HRLYEARN,
+                        LN(GREATEST((HRLYEARN / 100.0) * ({deflator_sql}), 0.01)) AS LOG_REAL_HRLYEARN,
+                        {hours_transform}
+                    FROM read_csv_auto('{csv_glob}', 
+                        header=true,
+                        ignore_errors=true,
+                        parallel=true
+                    )
+                """)
+                self._source = "csv"
+                logger.info(f"DuckDB: Registered CSV source: {self.raw_csv_path}")
+            else:
+                raise FileNotFoundError(
+                    f"No data found. Expected Parquet at {self.parquet_path} "
+                    f"or CSVs at {self.raw_csv_path}"
+                )
         
         self._initialized = True
         
@@ -1007,6 +1044,56 @@ class EquiPayDataStore:
         self.parquet_path = output
         self._initialized = False
         self._initialize()
+    
+    def _create_minimal_sample_data(self, deflator_sql: str):
+        """Create minimal sample data for Railway deployment."""
+        logger.info("Creating minimal sample dataset for Railway deployment...")
+        
+        # Generate small sample dataset
+        import random
+        random.seed(42)
+        np.random.seed(42)
+        
+        n_samples = 1000  # Very small for Railway
+        
+        # Sample data structure
+        provinces = ['ON', 'QC', 'BC', 'AB', 'MB', 'SK', 'NS', 'NB', 'NL', 'PE']
+        
+        sample_data = []
+        for i in range(n_samples):
+            sample_data.append({
+                'SURVYEAR': random.choice(range(2018, 2024)),
+                'PROV': random.choice(provinces),
+                'SEX': random.choice([1, 2]),
+                'AGE_12': random.choice(range(25, 55)),
+                'EDUC': random.choice(range(1, 9)),
+                'NOC_10': random.choice(range(0, 10)),
+                'HRLYEARN': random.uniform(20.0, 80.0),  # Already in dollars
+                'UHRSMAIN': random.uniform(20.0, 40.0),
+                'IMMIG': random.choice([1, 2, 3, 4]),
+                'FINALWT': random.uniform(100, 1000),
+            })
+        
+        # Create DataFrame and register with DuckDB
+        df = pd.DataFrame(sample_data)
+        
+        # Apply realistic wage gaps
+        gender_gap = np.where(df['SEX'] == 2, 0.85, 1.0)
+        df['HRLYEARN'] *= gender_gap
+        
+        # Create the view with proper transformations
+        self.conn.register('sample_df', df)
+        self.conn.execute(f"""
+            CREATE OR REPLACE VIEW lfs AS 
+            SELECT 
+                *,
+                HRLYEARN * ({deflator_sql}) AS REAL_HRLYEARN,
+                LN(GREATEST(HRLYEARN, 0.01)) AS LOG_HRLYEARN,
+                LN(GREATEST(HRLYEARN * ({deflator_sql}), 0.01)) AS LOG_REAL_HRLYEARN
+            FROM sample_df
+        """)
+        
+        logger.info(f"Generated {n_samples:,} sample records for Railway deployment")
     
     def close(self):
         """Close the DuckDB connection."""

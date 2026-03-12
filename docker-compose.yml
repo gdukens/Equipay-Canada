@@ -1,11 +1,8 @@
-version: '3.8'
-
 services:
   # FastAPI Backend
   api:
     build:
       context: .
-      target: production
     ports:
       - "8000:8000"
     volumes:
@@ -13,6 +10,7 @@ services:
       - ./models:/app/models:ro
       - ./logs:/app/logs
     environment:
+      - EQUIPAY_MODE=FAST
       - LOG_LEVEL=INFO
       - PYTHONPATH=/app
     healthcheck:
@@ -20,14 +18,16 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 40s
     restart: unless-stopped
+    networks:
+      - equipay-network
 
-  # Streamlit Dashboard
+  # Streamlit Dashboard  
   dashboard:
     build:
       context: .
-      target: production
-    command: streamlit run app/dashboard.py --server.port=8501 --server.address=0.0.0.0
+    command: ["streamlit", "run", "app/dashboard.py", "--server.port=8501", "--server.address=0.0.0.0", "--server.headless=true"]
     ports:
       - "8501:8501"
     volumes:
@@ -35,11 +35,15 @@ services:
       - ./models:/app/models:ro
       - ./logs:/app/logs
     environment:
+      - EQUIPAY_MODE=FAST
       - LOG_LEVEL=INFO
       - PYTHONPATH=/app
     depends_on:
-      - api
+      api:
+        condition: service_healthy
     restart: unless-stopped
+    networks:
+      - equipay-network
 
   # Development container
   dev:
@@ -62,5 +66,5 @@ services:
       - dev
 
 networks:
-  default:
-    name: equipay-network
+  equipay-network:
+    driver: bridge
