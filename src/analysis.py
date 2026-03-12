@@ -73,6 +73,11 @@ class PayEquityAnalyzer:
         self.results = {}
         self.has_weights = self.weight_col in self.df.columns
         
+        # Ensure key columns are numeric (parquet/DuckDB can return object dtype)
+        for col in [self.wage_col, self.gender_col, self.weight_col]:
+            if col in self.df.columns and self.df[col].dtype == object:
+                self.df[col] = pd.to_numeric(self.df[col], errors='coerce')
+        
     def compute_raw_wage_gap(self) -> Dict:
         """
         Compute unadjusted (raw) gender wage gap.
@@ -182,9 +187,18 @@ class PayEquityAnalyzer:
         df['IS_FEMALE'] = (df[gender_col] == 2).astype(int)
         df['LOG_WAGE'] = np.log(df[self.wage_col].clip(lower=1))
         
+        # Ensure control variables are numeric (DuckDB/parquet can return object dtype)
+        for col in control_vars:
+            if col in df.columns and df[col].dtype == object:
+                df[col] = pd.to_numeric(df[col], errors='coerce')
+        
         # Drop missing values
         all_vars = ['LOG_WAGE', 'IS_FEMALE'] + control_vars
         df_clean = df[all_vars].dropna()
+        
+        # Cast everything to float64 — pandas nullable Int8/Int16 etc. break
+        # statsmodels' numpy conversion.
+        df_clean = df_clean.astype('float64')
         
         # Model 1: Unadjusted (gender only)
         X_unadj = sm.add_constant(df_clean['IS_FEMALE'])

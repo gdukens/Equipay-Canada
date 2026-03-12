@@ -54,13 +54,20 @@ class WeightedMLSplitter:
     
     def __init__(
         self,
-        df: pd.DataFrame,
+        df: pd.DataFrame = None,
         target_col: str = None,
         weight_col: str = 'FINALWT',
         feature_cols: Optional[List[str]] = None,
         stratify_cols: Optional[List[str]] = None,
-        random_state: int = 42
+        random_state: int = 42,
+        **kwargs
     ):
+        """
+        Backwards-compatible constructor: supports positional `df` or keyword `data`.
+        """
+        # Accept alias 'data' for backward compatibility
+        if df is None and 'data' in kwargs:
+            df = kwargs.get('data')
         """
         Initialize the splitter.
         

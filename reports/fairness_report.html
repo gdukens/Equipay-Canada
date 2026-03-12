@@ -26,27 +26,33 @@
             <h2>Gender Wage Gap Analysis</h2>
             <div class="metric-box">
     
-                <div class="metric-value ">-1.6%</div>
+                <div class="metric-value warning">12.0%</div>
                 <div class="metric-label">Raw Gender Wage Gap</div>
-                <p>Women earn $1.02 for every $1.00 men earn</p>
-                <p>Male average: $439.46/hr | 
-                   Female average: $446.66/hr</p>
+                <p>Women earn $0.88 for every $1.00 men earn</p>
+                <p>Male average: $31.24/hr | 
+                   Female average: $27.51/hr</p>
         </div>
             <h2>Statistical Significance</h2>
             <div class="metric-box">
-                <p>T-statistic: -1.09</p>
-                <p>P-value: 0.2751</p>
-                <p class="warning">
-                    Not statistically significant
+                <p>T-statistic: 12.23</p>
+                <p>P-value: 0.0000</p>
+                <p class="success">
+                    Statistically significant at p < 0.01
                 </p>
             </div>
         
             <h2>Fairness Metrics</h2>
             <div class="metric-box">
     
+                <h3>Demographic Parity</h3>
+                <p>Ratio: 0.752 (threshold: 0.8)</p>
+                <p class="warning">
+                    FAILS demographic parity check
+                </p>
+        
                 <h3>Prediction Parity</h3>
-                <p>Prediction ratio: 0.988</p>
-                <p>Group means: {'1': 440.0204354255464, '2': 445.3732714842515}</p>
+                <p>Prediction ratio: 0.886</p>
+                <p>Group means: {'1': 31.157032028026883, '2': 27.59731997927504}</p>
         </div>
             <h2>Recommendations</h2>
             <div class="metric-box">

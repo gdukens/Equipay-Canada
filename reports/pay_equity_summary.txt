@@ -4,32 +4,32 @@ PAY EQUITY ANALYSIS SUMMARY REPORT
 
 RAW WAGE GAP
 ----------------------------------------
-Male average hourly wage: $438.83
-Female average hourly wage: $447.61
-Raw gender wage gap: -2.0%
-Women earn $1.02 for every $1 men earn
-Statistical significance: p = 0.2751
-Effect size: negligible
+Male average hourly wage: $31.24
+Female average hourly wage: $27.51
+Raw gender wage gap: 12.0%
+Women earn $0.88 for every $1 men earn
+Statistical significance: p = 0.0000
+Effect size: small
 
 ADJUSTED WAGE GAP (Controlling for education, occupation, etc.)
 ----------------------------------------
-Unadjusted gap: 1.5%
-Adjusted gap: 1.8%
-Gap explained by controls: -0.3 percentage points
-Unexplained gap: 1.8%
+Unadjusted gap: -11.9%
+Adjusted gap: -11.7%
+Gap explained by controls: 0.2 percentage points
+Unexplained gap: -11.7%
 
 OAXACA-BLINDER DECOMPOSITION
 ----------------------------------------
-Total wage gap: -1.5%
-Explained by characteristics: -81.3%
-Unexplained (potential discrimination): 181.3%
+Total wage gap: 13.5%
+Explained by characteristics: 1.9%
+Unexplained (potential discrimination): 98.1%
 
 WAGE GAP ACROSS DISTRIBUTION
 ----------------------------------------
-10th percentile gap: -0.9%
-50th percentile (median) gap: -0.9%
-90th percentile gap: 0.0%
-Glass ceiling effect: Gap widens at higher wages
+10th percentile gap: 13.3%
+50th percentile (median) gap: 11.3%
+90th percentile gap: 12.7%
+Glass ceiling effect: Gap narrows at higher wages
 
 ============================================================
 END OF REPORT

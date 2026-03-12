@@ -164,7 +164,7 @@ Examples:
             # Display results
             logger.info("\nModel Performance:")
             for name, m in metrics.items():
-                logger.info(f"  {name}: R²={m['r2']:.4f}, RMSE=${m['rmse']:.2f}")
+                logger.info(f"  {name}: R²={m['weighted_r2']:.4f}, RMSE=${m['weighted_rmse']:.2f}")
             
             # Save model
             predictor.save(str(model_path))

@@ -52,6 +52,13 @@ def run_notebook_as_script(notebook_path: Path) -> bool:
 import warnings
 warnings.filterwarnings('ignore')
 
+# Ensure `display` is defined when running outside IPython
+try:
+    from IPython.display import display
+except Exception:
+    def display(obj, **kwargs):
+        print(obj)
+
 import sys
 from pathlib import Path
 
@@ -59,9 +66,32 @@ from pathlib import Path
 project_root = Path(r"{notebook_path.parent.parent}")
 sys.path.insert(0, str(project_root))
 
-# Change to notebooks directory for relative paths
+# Ensure project root is current working directory and add src to sys.path so package imports work
 import os
-os.chdir(r"{notebook_path.parent}")
+os.chdir(str(project_root))
+sys.path.insert(0, str(project_root / 'src'))
+# Ensure EQUIPAY_MODE=FAST by default for automated smoke tests
+os.environ.setdefault('EQUIPAY_MODE', 'FAST')
+
+# Make src subpackages available under expected top-level names to preserve relative imports
+import importlib
+try:
+    import src
+    importlib.import_module('src.data_store')
+    # alias common packages if notebooks import them as top-level modules
+    sys.modules['data_store'] = sys.modules.get('src.data_store')
+except Exception:
+    # proceed; imports in notebooks will raise meaningful errors
+    pass
+
+# Notebook helpers: ensure a small sample table and store exist for FAST-mode smoke tests
+try:
+    from src.notebook_utils import ensure_store_and_sample, get_sample_from_store, safe_weight_col
+    store, df_sample = ensure_store_and_sample()
+    # Make df_sample available under a convenient name for compatibility with notebook variables
+    globals()['df_sample'] = df_sample
+except Exception as e:
+    print("Warning: notebook helpers not available:", e)
 
 '''
         script_content += '\n\n'.join(code_cells)

@@ -1,5 +1,36 @@
 # EquiPay Canada 🇨🇦
 
+## ⚡ Quick Run (FAST mode)
+
+All notebooks support a global run mode for efficient exploration and full research-grade analysis.
+
+- **FAST mode** (default): Loads a sample, reduces bootstraps/iterations, disables heavy plots. Use for interactive work.
+- **FULL mode**: Loads all data, runs all bootstraps, and produces publication-ready outputs. Use for final results.
+
+**How to use:**
+- Set the environment variable `EQUIPAY_MODE` to `FAST` or `FULL` before running any notebook or script.
+- Example (in terminal):
+  ```bash
+  export EQUIPAY_MODE=FAST  # or FULL
+  ```
+- Or set at the top of the notebook:
+  ```python
+  import os
+  os.environ['EQUIPAY_MODE'] = 'FAST'  # or 'FULL'
+  ```
+
+## Precomputed Aggregates
+
+To generate fast, reproducible outputs for the dashboard, API, and publication:
+
+1. Run the precompute script:
+   ```bash
+   python scripts/precompute_aggregates.py
+   ```
+2. This will save canonical Parquet files to `reports/cache/` for use in Streamlit and API endpoints.
+
+---
+
 **Machine Learning-Powered Compensation Analysis & Pay Equity System**
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
@@ -119,11 +150,46 @@ streamlit run app/dashboard.py
 
 ### Start the API
 
+## 🧭 SQL-first data store (DuckDB)
+
+The `EquiPayDataStore` now supports SQL-based derived views and macro tables.
+By default `use_sql_transforms=True` when instantiating `EquiPayDataStore`, which registers a `macro` table and creates a materialized `lfs_enriched` view that includes common derived columns such as `IS_FEMALE`, `REAL_HRLYEARN`, `LOG_REAL_HRLYEARN`, `AGE_APPROX`, `EXPERIENCE_PROXY`, and `PROV_ABBREV`.
+Use `store.create_materialized_derived_view()` to refresh the view when needed.
+
+### Start the API
+
 ```bash
 uvicorn api.main:app --reload
 ```
 
-## 📈 Features
+## � Deployment
+
+Multiple deployment options are available:
+
+### Quick Deploy Options:
+- **Streamlit Cloud** (free, easiest): Push to GitHub → Deploy at [share.streamlit.io](https://share.streamlit.io)
+- **Docker** (recommended): `docker-compose up -d` (already configured)
+- **Azure App Service**: `az webapp up --name equipay-canada --runtime "PYTHON|3.10"`
+- **Heroku**: `git push heroku main` (Procfile included)
+
+**See [DEPLOYMENT.md](DEPLOYMENT.md) for complete deployment guide** including:
+- Docker deployment (local & cloud)
+- Streamlit Community Cloud setup
+- Azure, AWS, GCP, Heroku instructions
+- Resource requirements & troubleshooting
+- Security best practices
+
+### Quick Docker Deployment:
+```bash
+# Run dashboard and API
+docker-compose up -d
+
+# Access at:
+# Dashboard: http://localhost:8501
+# API: http://localhost:8000
+```
+
+## �📈 Features
 
 ### 1. Salary Prediction Model
 - Ensemble model (XGBoost + LightGBM + CatBoost)

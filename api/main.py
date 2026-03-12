@@ -3,13 +3,15 @@ EquiPay Canada - FastAPI Salary Prediction API
 RESTful API for salary prediction and pay equity analysis
 """
 
-from fastapi import FastAPI, HTTPException, Depends, Query
+from fastapi import FastAPI, HTTPException, Depends, Query, Path as FPath
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import uvicorn
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
 import numpy as np
+import pandas as pd
+import subprocess
 from pathlib import Path
 import sys
 import logging
@@ -371,7 +373,7 @@ async def get_wage_gap():
 
 @app.get("/wage-gap/{dimension}", tags=["Analysis"])
 async def get_wage_gap_by_dimension(
-    dimension: str = Query(..., description="Dimension: education, occupation, province")
+    dimension: str = FPath(..., description="Dimension: education, occupation, province")
 ):
     """
     Get wage gap by a specific dimension
@@ -541,6 +543,37 @@ async def get_reference_codes():
             "3": "Not unionized"
         }
     }
+
+
+# ============================================================================
+# Aggregates & Background Jobs
+# ============================================================================
+
+@app.get('/aggregates/annual_gap', tags=['Aggregates'])
+async def aggregates_annual_gap():
+    p = Path('reports') / 'cache' / 'annual_gap.parquet'
+    if not p.exists():
+        raise HTTPException(status_code=404, detail='annual_gap not found; run precompute job')
+    df = pd.read_parquet(p)
+    return df.to_dict(orient='records')
+
+
+@app.get('/aggregates/provincial_means', tags=['Aggregates'])
+async def aggregates_provincial_means():
+    p = Path('reports') / 'cache' / 'provincial_means.parquet'
+    if not p.exists():
+        raise HTTPException(status_code=404, detail='provincial_means not found; run precompute job')
+    df = pd.read_parquet(p)
+    return df.to_dict(orient='records')
+
+
+@app.post('/jobs/precompute', tags=['Jobs'])
+async def jobs_precompute():
+    script = Path('scripts') / 'precompute_aggregates.py'
+    if not script.exists():
+        raise HTTPException(status_code=500, detail='precompute script not found')
+    proc = subprocess.Popen(['python3', str(script)])
+    return {'status': 'started', 'pid': proc.pid}
 
 
 # ============================================================================
