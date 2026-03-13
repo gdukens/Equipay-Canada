@@ -314,6 +314,20 @@ def main():
         )
         df = df[(df['HRLYEARN'] >= wage_range[0]) & (df['HRLYEARN'] <= wage_range[1])]
     
+    # Year range filter (time slicer)
+    if 'SURVYEAR' in df.columns:
+        st.sidebar.subheader("Time Period")
+        years_available = sorted(df['SURVYEAR'].unique())
+        if len(years_available) > 0:
+            year_range = st.sidebar.slider(
+                "Select year range",
+                min_value=int(min(years_available)),
+                max_value=int(max(years_available)),
+                value=(int(min(years_available)), int(max(years_available))),
+                step=1
+            )
+            df = df[(df['SURVYEAR'] >= year_range[0]) & (df['SURVYEAR'] <= year_range[1])]
+    
     st.sidebar.markdown("---")
     st.sidebar.markdown(f"**Filtered Sample Size:** {len(df):,}")
     st.sidebar.markdown(f"**Data Period:** {DATA_SCOPE_START}-{DATA_SCOPE_END}")
