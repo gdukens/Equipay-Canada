@@ -1,6 +1,6 @@
 # Quick Deployment Guide
 
-## ✅ Prerequisites Verified
+##  Prerequisites Verified
 - ✓ Docker installed (v28.5.1)
 - ✓ Docker Compose available (v2.40.0)
 - ✓ Data processed and ready
@@ -8,7 +8,7 @@
 
 ---
 
-## 🐳 Deploy 1: Docker (Local/Production)
+##  Deploy 1: Docker (Local/Production)
 
 ### Start the Dashboard:
 
@@ -48,7 +48,7 @@ docker compose exec dashboard bash
 
 ---
 
-## ☁️ Deploy 2: Streamlit Community Cloud
+##  Deploy 2: Streamlit Community Cloud
 
 ### Step 1: Push to GitHub
 
@@ -107,7 +107,7 @@ git push
 
 ---
 
-## 🎯 Quick Comparison
+##  Quick Comparison
 
 | Feature | Docker | Streamlit Cloud |
 |---------|--------|-----------------|
@@ -121,7 +121,7 @@ git push
 
 ---
 
-## 🚀 Recommended Workflow
+##  Recommended Workflow
 
 1. **Develop locally** with Docker:
    ```bash
@@ -141,10 +141,10 @@ git push
 
 ---
 
-## 📊 Current Status
+##  Current Status
 
-✅ Ready to deploy to Docker right now
-✅ Ready to deploy to Streamlit Cloud (need GitHub push first)
+ Ready to deploy to Docker right now
+ Ready to deploy to Streamlit Cloud (need GitHub push first)
 
 ### Next Steps:
 
@@ -161,7 +161,7 @@ docker compose up -d
 
 ---
 
-## 🆘 Common Issues
+##  Common Issues
 
 ### Docker: Port already in use
 ```bash
@@ -190,7 +190,7 @@ Check `requirements.txt` has all dependencies.
 
 ---
 
-## 💡 Pro Tips
+##  Pro Tips
 
 1. **Use FAST mode for Streamlit Cloud** (free tier has 1GB RAM limit)
 2. **Use FULL mode for Docker** (you have plenty of resources)
@@ -200,7 +200,7 @@ Check `requirements.txt` has all dependencies.
 
 ---
 
-## 🎉 You're All Set!
+##  You're All Set!
 
 Both deployment options are configured and ready. Pick your use case:
 
