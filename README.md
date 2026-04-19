@@ -255,6 +255,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📧 Contact
 
-Your Name - [your.email@example.com](mailto:your.email@example.com)
+Your Name - [your.email@example.com](mailto:guersondukensjrjoseph@gmail.com)
 
 Project Link: [https://github.com/yourusername/equipay-canada](https://github.com/yourusername/equipay-canada)
