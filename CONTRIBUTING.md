@@ -2,7 +2,7 @@
 
 Thank you for your interest in contributing to EquiPay Canada! This document provides guidelines and information for contributors.
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Prerequisites
 
@@ -41,7 +41,7 @@ Thank you for your interest in contributing to EquiPay Canada! This document pro
    pytest tests/ -v
    ```
 
-## 📋 Code Style Guidelines
+##  Code Style Guidelines
 
 ### Python Style
 
@@ -103,7 +103,7 @@ def calculate_wage_gap(
     return {"gap_pct": 12.5, "gap_dollars": 3.50}
 ```
 
-## 🧪 Testing Guidelines
+##  Testing Guidelines
 
 ### Running Tests
 
@@ -157,7 +157,7 @@ class TestPayEquityAnalyzer:
         assert isinstance(result['raw_gap']['mean_gap_pct'], float)
 ```
 
-## 📝 Pull Request Process
+##  Pull Request Process
 
 1. **Create a branch**
    ```bash
@@ -193,7 +193,7 @@ class TestPayEquityAnalyzer:
 - [ ] PR description explains the changes
 - [ ] Linked to relevant issues (if any)
 
-## 🐛 Reporting Issues
+##  Reporting Issues
 
 When reporting issues, please include:
 
@@ -204,7 +204,7 @@ When reporting issues, please include:
 5. **Environment**: Python version, OS, relevant package versions
 6. **Error messages**: Full stack traces if applicable
 
-## 📚 Project Structure
+##  Project Structure
 
 ```
 equipay-canada/
@@ -225,7 +225,7 @@ equipay-canada/
 └── reports/                # Generated reports
 ```
 
-## 🔑 Key Modules
+##  Key Modules
 
 | Module | Description |
 |--------|-------------|
@@ -235,10 +235,10 @@ equipay-canada/
 | `analysis.py` | Pay equity statistical analysis |
 | `fairness.py` | Algorithmic fairness evaluation |
 
-## 📫 Questions?
+##  Questions?
 
 - Open an issue for bugs or feature requests
 - Check existing issues before creating new ones
 - Be respectful and constructive in discussions
 
-Thank you for contributing! 🎉
+Thank you for contributing! 
