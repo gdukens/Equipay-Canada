@@ -1,6 +1,6 @@
 # EquiPay Canada 🇨🇦
 
-## ⚡ Quick Run (FAST mode)
+##  Quick Run (FAST mode)
 
 All notebooks support a global run mode for efficient exploration and full research-grade analysis.
 
@@ -36,7 +36,7 @@ To generate fast, reproducible outputs for the dashboard, API, and publication:
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## 🎯 Project Overview
+##  Project Overview
 
 EquiPay Canada is a comprehensive machine learning system that analyzes the Canadian labour market to:
 
@@ -45,7 +45,7 @@ EquiPay Canada is a comprehensive machine learning system that analyzes the Cana
 - **Identify compensation drivers** that explain wage variations
 - **Generate actionable insights** for HR professionals and policymakers
 
-## 📊 Data Sources
+##  Data Sources
 
 This project uses **only two data sources**:
 
@@ -64,7 +64,7 @@ Built-in macroeconomic indicators (see `src/macro_data.py`):
 
 **No other external data sources are required for this project.**
 
-## 🏗️ Project Structure
+##  Project Structure
 
 ```
 equipay-canada/
@@ -150,7 +150,7 @@ streamlit run app/dashboard.py
 
 ### Start the API
 
-## 🧭 SQL-first data store (DuckDB)
+##  SQL-first data store (DuckDB)
 
 The `EquiPayDataStore` now supports SQL-based derived views and macro tables.
 By default `use_sql_transforms=True` when instantiating `EquiPayDataStore`, which registers a `macro` table and creates a materialized `lfs_enriched` view that includes common derived columns such as `IS_FEMALE`, `REAL_HRLYEARN`, `LOG_REAL_HRLYEARN`, `AGE_APPROX`, `EXPERIENCE_PROXY`, and `PROV_ABBREV`.
@@ -189,7 +189,7 @@ docker-compose up -d
 # API: http://localhost:8000
 ```
 
-## �📈 Features
+##  Features
 
 ### 1. Salary Prediction Model
 - Ensemble model (XGBoost + LightGBM + CatBoost)
@@ -225,7 +225,7 @@ docker-compose up -d
 - Model retraining
 - Report generation
 
-## 📊 Key Findings
+##  Key Findings
 
 | Metric | Value |
 |--------|-------|
@@ -234,7 +234,7 @@ docker-compose up -d
 | Model R² Score | 0.72 |
 | Top Predictor | Occupation |
 
-## 🛠️ Technologies
+##  Technologies
 
 - **Data Processing**: pandas, numpy
 - **Machine Learning**: scikit-learn, XGBoost, LightGBM, CatBoost
@@ -244,16 +244,16 @@ docker-compose up -d
 - **API**: FastAPI
 - **Statistical Analysis**: scipy, statsmodels
 
-## 📄 License
+##  License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+##  Acknowledgments
 
 - Statistics Canada for providing the Labour Force Survey data
 - Canadian Pay Equity Act for inspiring this work
 
-## 📧 Contact
+##  Contact
 
 Your Name - [your.email@example.com](mailto:guersondukensjrjoseph@gmail.com)
 
