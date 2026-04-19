@@ -40,19 +40,19 @@ Railway has a **4GB image size limit** on the free tier. Our optimized deploymen
 
 ### Size Optimization Features
 
-✅ **Excluded from Railway build:**
+ **Excluded from Railway build:**
 - Large CSV data files (2GB+)
 - Parquet cache files (300MB+) 
 - Model artifacts (when large)
 - Development artifacts
 
-✅ **Included sample data:**
+ **Included sample data:**
 - 10,000 synthetic records (~1MB)
 - Maintains data structure & relationships
 - Demonstrates full application functionality
 - Realistic wage gaps & demographics
 
-✅ **Smart data handling:**
+ **Smart data handling:**
 - Falls back to sample data when large files unavailable
 - Maintains all analysis capabilities
 - Railway-specific environment detection
