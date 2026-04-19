@@ -4,7 +4,7 @@ This guide covers multiple deployment options for the EquiPay Canada dashboard a
 
 ---
 
-## 🚀 Option 1: Docker (Recommended for Production)
+##  Option 1: Docker (Recommended for Production)
 
 Your project already includes Docker configuration. This is the most portable and reliable option.
 
@@ -56,7 +56,7 @@ az container create \
 
 ---
 
-## ☁️ Option 2: Streamlit Community Cloud (Free & Easy)
+##  Option 2: Streamlit Community Cloud (Free & Easy)
 
 **Best for:** Quick sharing, demos, small projects
 
@@ -109,7 +109,7 @@ az container create \
 
 ---
 
-## 🔵 Option 3: Azure App Service
+##  Option 3: Azure App Service
 
 **Best for:** Enterprise deployment, Azure ecosystem integration
 
@@ -171,7 +171,7 @@ az webapp config appsettings set \
 
 ---
 
-## 🟣 Option 4: Heroku
+## Option 4: Heroku
 
 **Best for:** Quick prototypes, simple deployment
 
@@ -216,7 +216,7 @@ EOF
 
 ---
 
-## 🟠 Option 5: AWS Elastic Beanstalk
+##  Option 5: AWS Elastic Beanstalk
 
 ```bash
 # Install EB CLI
@@ -247,7 +247,7 @@ option_settings:
 
 ---
 
-## 🔴 Option 6: Google Cloud Run (Serverless)
+##  Option 6: Google Cloud Run (Serverless)
 
 ```bash
 # Build container
@@ -265,7 +265,7 @@ gcloud run deploy equipay-dashboard \
 
 ---
 
-## 📦 Pre-Deployment Checklist
+##  Pre-Deployment Checklist
 
 ### 1. Data Preparation
 ```bash
@@ -313,7 +313,7 @@ gatherUsageStats = false
 
 ---
 
-## 🔒 Environment Variables
+##  Environment Variables
 
 Set these in your deployment platform:
 
@@ -327,7 +327,7 @@ Set these in your deployment platform:
 
 ---
 
-## 📊 Resource Requirements
+##  Resource Requirements
 
 ### Minimum (FAST mode):
 - **RAM:** 2GB
@@ -395,7 +395,7 @@ streamlit run app/dashboard.py --server.port 8502
 
 ---
 
-## 🚀 Quick Deployment Commands
+##  Quick Deployment Commands
 
 ### Deploy to Streamlit Cloud (Fastest)
 ```bash
@@ -420,7 +420,7 @@ git push heroku main
 
 ---
 
-## 📚 Additional Resources
+##  Additional Resources
 
 - [Streamlit Deployment Docs](https://docs.streamlit.io/streamlit-community-cloud/get-started)
 - [Docker Documentation](https://docs.docker.com/)
@@ -429,7 +429,7 @@ git push heroku main
 
 ---
 
-## 💡 Recommendations by Use Case
+##  Recommendations by Use Case
 
 | Use Case | Best Option | Why |
 |----------|-------------|-----|
@@ -441,7 +441,7 @@ git push heroku main
 
 ---
 
-## 🆘 Need Help?
+##  Need Help?
 
 - Check `logs/` directory for error messages
 - Review `config.yaml` for configuration issues
