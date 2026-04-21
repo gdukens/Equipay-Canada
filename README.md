@@ -107,7 +107,7 @@ equipay-canada/
 └── tests/                    # Unit tests
 ```
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### Installation
 
