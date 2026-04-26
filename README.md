@@ -255,6 +255,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ##  Contact
 
-Your Name - [your.email@example.com](mailto:guersondukensjrjoseph@gmail.com)
+Your Name - [guersondukensjrjoseph@gmail.com](mailto:guersondukensjrjoseph@gmail.com)
 
-Project Link: [https://github.com/yourusername/equipay-canada](https://github.com/yourusername/equipay-canada)
+Project Link: [https://github.com/gdukens/Equipay-Canada](https://github.com/gdukens/equipay-canada)
